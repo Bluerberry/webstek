@@ -1,0 +1,32 @@
+
+@use 'sass:map';
+
+$themes: (
+	light: (
+		foreground: #111003,
+		background: #fafaf0,
+		panel: #efefd0,
+		accent-1: #ff6b35,
+		muted-1: #f7c59f,
+		accent-2: #004e89,
+		muted-2: #1a659e,
+	)
+);
+
+@mixin themed() {
+	@each $theme, $map in $themes {
+		:global(.theme-#{$theme}) {
+			$theme-map: () !global;
+			@each $key, $submap in $map {
+				$value: map.get(map.get($themes, $theme), '#{$key}');
+				$theme-map: map.merge($theme-map, ($key: $value)) !global;
+			}
+			@content;
+			$theme-map: null !global;
+		}
+	}
+}
+
+@function pick($key) {
+	@return map.get($theme-map, $key);
+}

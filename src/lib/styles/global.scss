@@ -1,0 +1,42 @@
+
+@use './variables' as *;
+@use './fonts' as *;
+
+html, body {
+	height: 100%;
+	width: 100%;
+
+	font-family: "Noto Sans", sans-serif;
+	font-optical-sizing: auto;
+	font-style: normal;
+	font-weight: 400;
+	font-size: 16px;
+	font-variation-settings: "wdth" 100;
+}
+
+* {
+	box-sizing: border-box;
+
+	margin: 0;
+	padding: 0;
+	border: none;
+	outline: none;
+	background: none;
+	text-decoration: none;
+}
+
+h1 {
+	font-size: $xxl-font;
+}
+
+h2 {
+	font-size: $xl-font;
+}
+
+h3 {
+	font-size: $l-font;
+}
+
+p {
+	font-size: $m-font;
+}
