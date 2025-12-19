@@ -1,6 +1,6 @@
 
 import { eq } from 'drizzle-orm'
-import { db, users, verifications } from '$lib/server/db'
+import { db, users, verifications } from '$server/db'
 
 type TVerification = typeof verifications.$inferSelect
 type TVerificationWithUser = TVerification & { user: typeof users.$inferSelect }
@@ -12,15 +12,6 @@ export class Verification {
 			.returning()
 
 		return verification
-	}
-
-	static async getById(id: number, includeUser: true): Promise<undefined | TVerificationWithUser>
-	static async getById(id: number, includeUser?: false): Promise<undefined | TVerification>
-	static async getById(id: number, includeUser?: boolean) {
-		return await db.query.verifications.findFirst({
-			where: eq(verifications.id, id),
-			with: includeUser ? { user: true } : undefined
-		})
 	}
 
 	static async getByUserId(userId: number, includeUser: true): Promise<undefined | TVerificationWithUser>

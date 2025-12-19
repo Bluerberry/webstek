@@ -1,22 +1,21 @@
 
 import { redirect } from '@sveltejs/kit'
 import { zod4 } from 'sveltekit-superforms/adapters'
-import { verifySchema } from '$lib/schemas/authSchemas'
+import { verifySchema } from '$validation/authSchemas'
 import { message, superValidate } from 'sveltekit-superforms'
-import { EMAIL_VERIFICATION_TIMEOUT_MS, validateToken } from '$lib/server/scripts/auth'
-import { Verification, Flow } from '$lib/server/services'
+import { EMAIL_VERIFICATION_TIMEOUT_MS, validateToken } from '$server/scripts/auth'
+import { Verification } from '$server/services'
 import { requestVerification } from './verify.remote'
 
 import type { PageServerLoad, Actions } from './$types'
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals }) => {
 
 	// Validate userstate
-	if (locals.user === undefined || locals.user.verified) {
-		const status = locals.user === undefined ? 401 : 403
-		if (locals.flow === undefined) redirect(status, '/')
-		await Flow.delete(locals.flow.id)
-		redirect(status, locals.flow.redirect)
+	if (locals.user === undefined) {
+		redirect(401, '/')
+	} if (locals.user.verified) {
+		redirect(403, '/')
 	}
 
 	// Request verification
@@ -28,7 +27,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 }
 
 export const actions: Actions = {
-	default: async ({ request, locals, url }) => {
+	default: async ({ request, locals }) => {
 		const now = new Date()
 		
 		// Validate form
@@ -39,7 +38,7 @@ export const actions: Actions = {
 		if (locals.user === undefined) {
 			return message(form, 'Must be logged in to verify', { status: 401 })
 		} if (locals.user.verified) {
-			return message(form, 'Must be unverified to verify', { status: 403 })
+			return message(form, 'Already verified', { status: 403 })
 		}
 
 		// Get verification
@@ -64,8 +63,6 @@ export const actions: Actions = {
 		)
 		
 		// Redirect appropriately
-		if (locals.flow === undefined) redirect(303, '/')
-		await Flow.delete(locals.flow.id)
-		redirect(303, locals.flow.redirect)
+		redirect(303, '/')
 	}
 }

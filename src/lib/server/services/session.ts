@@ -1,6 +1,6 @@
 
 import { eq } from 'drizzle-orm'
-import { db, users, sessions } from '$lib/server/db'
+import { db, users, sessions } from '$server/db'
 
 type TSession = typeof sessions.$inferSelect
 type TSessionWithUser = TSession & { user: typeof users.$inferSelect }

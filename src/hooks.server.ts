@@ -1,5 +1,5 @@
 
-import { sequence } from '@sveltejs/kit/hooks';
-import { flow, auth } from '$lib/server/hooks';
+import { sequence } from '@sveltejs/kit/hooks'
+import { auth } from '$server/hooks'
 
-export const handle = sequence(flow, auth);
+export const handle = sequence(auth)

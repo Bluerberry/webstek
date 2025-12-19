@@ -1,20 +1,18 @@
 
 import { redirect } from '@sveltejs/kit'
 import { zod4 } from 'sveltekit-superforms/adapters'
-import { registerSchema } from '$lib/schemas/authSchemas'
+import { registerSchema } from '$validation/authSchemas'
 import { superValidate, message } from 'sveltekit-superforms'
-import { generateToken, hashPassword, hashToken } from '$lib/server/scripts/auth'
-import { User, Session, Flow } from '$lib/server/services'
+import { generateToken, hashPassword, hashToken } from '$server/scripts/auth'
+import { User, Session } from '$server/services'
 
 import type { PageServerLoad, Actions } from './$types'
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals }) => {
 
 	// Validate userstate
 	if (locals.user !== undefined) {
-		if (locals.flow === undefined) redirect(403, '/')
-		await Flow.delete(locals.flow.id)
-		redirect(403, locals.flow.redirect)
+		redirect(403, '/')
 	}
 
 	return {
@@ -25,19 +23,27 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 export const actions: Actions = {
 	default: async ({ request, locals, cookies }) => {
 
+		console.log('a')
+
 		// Validate form
 		const form = await superValidate(request, zod4(registerSchema))
 		if (!form.valid) return message(form, 'Invalid form data', { status: 400 })
+
+		console.log('b')
 
 		// Validate userstate
 		if (locals.user !== undefined) {
 			return message(form, 'Already logged in', { status: 403 })
 		}
 
+		console.log('c')
+
 		// Check for duplicate emails
 		if (await User.getByEmail(form.data.email)) {
 			return message(form, 'Email already exists', { status: 400 })
 		}
+
+		console.log('d')
 
 		// Register	
 		const user = await User.create(
@@ -64,7 +70,6 @@ export const actions: Actions = {
 		})
 
 		// Redirect to verification
-		const flow = await Flow.create('/dashboard')
-		redirect(303, `/auth/verify?flow=${flow.id}`)
+		redirect(303, '/')
 	}
 }

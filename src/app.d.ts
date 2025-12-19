@@ -1,16 +1,10 @@
+
+import type { SanitizedUser } from '$lib/types';
+
 declare global {
 	namespace App {
 		interface Locals {
-			flow?: {
-				id: number,
-				redirect: string
-			},
-			user?: {
-				id: number,
-				email: string,
-				verified: boolean,
-				username: string
-			}
+			user?: SanitizedUser
 		}
 	}
 }

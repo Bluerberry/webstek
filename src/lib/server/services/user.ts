@@ -1,6 +1,6 @@
 
 import { eq } from 'drizzle-orm'
-import { db, users } from '$lib/server/db'
+import { db, users } from '$server/db'
 
 export class User {
 	static async create(email: string, username: string, password: string) {

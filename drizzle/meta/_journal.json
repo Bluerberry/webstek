@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1764109175114,
-      "tag": "0000_narrow_rawhide_kid",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1764109977298,
-      "tag": "0001_curious_pete_wisdom",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1764112190946,
-      "tag": "0002_motionless_black_queen",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1764112482946,
-      "tag": "0003_chief_hannibal_king",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1764115014359,
-      "tag": "0004_complete_toro",
+      "when": 1765136028884,
+      "tag": "0000_funny_vengeance",
       "breakpoints": true
     }
   ]

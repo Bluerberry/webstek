@@ -1,11 +1,11 @@
 
-import { Session } from '$lib/server/services'
+import { Session } from '$server/services'
 
 import {
 	validateToken,
 	SESSION_INACTIVITY_TIMEOUT_MS,
 	SESSION_VALIDATION_INTERVAL_MS
-} from '$lib/server/scripts/auth'
+} from '$server/scripts/auth'
 
 import type { Handle } from '@sveltejs/kit'
 

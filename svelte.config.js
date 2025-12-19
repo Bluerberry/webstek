@@ -7,8 +7,15 @@ const config = {
 
 	kit: {
 		adapter: adapter(),
-		experimental: {
-			remoteFunctions: true
+		experimental: { remoteFunctions: true },
+		alias: {
+			$assets: 'src/lib/assets',
+			$components: 'src/lib/components',
+			$server: 'src/lib/server',
+			$stores: 'src/lib/stores',
+			$styles: 'src/lib/styles',
+			$validation: 'src/lib/validation',
+			$scripts: 'src/lib/scripts'
 		}
 	},
 	

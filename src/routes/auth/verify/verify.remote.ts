@@ -1,13 +1,13 @@
 
 import z from 'zod'
 import { command } from '$app/server'
-import { Verification } from '$lib/server/services'
+import { Verification } from '$server/services'
 
 import { 
 	generateCode,
 	EMAIL_VERIFICATION_TIMEOUT_MS,
 	hashToken
-} from '$lib/server/scripts/auth'
+} from '$server/scripts/auth'
 
 export const requestVerification = command(z.number(), async (userId: number) => {
 	const now = new Date()

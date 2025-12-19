@@ -1,0 +1,27 @@
+
+@use 'sass:map';
+
+$themes: (
+	light: (
+		foreground: #141204,
+		background: #F7F9F7,
+		muted: #888881,
+		error: #D63230
+	),
+	dark: (
+		foreground: #F7F9F7,
+		background: #141204,
+		muted: #888881,
+		error: #D63230
+	)
+);
+
+@mixin themed() {
+	@each $theme, $map in $themes {
+		:global(.theme-#{$theme}) {
+			@each $key, $value in $map {
+				--#{$key}: #{$value};
+			}
+		}
+	}
+}

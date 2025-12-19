@@ -1,20 +1,18 @@
 
 import { redirect } from '@sveltejs/kit'
 import { zod4 } from 'sveltekit-superforms/adapters'
-import { loginSchema } from '$lib/schemas/authSchemas'
+import { loginSchema } from '$validation/authSchemas'
 import { superValidate, message } from 'sveltekit-superforms'
-import { generateToken, hashPassword, hashToken, validatePassword } from '$lib/server/scripts/auth'
-import { User, Session, Flow } from '$lib/server/services'
+import { generateToken, hashToken, validatePassword } from '$server/scripts/auth'
+import { User, Session } from '$server/services'
 
 import type { PageServerLoad, Actions } from './$types'
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals }) => {
 
 	// Validate userstate
 	if (locals.user !== undefined) {
-		if (locals.flow === undefined) redirect(403, '/')
-		await Flow.delete(locals.flow.id)
-		redirect(403, locals.flow.redirect)
+		redirect(403, '/')
 	}
 
 	return {
@@ -23,7 +21,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 }
 
 export const actions: Actions = {
-	default: async ({ request, locals, cookies, url }) => {
+	default: async ({ request, locals, cookies }) => {
 
 		// Validate form
 		const form = await superValidate(request, zod4(loginSchema))
@@ -36,7 +34,9 @@ export const actions: Actions = {
 
 		// Get user
 		const user = await User.getByEmail(form.data.email)
-		if (user === undefined) return message(form, 'Invalid credentials', { status: 401 })
+		if (user === undefined) {
+			return message(form, 'Invalid credentials', { status: 401 })
+		}
 
 		// Validate password
 		if (!await validatePassword(form.data.password, user.password)) {
@@ -60,9 +60,7 @@ export const actions: Actions = {
 			secure: true
 		})
 
-		// Redirect appropriately
-		if (locals.flow === undefined) redirect(303, '/')
-		await Flow.delete(locals.flow.id)
-		redirect(303, locals.flow.redirect)
+		// Redirect
+		redirect(303, '/')
 	}
 }
