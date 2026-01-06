@@ -12,6 +12,7 @@
 	form={data.registerForm}
 	schema={registerSchema}
 	action="/auth/register"
+	style="grid"
 >
 	{#snippet header()}
 		<h1> Register </h1>

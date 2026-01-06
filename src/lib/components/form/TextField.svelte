@@ -11,14 +11,14 @@
 	import type { SuperForm, FormPathLeaves } from 'sveltekit-superforms'
 
 	type Props = {
-		label?: string
 		field: FormPathLeaves<T>
+		label?: string
 		type?: 'text' | 'password'
 	}
 
 	let {
-		label,
 		field,
+		label,
 		type = 'text'
 	}: Props = $props()
 
@@ -90,15 +90,21 @@
 		}
 
 		button {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+
 			position: absolute;
 			translate: 0 -50%;
 			top: 50%;
 			right: $thick-field-padding;	
 
-			width: $icon-size;
-			height: $icon-size;
-
 			cursor: pointer;
+
+			:global(.lucide) {
+				width: $icon-size;
+				height: $icon-size;
+			}
 		}
 
 		span {
@@ -107,7 +113,7 @@
 			left: 0;
 
 			font-size: $s-font;
-			color: var(--error);
+			color: var(--failure);
 		}
 	}
 

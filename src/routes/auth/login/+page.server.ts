@@ -3,16 +3,18 @@ import { redirect } from '@sveltejs/kit'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { loginSchema } from '$validation/authSchemas'
 import { superValidate, message } from 'sveltekit-superforms'
-import { generateToken, hashToken, validatePassword } from '$server/scripts/auth'
+import { generateToken, hashToken, SESSION_INACTIVITY_TIMEOUT_MS, validatePassword } from '$server/scripts/auth'
 import { User, Session } from '$server/services'
+import { UAParser } from 'ua-parser-js'
 
 import type { PageServerLoad, Actions } from './$types'
+import { env } from '$env/dynamic/private'
 
 export const load: PageServerLoad = async ({ locals }) => {
 
 	// Validate userstate
 	if (locals.user !== undefined) {
-		redirect(403, '/')
+		redirect(303, '/')
 	}
 
 	return {
@@ -21,7 +23,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 }
 
 export const actions: Actions = {
-	default: async ({ request, locals, cookies }) => {
+	default: async ({ request, locals, cookies, fetch, getClientAddress }) => {
 
 		// Validate form
 		const form = await superValidate(request, zod4(loginSchema))
@@ -43,6 +45,15 @@ export const actions: Actions = {
 			return message(form, 'Invalid credentials', { status: 401 })
 		}
 
+		// Session metadata
+		const ip = request.headers.get('x-forwarded-for') || getClientAddress()
+		const response = await fetch(`https://api.ipinfo.io/lite/${ip}?token=${env.IPINFO_TOKEN}`)
+		const ipInfo = await response.json()
+
+		const rawUserAgent = request.headers.get('user-agent') ?? '';
+		const parser = new UAParser(rawUserAgent);
+		const userAgent = parser.getResult();
+
 		// Login
 		const sessionId = generateToken()
 		const sessionToken = generateToken()
@@ -50,14 +61,18 @@ export const actions: Actions = {
 		await Session.create(
 			sessionId, 
 			await hashToken(sessionToken),
-			user.id
+			user.id,
+			ipInfo.country,
+			userAgent.browser.name,
+			userAgent.browser.version
 		)
 
 		cookies.set('webstek_session', `${sessionId}:${sessionToken}`, {
 			path: '/',
 			httpOnly: true,
 			sameSite: 'lax',
-			secure: true
+			secure: true,
+			maxAge: SESSION_INACTIVITY_TIMEOUT_MS / 1000
 		})
 
 		// Redirect

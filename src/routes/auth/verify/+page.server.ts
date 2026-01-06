@@ -13,9 +13,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	// Validate userstate
 	if (locals.user === undefined) {
-		redirect(401, '/')
+		redirect(303, '/')
 	} if (locals.user.verified) {
-		redirect(403, '/')
+		redirect(303, '/')
 	}
 
 	// Request verification

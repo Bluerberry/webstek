@@ -2,6 +2,7 @@
 import z from 'zod'
 import { command } from '$app/server'
 import { Verification } from '$server/services'
+import { sendEmail } from '$server/scripts/email'
 
 import { 
 	generateCode,
@@ -28,5 +29,5 @@ export const requestVerification = command(z.number(), async (userId: number) =>
 	const verificationCode = generateCode()
 	await Verification.create(userId, await hashToken(verificationCode))
 
-	// TODO send email
+	// TODO Send Email
 })

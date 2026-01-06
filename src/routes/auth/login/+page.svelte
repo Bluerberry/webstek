@@ -12,6 +12,7 @@
 	form={data.loginForm}
 	schema={loginSchema}
 	action="/auth/login"
+	style="grid"
 >
 	{#snippet header()}
 		<h1> Login </h1>

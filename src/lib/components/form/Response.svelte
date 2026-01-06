@@ -26,7 +26,7 @@
 	@include themed();
 
 	.error {
-		color: var(--error);
+		color: var(--failure);
 	}
 
 </style>

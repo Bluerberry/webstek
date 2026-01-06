@@ -1,0 +1,1 @@
+ALTER TABLE "recipes" RENAME COLUMN "created_at" TO "updated_at";

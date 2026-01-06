@@ -1,6 +1,6 @@
 
 import { eq } from 'drizzle-orm'
-import { db, users, verifications } from '$server/db'
+import { db, users, verifications } from '$server/database'
 
 type TVerification = typeof verifications.$inferSelect
 type TVerificationWithUser = TVerification & { user: typeof users.$inferSelect }

@@ -5,28 +5,47 @@
 	import { zod4 } from 'sveltekit-superforms/adapters'
 
 	import type { Snippet } from 'svelte'
-	import type { SuperValidated } from 'sveltekit-superforms'
+	import type { SuperValidated, SuperFormEvents } from 'sveltekit-superforms'
+
+	type Events = SuperFormEvents<T, SuperValidated<T>['message']>;
 
 	type Props = {
 		form: SuperValidated<T>
 		schema: any
 		action?: string
+		style?: 'grid'
 		header?: Snippet
 		footer?: Snippet
 		children: Snippet
+		onError?: Events['onError']
+		onResult?: Events['onResult']
+		onSubmit?: Events['onSubmit']
+		onUpdate?: Events['onUpdate']
+		onUpdated?: Events['onUpdated']
 	}
 
 	let {
 		form,
 		schema,
 		action,
+		style,
 		header,
 		footer,
 		children,
+		onError,
+		onResult,
+		onSubmit,
+		onUpdate,
+		onUpdated
 	}: Props = $props()
 
 	const superform = superForm(form, {
-		validators: zod4(schema)
+		validators: zod4(schema),
+		onError,
+		onResult,
+		onSubmit,
+		onUpdate,
+		onUpdated
 	})
 
 	setContext('superform', superform)
@@ -37,6 +56,7 @@
 	{action}
 	method="POST"
 	enctype="multipart/form-data"
+	class={style}
 	use:superform.enhance
 >
 	{#if header}
@@ -59,19 +79,25 @@
 	@use '$styles/variables' as *;
 
 	form {
-		display: grid;
-		grid-template: "left right" auto / max-content auto;
-		align-items: center;
-		gap: 1rem;
-
 		width: 100%;
-		max-width: 30rem;
+
+		&.grid {
+			display: grid;
+			grid-template: "left right" auto / max-content auto;
+			align-items: center;
+			gap: 1rem;
+			
+			max-width: 30rem;
+
+			.row {
+				grid-column: right;
+			}
+		}
 
 		.row {
 			display: flex;
 			flex-flow: row nowrap;
 			align-items: center;
-			grid-column: right;
 			gap: 1rem;
 			
 			&:first-child {
@@ -79,7 +105,7 @@
 			}
 
 			&:last-child {
-				margin-top: 0.5rem;
+				margin-top: 0.25rem;
 			}
 		}
 	}

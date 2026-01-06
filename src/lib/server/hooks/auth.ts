@@ -1,5 +1,5 @@
 
-import { Session } from '$server/services'
+import { User, Session } from '$server/services'
 
 import {
 	validateToken,
@@ -16,6 +16,7 @@ export const auth: Handle = async ({ event, resolve }) => {
 	const sessionCookie = event.cookies.get('webstek_session')
 	if (sessionCookie === undefined) {
 		event.locals.user = undefined
+		event.locals.session = undefined
 		return await resolve(event)
 	}
 
@@ -25,6 +26,7 @@ export const auth: Handle = async ({ event, resolve }) => {
 	if (session === undefined) {
 		event.cookies.delete('webstek_session', { path: '/' })
 		event.locals.user = undefined
+		event.locals.session = undefined
 		return await resolve(event)
 	}
 
@@ -32,6 +34,7 @@ export const auth: Handle = async ({ event, resolve }) => {
 	if (now.getTime() - session.lastValidatedAt.getTime() >= SESSION_INACTIVITY_TIMEOUT_MS) {
 		event.cookies.delete('webstek_session', { path: '/' })
 		event.locals.user = undefined
+		event.locals.session = undefined
 		await Session.delete(sessionId)
 		return await resolve(event)
 	}
@@ -40,6 +43,7 @@ export const auth: Handle = async ({ event, resolve }) => {
 	if (!await validateToken(sessionToken, session.token)) {
 		event.cookies.delete('webstek_session', { path: '/' })
 		event.locals.user = undefined
+		event.locals.session = undefined
 		return await resolve(event)
 	}
 
@@ -48,12 +52,7 @@ export const auth: Handle = async ({ event, resolve }) => {
 		await Session.updateLastValidated(session.id, now)
 	}
 
-	event.locals.user = {
-		id: session.user.id,
-		email: session.user.email,
-		verified: session.user.verified,
-		username: session.user.username
-	}
-
+	event.locals.user = User.sanitize(session.user);
+	event.locals.session = Session.sanitize(session);
 	return await resolve(event)
 }

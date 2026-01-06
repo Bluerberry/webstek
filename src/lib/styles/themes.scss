@@ -5,14 +5,16 @@ $themes: (
 	light: (
 		foreground: #141204,
 		background: #F7F9F7,
-		muted: #888881,
-		error: #D63230
+		muted: #86867E,
+		failure: #D63230,
+		success: #0B6E4F
 	),
 	dark: (
 		foreground: #F7F9F7,
 		background: #141204,
-		muted: #888881,
-		error: #D63230
+		muted: #86867E,
+		failure: #D63230,
+		success: #0B6E4F
 	)
 );
 

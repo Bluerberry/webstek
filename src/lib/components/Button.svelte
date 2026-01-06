@@ -6,7 +6,7 @@
 
 	type Props = {
 		type?: 'button' | 'submit'
-		style?: 'default' | 'outline' | 'icon'
+		style?: 'default' | 'outline' | 'link'
 		disabled?: boolean
 		loading?: boolean
 		href?: string
@@ -32,6 +32,7 @@
 		{onclick}
 		class="button {style}"
 		class:disabled={ disabled || loading }
+		aria-disabled={ disabled || loading }
 	>
 		<div class="children" class:hide={ loading }>
 			{@render children()}
@@ -47,6 +48,7 @@
 		{onclick}
 		class="button {style}"
 		class:disabled={ disabled || loading }
+		aria-disabled={ disabled || loading }
 	>
 		<div class="children" class:hide={ loading }>
 			{@render children()}
@@ -72,32 +74,53 @@
 		border: 2px solid var(--foreground);
 		border-radius: $border-radius;
 
-		font-size: $l-font;
-		text-wrap: nowrap;
 		cursor: pointer;
+		text-wrap: nowrap;
+		font-size: $l-font;
+
+		// Overwritten when not disabled
+		pointer-events: none;
+		opacity: 50%;
 
 		&.default {
 			color: var(--background);
 			background: var(--foreground);
+
+			.spinner {
+				border: 2px solid var(--background);
+				border-top-color: transparent;
+			}
 		}
 		
 		&.outline {
 			color: var(--foreground);
 			background: var(--background);
+
+			.spinner {
+				border: 2px solid var(--foreground);
+				border-top-color: transparent;
+			}
 		}
 
-		&.icon {
-			color: var(--muted);
-			background: var(--background);
-			border-color: var(--background);
-			transition: color ease-out 100ms;
+		&.link {
+			padding: 0;
+			border: none;
+
+			font-size: $m-font;
+			color: var(--foreground);
+
+			.spinner {
+				border: 2px solid var(--foreground);
+				border-top-color: transparent;
+			}
 		}
 
-		&:hover, &:focus-visible {
-			text-decoration: underline;
+		&:not(.disabled) {
+			pointer-events: all;
+			opacity: 100%;
 
-			&.icon {
-				color: var(--foreground);
+			&:hover, &:focus-visible {
+				text-decoration: underline;
 			}
 		}
 
@@ -118,6 +141,10 @@
 			border-radius: 50%;
 
 			animation: spin 1s linear infinite;
+		}
+
+		.hide {
+			visibility: hidden;
 		}
 	}
 

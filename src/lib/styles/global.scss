@@ -1,10 +1,11 @@
 
 @use '$styles/variables' as *;
+@use '$styles/fonts' as *;
 
 html, body {
 	height: 100%;
 	width: 100%;
-	font-size: 16px;
+	font-size: 14px;
 }
 
 * {
@@ -17,7 +18,8 @@ html, body {
 
 	background: none;
 	text-decoration: none;
-	font-family: 'Times New Roman', Times, serif;
+	font-family: 'Newsreader', serif;
+	font-weight: 450;
 
 }
 

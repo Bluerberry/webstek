@@ -3,8 +3,10 @@ import { redirect } from '@sveltejs/kit'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { registerSchema } from '$validation/authSchemas'
 import { superValidate, message } from 'sveltekit-superforms'
-import { generateToken, hashPassword, hashToken } from '$server/scripts/auth'
+import { generateToken, hashPassword, hashToken, SESSION_INACTIVITY_TIMEOUT_MS } from '$server/scripts/auth'
 import { User, Session } from '$server/services'
+import { UAParser } from 'ua-parser-js'
+import { env } from '$env/dynamic/private'
 
 import type { PageServerLoad, Actions } from './$types'
 
@@ -12,7 +14,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	// Validate userstate
 	if (locals.user !== undefined) {
-		redirect(403, '/')
+		redirect(303, '/')
 	}
 
 	return {
@@ -21,29 +23,21 @@ export const load: PageServerLoad = async ({ locals }) => {
 }
 
 export const actions: Actions = {
-	default: async ({ request, locals, cookies }) => {
-
-		console.log('a')
+	default: async ({ request, locals, cookies, getClientAddress, fetch }) => {
 
 		// Validate form
 		const form = await superValidate(request, zod4(registerSchema))
 		if (!form.valid) return message(form, 'Invalid form data', { status: 400 })
-
-		console.log('b')
 
 		// Validate userstate
 		if (locals.user !== undefined) {
 			return message(form, 'Already logged in', { status: 403 })
 		}
 
-		console.log('c')
-
 		// Check for duplicate emails
 		if (await User.getByEmail(form.data.email)) {
 			return message(form, 'Email already exists', { status: 400 })
 		}
-
-		console.log('d')
 
 		// Register	
 		const user = await User.create(
@@ -52,6 +46,15 @@ export const actions: Actions = {
 			await hashPassword(form.data.password)
 		)
 
+		// Session metadata
+		const ip = request.headers.get('x-forwarded-for') || getClientAddress()
+		const response = await fetch(`https://api.ipinfo.io/lite/${ip}?token=${env.IPINFO_TOKEN}`)
+		const ipInfo = await response.json()
+
+		const rawUserAgent = request.headers.get('user-agent') ?? '';
+		const parser = new UAParser(rawUserAgent);
+		const userAgent = parser.getResult();		
+
 		// Login
 		const sessionId = generateToken()
 		const sessionToken = generateToken()
@@ -59,14 +62,18 @@ export const actions: Actions = {
 		await Session.create(
 			sessionId, 
 			await hashToken(sessionToken),
-			user.id
+			user.id,
+			ipInfo.country,
+			userAgent.browser.name,
+			userAgent.browser.version
 		)
 
 		cookies.set('webstek_session', `${sessionId}:${sessionToken}`, {
 			path: '/',
 			httpOnly: true,
 			sameSite: 'lax',
-			secure: true
+			secure: true,
+			maxAge: SESSION_INACTIVITY_TIMEOUT_MS / 1000
 		})
 
 		// Redirect to verification

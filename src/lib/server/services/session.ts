@@ -1,14 +1,15 @@
 
 import { eq } from 'drizzle-orm'
-import { db, users, sessions } from '$server/db'
+import { db, users, sessions } from '$server/database'
+import type { SanitizedSession } from '$lib/types'
 
 type TSession = typeof sessions.$inferSelect
 type TSessionWithUser = TSession & { user: typeof users.$inferSelect }
 
 export class Session {
-	static async create(id: string, token: string, userId: number) {
+	static async create(id: string, token: string, userId: number, country: string, browserName?: string, browserVersion?: string) {
 		const [ session ] = await db.insert(sessions)
-			.values({ id, token, userId })
+			.values({ id, token, userId, country, browserName, browserVersion })
 			.returning()
 
 		return session
@@ -20,6 +21,12 @@ export class Session {
 		return await db.query.sessions.findFirst({
 			where: eq(sessions.id, id),
 			with: includeUser ? { user: true } : undefined
+		})
+	}
+
+	static async getByUserId(userId: number) {
+		return await db.query.sessions.findMany({
+			where: eq(sessions.userId, userId)
 		})
 	}
 
@@ -35,5 +42,16 @@ export class Session {
 			.returning()
 
 		return session
+	}
+
+	static sanitize(session: TSession): SanitizedSession {
+		return {
+			id: session.id,
+			country: session.country ?? undefined,
+			browserName: session.browserName ?? undefined,
+			browserVersion: session.browserVersion ?? undefined,
+			lastVerifiedAt: session.lastValidatedAt,
+			createdAt: session.createdAt
+		}
 	}
 }

@@ -1,10 +1,11 @@
 
-import type { SanitizedUser } from '$lib/types';
+import type { SanitizedUser, SanitizedSession } from '$lib/types';
 
 declare global {
 	namespace App {
 		interface Locals {
-			user?: SanitizedUser
+			user?: SanitizedUser,
+			session?: SanitizedSession
 		}
 	}
 }
