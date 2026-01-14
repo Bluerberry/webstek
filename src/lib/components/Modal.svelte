@@ -42,7 +42,6 @@
 
 	@use '$styles/variables' as *;
 	@use '$styles/themes' as *;
-	@include themed();
 
 	.modal {
 		position: fixed;
@@ -50,7 +49,7 @@
 		top: 50%;
 		left: 50%;
 
-		padding: 2rem;
+		padding: 3rem;
 		border-radius: $border-radius;
 		background-color: var(--background);
 
@@ -61,14 +60,17 @@
 
 		button {
 			position: absolute;
-			top: 0.5rem;
-			right: 0.5rem;
+			top: 0.9rem;
+			right: 0.9rem;
+			width: 1.2rem;
+			height: 1.2rem;
 			cursor: pointer;
 
 			:global(.lucide) {
-				width: 1rem;
-				height: 1rem;
+				width: 100%;
+				height: 100%;
 				pointer-events: none;
+				color: var(--foreground);
 			}
 		}
 	}

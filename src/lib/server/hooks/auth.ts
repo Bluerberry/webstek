@@ -49,7 +49,8 @@ export const auth: Handle = async ({ event, resolve }) => {
 
 	// Success! Update lastValidatedAt
 	if (now.getTime() - session.lastValidatedAt.getTime() >= SESSION_VALIDATION_INTERVAL_MS) {
-		await Session.updateLastValidated(session.id, now)
+		session.lastValidatedAt = now
+		await Session.update(session)
 	}
 
 	event.locals.user = User.sanitize(session.user);

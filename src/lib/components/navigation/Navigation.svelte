@@ -100,7 +100,6 @@
 
 	@use '$styles/variables' as *;
 	@use '$styles/themes' as *;
-	@include themed();
 	
 	.navigation {
 		display: flex;

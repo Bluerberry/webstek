@@ -1,7 +1,7 @@
 
 type Theme = 'light' | 'dark'
 const theme = $state({
-	value: 'light',
+	value: 'light' as Theme,
 	invert: () => theme.value === 'light' ? 'dark' : 'light'
 })
 

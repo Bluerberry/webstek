@@ -46,13 +46,18 @@ export const actions: Actions = {
 		}
 
 		// Session metadata
-		const ip = request.headers.get('x-forwarded-for') || getClientAddress()
-		const response = await fetch(`https://api.ipinfo.io/lite/${ip}?token=${env.IPINFO_TOKEN}`)
-		const ipInfo = await response.json()
+		let ipInfo: any = undefined
+		let userAgent: UAParser.IResult | undefined = undefined
 
-		const rawUserAgent = request.headers.get('user-agent') ?? '';
-		const parser = new UAParser(rawUserAgent);
-		const userAgent = parser.getResult();
+		if (user.collectMetadata) {
+			const ip = request.headers.get('x-forwarded-for') || getClientAddress()
+			const response = await fetch(`https://api.ipinfo.io/lite/${ip}?token=${env.IPINFO_TOKEN}`)
+			ipInfo = await response.json()
+
+			const rawUserAgent = request.headers.get('user-agent') ?? '';
+			const parser = new UAParser(rawUserAgent);
+			userAgent = parser.getResult();
+		}
 
 		// Login
 		const sessionId = generateToken()
@@ -62,9 +67,9 @@ export const actions: Actions = {
 			sessionId, 
 			await hashToken(sessionToken),
 			user.id,
-			ipInfo.country,
-			userAgent.browser.name,
-			userAgent.browser.version
+			ipInfo?.country,
+			userAgent?.browser.name,
+			userAgent?.browser.version
 		)
 
 		cookies.set('webstek_session', `${sessionId}:${sessionToken}`, {

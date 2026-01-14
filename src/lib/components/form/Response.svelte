@@ -23,7 +23,6 @@
 <style lang="scss">
 
 	@use '$styles/themes' as *;
-	@include themed();
 
 	.error {
 		color: var(--failure);

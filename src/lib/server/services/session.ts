@@ -30,10 +30,10 @@ export class Session {
 		})
 	}
 
-	static async updateLastValidated(id: string, now: Date) {
+	static async update(data: Partial<TSession> & { id: string }) {
 		await db.update(sessions)
-			.set({ lastValidatedAt: now })
-			.where(eq(sessions.id, id))
+			.set(data)
+			.where(eq(sessions.id, data.id))
 	}
 
 	static async delete(id: string) {

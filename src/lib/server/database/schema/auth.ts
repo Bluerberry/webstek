@@ -1,7 +1,7 @@
 
 import { relations } from 'drizzle-orm'
 import { pgTable, serial, varchar, integer, timestamp, boolean } from 'drizzle-orm/pg-core'
-import { recipes, recipeFavorites, recipeNotes } from '../schema'
+import { recipes, recipeFavorites, recipeNotes } from '$server/database/schema'
 
 export const users = pgTable('users', {
     id: serial('id')
@@ -16,6 +16,9 @@ export const users = pgTable('users', {
         .notNull(),
     password: varchar('password', { length: 255 })
         .notNull(),
+    collectMetadata: boolean('collect_metadata')
+        .notNull()
+        .default(true),
     createdAt: timestamp('created_at')
         .notNull()
         .defaultNow()

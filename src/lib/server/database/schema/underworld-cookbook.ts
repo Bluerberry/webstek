@@ -1,7 +1,7 @@
 
 import { sql, relations } from 'drizzle-orm'
 import { pgTable, primaryKey, serial, varchar, integer, timestamp, boolean, text, pgEnum, check, unique } from 'drizzle-orm/pg-core'
-import { users } from '../schema'
+import { users } from '$server/database/schema'
 
 export const standardUnitEnum = pgEnum('standard_unit', ['kg', 'g', 'L', 'mL', 'cup', 'tbsp', 'tsp', 'fl oz', 'pint', 'quart', 'gallon'])
 
@@ -88,32 +88,7 @@ export const recipeIngredients = pgTable('recipe_ingredients', {
 })
 
 export const recipeIngredientRelations = relations(recipeIngredients, ({ many }) => ({
-	ingredientsToRecipes: many(ingredientsToRecipes),
-	informalUnits: many(ingredientInformalUnits)
-}))
-
-export const ingredientInformalUnits = pgTable('ingredient_informal_units', {
-		id: serial('id')
-			.primaryKey(),
-		ingredientId: integer('ingredient_id')
-			.notNull()
-			.references(() => recipeIngredients.id, { onDelete: 'cascade' }),
-		name: varchar('name', { length: 255 })
-			.notNull(),
-	},
-	table => [
-		unique('informal_unit_name_unique_per_ingredient').on(
-	 		table.ingredientId,
-	  		table.name
-		)
-	]
-)
-
-export const ingredientInformalUnitRelations = relations(ingredientInformalUnits, ({ one }) => ({
-	ingredient: one(recipeIngredients, {
-		fields: [ingredientInformalUnits.ingredientId],
-		references: [recipeIngredients.id]
-	})
+	ingredientsToRecipes: many(ingredientsToRecipes)
 }))
 
 export const ingredientsToRecipes = pgTable('ingredients_to_recipes', {
@@ -126,8 +101,7 @@ export const ingredientsToRecipes = pgTable('ingredients_to_recipes', {
 		amount: integer('amount')
 			.notNull(),
 		standardUnit: standardUnitEnum('standard_unit'),
-		informalUnitId: integer('informal_unit_id')
-			.references(() => ingredientInformalUnits.id, { onDelete: 'cascade'})
+		informalUnit: varchar('informal_unit', { length: 255 })
 	},
 	table => [
 		primaryKey({ columns: [table.recipeId, table.ingredientId] })
@@ -142,10 +116,6 @@ export const ingredientToRecipeRelations = relations(ingredientsToRecipes, ({ on
 	ingredient: one(recipeIngredients, {
 		fields: [ingredientsToRecipes.ingredientId],
 		references: [recipeIngredients.id]
-	}),
-	informalUnit: one(ingredientInformalUnits, {
-		fields: [ingredientsToRecipes.informalUnitId],
-		references: [ingredientInformalUnits.id]
 	})
 }))
 

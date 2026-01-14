@@ -3,8 +3,8 @@ import { redirect } from '@sveltejs/kit'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { message, superValidate } from 'sveltekit-superforms'
 import { changeUsernameSchema, changeEmailSchema, changePasswordSchema } from '$validation/authSchemas'
-import { User } from '$server/services'
 import { hashPassword, validatePassword } from '$server/scripts/auth'
+import { User } from '$server/services'
 
 import type { PageServerLoad, Actions } from './$types'
 
@@ -33,7 +33,7 @@ export const actions: Actions = {
 
 		// Validate userstate
 		if (locals.user === undefined) {
-			return message(form, 'You are not logged in', { status: 403 })
+			return message(form, 'You are not logged in', { status: 401 })
 		}
 
 		// Update username
@@ -49,7 +49,7 @@ export const actions: Actions = {
 
 		// Validate userstate
 		if (locals.user === undefined) {
-			return message(form, 'You are not logged in', { status: 403 })
+			return message(form, 'You are not logged in', { status: 401 })
 		}
 
 		// Get user
@@ -67,6 +67,9 @@ export const actions: Actions = {
 		locals.user.email = form.data.email
 		locals.user.verified = false
 		await User.update(locals.user)
+
+		// Redirect to verification
+		redirect(303, '/auth/verify')
 	},
 
 	'change-password': async ({ request, locals }) => {
@@ -77,7 +80,7 @@ export const actions: Actions = {
 
 		// Validate userstate
 		if (locals.user === undefined) {
-			return message(form, 'You are not logged in', { status: 403 })
+			return message(form, 'You are not logged in', { status: 401 })
 		}
 
 		// Get user

@@ -1,6 +1,6 @@
 
 import { eq } from 'drizzle-orm'
-import { db, users } from '$server/database'
+import { db, sessions, users } from '$server/database'
 import type { SanitizedUser } from '$lib/types'
 
 type TUser = typeof users.$inferSelect
@@ -26,10 +26,35 @@ export class User {
 		})
 	}
 
+	static async setCollectMetadata(id: number, value: boolean) {
+		await db.transaction(async tx => {
+			await tx.update(users)
+				.set({ collectMetadata: value })
+				.where(eq(users.id, id))
+	
+			if (value === false) {
+				await tx.update(sessions)
+					.set({
+						country: null,
+						browserName: null,
+						browserVersion: null
+					})
+			}
+		})
+	}
+
 	static async update(data: Partial<TUser> & { id: number }) {
 		await db.update(users)
 			.set(data)
 			.where(eq(users.id, data.id))
+	}
+
+	static async delete(id: number) {
+		const [ user ] = await db.delete(users)
+			.where(eq(users.id, id))
+			.returning()
+
+		return user
 	}
 
 	static sanitize(user: TUser): SanitizedUser {
@@ -37,7 +62,8 @@ export class User {
 			id: user.id,
 			email: user.email,
 			verified: user.verified,
-			username: user.username
+			username: user.username,
+			collectMetadata: user.collectMetadata
 		}
 	}
 }

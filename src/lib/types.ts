@@ -3,7 +3,8 @@ export type SanitizedUser = {
 	id: number,
 	email: string,
 	verified: boolean,
-	username: string
+	username: string,
+	collectMetadata: boolean
 }
 
 export type SanitizedSession = {

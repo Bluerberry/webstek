@@ -86,7 +86,6 @@
 	@use '$styles/variables' as *;
 	@use '$styles/themes' as *;
 	@use 'sass:math';
-	@include themed();
 
 	$caret-size: 1.4rem;
 	$asterisk-size: 0.85rem;

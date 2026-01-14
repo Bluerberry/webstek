@@ -4,9 +4,10 @@
 	import '$styles/global.scss'
     import { enhance } from '$app/forms'
 	import theme from '$stores/theme.svelte'
-
+	
 	import Button from '$components/Button.svelte'
 	import { Navigation } from '$components/navigation'
+    import { Toaster } from '$components/toaster'
 
 	let { data, children } = $props()
 
@@ -27,7 +28,10 @@
 		{@render account()}
 		<Navigation {navtree} />
 	</div>
+
 	<main class="theme-{theme.value}">
+		<Toaster />
+		
 		{@render children()}
 	</main>
 </div>
@@ -35,7 +39,7 @@
 {#snippet account()}
 	<div class="account">
 		{#if data.user}
-			<h3>Welcome {data.user.username}</h3>
+			<h3>Welcome, {data.user.username}</h3>
 			<Button href="/account">
 				Account
 			</Button>
@@ -62,7 +66,7 @@
 	@use '$styles/themes' as *;
 	@include themed();
 
-	$layout-padding: 5rem 6rem;
+	$layout-padding: 6rem 4rem;
 
 	.layout {
 		display: flex;
@@ -77,16 +81,17 @@
 			padding: $layout-padding;
 
 			.account {
+				display: grid;
+				grid-template: "left right" auto / min-content auto;
+				place-items: start;
+				gap: 0.5rem;
+
 				margin-left: 2*$icon-padding + $icon-size;
 				margin-bottom: 2rem;
 
 				h3 {
-					margin-bottom: 0.5rem;
+					grid-column: left / right;
 					color: var(--foreground);
-				}
-
-				form {
-					display: inline-block;
 				}
 			}
 		}
@@ -97,7 +102,7 @@
 			justify-content: center;
 			align-items: center;
 
-			width: 65%;
+			width: 75%;
 			padding: $layout-padding;
 			background: var(--background);
 		}

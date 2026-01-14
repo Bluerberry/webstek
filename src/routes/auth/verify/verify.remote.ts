@@ -1,20 +1,31 @@
 
-import z from 'zod'
-import { command } from '$app/server'
+import { error } from '@sveltejs/kit'
 import { Verification } from '$server/services'
-import { sendEmail } from '$server/scripts/email'
+import { command, getRequestEvent } from '$app/server'
+import { emailVerificationTemplate, sendEmail } from '$server/scripts/email'
 
 import { 
-	generateCode,
 	EMAIL_VERIFICATION_TIMEOUT_MS,
+	generateCode,
 	hashToken
 } from '$server/scripts/auth'
 
-export const requestVerification = command(z.number(), async (userId: number) => {
+export const requestVerification = command(async () => {
 	const now = new Date()
 
+	// Check if logged in
+	const { locals } = getRequestEvent()
+	if (locals.user === undefined) {
+		throw error(401, 'Unauthorized')
+	}
+
+	// Check if already verified
+	if (locals.user.verified) {
+		throw error(403, 'Forbidden')
+	}
+
 	// Check for existing verification
-	const existing = await Verification.getByUserId(userId)
+	const existing = await Verification.getByUserId(locals.user.id)
 	if (existing) {
 
 		// Check if verification is expired
@@ -27,7 +38,15 @@ export const requestVerification = command(z.number(), async (userId: number) =>
 
 	// Create verification
 	const verificationCode = generateCode()
-	await Verification.create(userId, await hashToken(verificationCode))
+	await Verification.create(locals.user.id, await hashToken(verificationCode))
 
-	// TODO Send Email
+	// Send email
+	sendEmail(
+		locals.user.email,
+		'Verify your email',
+		emailVerificationTemplate(
+			locals.user.username, 
+			verificationCode
+		)
+	)
 })

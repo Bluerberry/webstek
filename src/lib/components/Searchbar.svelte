@@ -27,7 +27,6 @@
 	@use '$styles/variables' as *;
 	@use '$styles/themes' as *;
 	@use 'sass:math';
-	@include themed();
 
 	$search-size: 1.25rem;
 

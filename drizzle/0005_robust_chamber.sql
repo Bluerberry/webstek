@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "collect_metadata" boolean DEFAULT true NOT NULL;

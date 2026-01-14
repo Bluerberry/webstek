@@ -12,14 +12,12 @@ import type { PageServerLoad, Actions } from './$types'
 export const load: PageServerLoad = async ({ locals }) => {
 
 	// Validate userstate
-	if (locals.user === undefined) {
-		redirect(303, '/')
-	} if (locals.user.verified) {
+	if (locals.user === undefined || locals.user.verified) {
 		redirect(303, '/')
 	}
 
 	// Request verification
-	await requestVerification(locals.user.id)
+	await requestVerification()
 
 	return {
 		verifyForm: await superValidate(zod4(verifySchema))

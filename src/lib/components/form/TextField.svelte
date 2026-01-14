@@ -66,11 +66,11 @@
 
 	@use '$styles/variables' as *;
 	@use '$styles/themes' as *;
-	@include themed();
 
 	label {
 		justify-self: end;
 		font-size: $l-font;
+		color: var(--foreground);
 	}
 
 	.textfield {
@@ -83,6 +83,7 @@
 			border-radius: $border-radius;
 
 			font-size: $l-font;
+			color: var(--foreground);
 
 			&.password {
 				padding-right: 2*$thick-field-padding + $icon-size;
@@ -104,6 +105,7 @@
 			:global(.lucide) {
 				width: $icon-size;
 				height: $icon-size;
+				color: var(--foreground);
 			}
 		}
 
