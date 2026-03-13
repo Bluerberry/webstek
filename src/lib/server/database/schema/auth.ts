@@ -1,7 +1,7 @@
 
 import { relations } from 'drizzle-orm'
 import { pgTable, serial, varchar, integer, timestamp, boolean } from 'drizzle-orm/pg-core'
-import { recipes, recipeFavorites, recipeNotes } from '$server/database/schema'
+import { recipes, recipeFavorites, recipeNotes } from '../schema'
 
 export const users = pgTable('users', {
     id: serial('id')

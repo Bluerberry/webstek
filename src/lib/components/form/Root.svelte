@@ -15,6 +15,7 @@
 		action?: string
 		style?: 'grid'
 		header?: Snippet
+		paragraph?: Snippet
 		footer?: Snippet
 		children: Snippet
 		onError?: Events['onError']
@@ -30,6 +31,7 @@
 		action,
 		style,
 		header,
+		paragraph,
 		footer,
 		children,
 		onError,
@@ -63,6 +65,10 @@
 		<div class="row">
 			{@render header()}
 		</div>
+	{/if}
+
+	{#if paragraph}
+		{@render paragraph()}
 	{/if}
 
 	{@render children()}

@@ -10,8 +10,8 @@ import { zod4 } from 'sveltekit-superforms/adapters'
 
 import type { PageServerLoad, Actions } from './$types'
 
-async function requestVerification(locals: App.Locals): Promise<Date> {
-	const now = new Date()
+async function requestVerification(locals: App.Locals) {
+	const now = Date.now()
 
 	if (locals.user === undefined) throw error(401, 'Unauthorized')
 	if (locals.user.verified) throw error(403, 'Forbidden')
@@ -19,10 +19,9 @@ async function requestVerification(locals: App.Locals): Promise<Date> {
 	const existing = await Verification.getByUserId(locals.user.id)
 
 	if (existing) {
-		const age = now.getTime() - existing.createdAt.getTime()
-
+		const age = now - existing.createdAt.getTime()
 		if (age < EMAIL_VERIFICATION_COOLDOWN_MS) {
-			return new Date(existing.createdAt.getTime() + EMAIL_VERIFICATION_COOLDOWN_MS)
+			return existing.createdAt.getTime() + EMAIL_VERIFICATION_COOLDOWN_MS
 		}
 
 		await Verification.delete(existing.id)
@@ -37,20 +36,17 @@ async function requestVerification(locals: App.Locals): Promise<Date> {
 		emailVerificationTemplate(locals.user.username, code)
 	)
 
-	return new Date(verification.createdAt.getTime() + EMAIL_VERIFICATION_COOLDOWN_MS)
+	return verification.createdAt.getTime() + EMAIL_VERIFICATION_COOLDOWN_MS
 }
 
 export const load: PageServerLoad = async ({ url, locals }) => {
-
 	if (locals.user === undefined || locals.user.verified) {
 		redirect(303, '/')
 	}
 
-	const cooldownEndsAt = await requestVerification(locals)
-
 	return {
 		intent: getFlowIntent(url, 'register'),
-		cooldownEndsAt,
+		cooldown: await requestVerification(locals),
 		verifyForm: await superValidate(zod4(verifySchema))
 	}
 }

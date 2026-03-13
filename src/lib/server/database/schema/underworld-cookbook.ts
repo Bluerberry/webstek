@@ -1,7 +1,7 @@
 
 import { sql, relations } from 'drizzle-orm'
 import { pgTable, primaryKey, serial, varchar, integer, timestamp, boolean, text, pgEnum, check, unique } from 'drizzle-orm/pg-core'
-import { users } from '$server/database/schema'
+import { users } from '../schema'
 
 export const standardUnitEnum = pgEnum('standard_unit', ['kg', 'g', 'L', 'mL', 'cup', 'tbsp', 'tsp', 'fl oz', 'pint', 'quart', 'gallon'])
 

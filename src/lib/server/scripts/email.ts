@@ -18,7 +18,7 @@ export async function sendEmail(to: string, subject: string, html: string) {
 			to, subject, html
 		});
 	} catch (error) {
-		throw new Error(`Failed to send email: ${error}`);
+		console.error(`Failed to send email: ${error}`)
 	}
 }
 
