@@ -1,6 +1,7 @@
 
 <script lang="ts">
 
+	import { page } from '$app/state'
 	import * as Form from '$components/form'
 	import { registerSchema } from '$validation/authSchemas'
 
@@ -11,7 +12,7 @@
 <Form.Root
 	form={data.registerForm}
 	schema={registerSchema}
-	action="/auth/register"
+	action="/auth/register{page.url.search}"
 	style="grid"
 >
 	{#snippet header()}

@@ -1,6 +1,7 @@
 
 <script lang="ts">
 
+	import { page } from '$app/state'
 	import * as Form from '$components/form'
 	import { verifySchema } from '$validation/authSchemas'
 
@@ -11,7 +12,7 @@
 <Form.Root
 	form={data.verifyForm}
 	schema={verifySchema}
-	action="/auth/verify"
+	action="/auth/verify{page.url.search}"
 	style="grid"
 >
 	{#snippet header()}

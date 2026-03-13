@@ -4,7 +4,7 @@ import { zod4 } from 'sveltekit-superforms/adapters'
 import { message, superValidate } from 'sveltekit-superforms'
 import { changeUsernameSchema, changeEmailSchema, changePasswordSchema } from '$validation/authSchemas'
 import { hashPassword, validatePassword } from '$server/scripts/auth'
-import { redirectPreservingFlow, setFlow } from '$server/scripts/flow'
+import { startFlow } from '$server/scripts/flow'
 import { User } from '$server/services'
 
 import type { PageServerLoad, Actions } from './$types'
@@ -13,8 +13,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 
 	// Validate userstate
 	if (locals.user === undefined || locals.session === undefined) {
-		setFlow(url, 'login', '/account')
-		redirectPreservingFlow(url, 303, '/auth/login')
+		redirect(303, '/auth/login?' + startFlow('login', '/account'))
 	}
 
 	return {

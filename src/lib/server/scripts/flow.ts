@@ -2,6 +2,14 @@
 import type { FlowIntent } from '$lib/types'
 import { redirect } from '@sveltejs/kit'
 
+export function startFlow(intent?: FlowIntent, destination?: string) {
+	const params: Record<string, string> = {}
+	if (intent !== undefined) params.intent = intent
+	if (destination !== undefined) params.dest = destination
+
+	return new URLSearchParams(params).toString()
+}
+
 export function setFlow(url: URL, intent?: FlowIntent, destination?: string) {
 	if (intent === undefined) {
 		url.searchParams.delete('intent')

@@ -1,16 +1,17 @@
 
 <script lang="ts">
-	
+
 	import * as Form from '$components/form'
 	import Modal from '$components/Modal.svelte'
 	import Button from '$components/Button.svelte'
-    import Checkbox from '$components/Checkbox.svelte';
+	import Checkbox from '$components/Checkbox.svelte';
 	import { Dot } from '@lucide/svelte'
 	
+	import { goto } from '$app/navigation';
+	import { startFlow } from '$server/scripts/flow.js';
 	import { getSessions, endSession, setCollectMetadata, getCollateralDamage, deleteAccount } from './account.remote.js'
-    import { changeEmailSchema, changePasswordSchema, changeUsernameSchema } from '$validation/authSchemas.js';
-    import toaster from '$stores/toaster.svelte.js';
-    import { goto } from '$app/navigation';
+	import { changeEmailSchema, changePasswordSchema, changeUsernameSchema } from '$validation/authSchemas.js';
+	import toaster from '$stores/toaster.svelte.js';
 
 	let { data } = $props()
 
@@ -41,7 +42,7 @@
 	async function handleEndSession(sessionId: string) {
 		try {
 			await endSession(sessionId).updates(
-				getSessions().withOverride( 
+				getSessions().withOverride(
 					current => current.filter(session => session.id !== sessionId)
 				)
 			)
@@ -124,7 +125,10 @@
 				<Button style="link" onclick={() => emailModal = true}> Change </Button>
 				{#if !data.user.verified}
 					<Dot />
-					<Button style='link' href="/auth/verify"> Verify </Button>
+					<Button
+						style='link'
+						href="/auth/verify?{startFlow('update', '/account')}"
+					> Verify </Button>
 				{/if}
 			</div>
 
@@ -257,7 +261,7 @@
 			<h2> Woah there cowboy! </h2>
 			<p> You are about to delete your entire account. This action cannot be undone.
 				{#if data.length > 0}
-					Along with your personal data, the following will also be deleted: 
+					Along with your personal data, the following will also be deleted:
 				{/if}
 			</p>
 
@@ -306,20 +310,20 @@
 			gap: 2rem;
 
 			width: 100%;
-			
+
 			h2 {
 				display: flex;
 				align-items: baseline;
 
 				&::after {
 					content: '';
-					
+
 					flex: 1;
 					margin-left: 0.5rem;
 					border-bottom: 1px solid var(--foreground);
 				}
 			}
-		
+
 			.table {
 				display: grid;
 				grid-template: "left middle right" auto / max-content auto max-content;
@@ -328,7 +332,7 @@
 				row-gap: 0.5rem;
 
 				color: var(--foreground);
-			
+
 				.cell {
 					font-size: $l-font;
 				}
@@ -347,11 +351,11 @@
 				.verified {
 					margin-left: 1rem;
 					font-size: $s-font;
-				
+
 					&.success {
 						color: var(--success);
 					}
-				
+
 					&.failure {
 						color: var(--failure);
 					}
@@ -385,7 +389,7 @@
 
 	#delete-account {
 		color: var(--foreground);
-		
+
 		h2 {
 			margin-bottom: 0.5rem;
 		}
@@ -404,5 +408,5 @@
 			gap: 0.5rem;
 		}
 	}
-	
+
 </style>
