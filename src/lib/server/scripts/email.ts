@@ -38,7 +38,7 @@ export const emailVerificationTemplate = (username: string, code: string) => {
 		<tr><td align="center">
 			<table width="600" cellspacing="0" cellpadding="0" bgcolor="#f7f9f7" style="border-radius:8px; padding:30px;">
 				<tr><td align="center" style="font-size:24px; font-weight:bold; padding-bottom:20px;">
-					Welcome friend ❤️
+					Welcome friend!
 				</td></tr>
 				<tr><td style="font-size:16px; line-height:24px; padding-bottom:30px;">
 					Hi ${username}, <br />
@@ -74,7 +74,7 @@ export const emailUpdateVerificationTemplate = (username: string, code: string) 
 		<tr><td align="center">
 			<table width="600" cellspacing="0" cellpadding="0" bgcolor="#f7f9f7" style="border-radius:8px; padding:30px;">
 				<tr><td align="center" style="font-size:24px; font-weight:bold; padding-bottom:20px;">
-					Confirm your new email ✉️
+					Verify your email
 				</td></tr>
 				<tr><td style="font-size:16px; line-height:24px; padding-bottom:30px;">
 					Hi ${username}, <br />
@@ -101,14 +101,14 @@ export const emailChangeNotificationTemplate = (username: string) => {
 <html>
 <head>
 	<meta charset="UTF-8" />
-	<title>Change of email</title>
+	<title>Password Changed</title>
 </head>
 <body style="margin:0; padding:20px; font-family: Arial, sans-serif; color:#141204;">
 	<table width="100%" cellspacing="0" cellpadding="0" bgcolor="#ffffff">
 		<tr><td align="center">
 			<table width="600" cellspacing="0" cellpadding="0" bgcolor="#f7f9f7" style="border-radius:8px; padding:30px;">
 				<tr><td align="center" style="font-size:24px; font-weight:bold; padding-bottom:20px;">
-					Change of email ⚠️
+					Email changed
 				</td></tr>
 				<tr><td style="font-size:16px; line-height:24px; padding-bottom:30px;">
 					Hi ${username}, <br />
@@ -134,7 +134,7 @@ export const passwordChangeNotificationTemplate = (username: string) => {
 		<tr><td align="center">
 			<table width="600" cellspacing="0" cellpadding="0" bgcolor="#f7f9f7" style="border-radius:8px; padding:30px;">
 				<tr><td align="center" style="font-size:24px; font-weight:bold; padding-bottom:20px;">
-					Password changed ⚠️
+					Password changed
 				</td></tr>
 				<tr><td style="font-size:16px; line-height:24px; padding-bottom:30px;">
 					Hi ${username}, <br />

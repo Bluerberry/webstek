@@ -1,4 +1,3 @@
-
 import { EMAIL_VERIFICATION_TIMEOUT_MS, EMAIL_VERIFICATION_COOLDOWN_MS, validateToken, generateCode, hashToken } from '$server/scripts/auth'
 import { message, superValidate } from 'sveltekit-superforms'
 import { error, fail, redirect } from '@sveltejs/kit'
@@ -14,9 +13,11 @@ import type { PageServerLoad, Actions } from './$types'
 async function requestVerification(locals: App.Locals, intent: FlowIntent | undefined) {
 	const now = Date.now()
 
+	// Validate userstate
 	if (locals.user === undefined) throw error(401, 'Unauthorized')
 	if (locals.user.verified) throw error(403, 'Forbidden')
 
+	// Check cooldown
 	const existing = await Verification.getByUserId(locals.user.id)
 
 	if (existing) {
@@ -28,19 +29,27 @@ async function requestVerification(locals: App.Locals, intent: FlowIntent | unde
 		await Verification.delete(existing.id)
 	}
 
+	// Create verification
 	const code = generateCode()
 	const verification = await Verification.create(locals.user.id, await hashToken(code))
 
+	// Send email
 	const template = intent === 'update'
 		? emailUpdateVerificationTemplate(locals.user.username, code)
 		: emailVerificationTemplate(locals.user.username, code)
 
-	sendEmail(locals.user.email, 'Verify your email', template)
+	sendEmail(
+		locals.user.email, 
+		'Webstek - Verify your email', 
+		template
+	)
 
 	return verification.createdAt.getTime() + EMAIL_VERIFICATION_COOLDOWN_MS
 }
 
 export const load: PageServerLoad = async ({ url, locals }) => {
+
+	// Validate userstate
 	if (locals.user === undefined || locals.user.verified) {
 		redirect(303, '/')
 	}
@@ -57,12 +66,15 @@ export const actions: Actions = {
 	verify: async ({ request, url, locals }) => {
 		const now = new Date()
 
+		// Validate form
 		const form = await superValidate(request, zod4(verifySchema))
 		if (!form.valid) return message(form, 'Invalid form data', { status: 400 })
 
+		// Validate userstate
 		if (locals.user === undefined) return message(form, 'Must be logged in to verify', { status: 401 })
 		if (locals.user.verified) return message(form, 'Already verified', { status: 403 })
 
+		// Validate verification
 		const verification = await Verification.getByUserId(locals.user.id)
 		if (verification === undefined) return message(form, 'Verification not found', { status: 400 })
 
@@ -73,12 +85,19 @@ export const actions: Actions = {
 		const valid = await validateToken(form.data.code, verification.code)
 		if (!valid) return message(form, 'Incorrect code', { status: 400 })
 
-		Verification.resolve(verification.id, verification.userId)
+		// Verify
+		await Verification.resolve(verification.id, verification.userId)
+
+		// Redirect
 		redirectToDestination(url, 303, '/')
 	},
 
 	resend: async ({ url, locals }) => {
+
+		// Validate userstate
 		if (locals.user === undefined) return fail(401)
+
+		// Resend
 		await requestVerification(locals, getFlowIntent(url))
 	}
 }

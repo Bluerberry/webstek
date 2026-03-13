@@ -48,7 +48,7 @@
 </Form.Root>
 
 <form method="POST" action="?/resend{page.url.search.replace('?', '&')}" use:enhance>
-	<Button type="submit" style="outline" disabled={onCooldown}>
+	<Button type="submit" style="default" disabled={onCooldown}>
 		{onCooldown ? cooldownLabel() : 'Resend email'}
 	</Button>
 </form>

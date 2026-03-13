@@ -68,7 +68,7 @@ export const actions: Actions = {
 		// Send notification
 		sendEmail(
 			locals.user.email,
-			'Your email has been changed',
+			'Webstek - Your email has been changed',
 			emailChangeNotificationTemplate(locals.user.username)
 		)
 
@@ -106,7 +106,7 @@ export const actions: Actions = {
 		// Send notification
 		sendEmail(
 			locals.user.email,
-			'Your password has been changed',
+			'Webstek - Your password has been changed',
 			passwordChangeNotificationTemplate(locals.user.username)
 		)
 
