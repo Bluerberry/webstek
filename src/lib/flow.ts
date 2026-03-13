@@ -10,20 +10,6 @@ export function startFlow(intent?: FlowIntent, destination?: string) {
 	return new URLSearchParams(params).toString()
 }
 
-export function setFlow(url: URL, intent?: FlowIntent, destination?: string) {
-	if (intent === undefined) {
-		url.searchParams.delete('intent')
-	} else {
-		url.searchParams.set('intent', intent)
-	}
-
-	if (destination === undefined) {
-		url.searchParams.delete('dest')
-	} else {
-		url.searchParams.set('dest', destination)
-	}
-}
-
 export function getFlowDestination(url: URL, defaultLocation: string) {
 	return url.searchParams.get('dest') ?? defaultLocation
 }

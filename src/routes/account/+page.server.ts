@@ -4,7 +4,7 @@ import { zod4 } from 'sveltekit-superforms/adapters'
 import { message, superValidate } from 'sveltekit-superforms'
 import { changeUsernameSchema, changeEmailSchema, changePasswordSchema } from '$validation/authSchemas'
 import { hashPassword, validatePassword } from '$server/scripts/auth'
-import { startFlow } from '$server/scripts/flow'
+import { startFlow } from '$lib/flow'
 import { User } from '$server/services'
 
 import type { PageServerLoad, Actions } from './$types'

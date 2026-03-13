@@ -2,7 +2,7 @@
 import { env } from '$env/dynamic/private'
 import { generateToken, hashPassword, hashToken, SESSION_INACTIVITY_TIMEOUT_MS } from '$server/scripts/auth'
 import { redirect } from '@sveltejs/kit'
-import { redirectPreservingFlow } from '$server/scripts/flow'
+import { redirectPreservingFlow } from '$lib/flow'
 import { registerSchema } from '$validation/authSchemas'
 import { superValidate, message } from 'sveltekit-superforms'
 import { UAParser } from 'ua-parser-js'

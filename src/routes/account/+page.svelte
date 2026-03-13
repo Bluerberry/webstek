@@ -8,10 +8,10 @@
 	import { Dot } from '@lucide/svelte'
 	
 	import { goto } from '$app/navigation';
-	import { startFlow } from '$server/scripts/flow.js';
-	import { getSessions, endSession, setCollectMetadata, getCollateralDamage, deleteAccount } from './account.remote.js'
-	import { changeEmailSchema, changePasswordSchema, changeUsernameSchema } from '$validation/authSchemas.js';
-	import toaster from '$stores/toaster.svelte.js';
+	import { startFlow } from '$lib/flow';
+	import { getSessions, endSession, setCollectMetadata, getCollateralDamage, deleteAccount } from './account.remote'
+	import { changeEmailSchema, changePasswordSchema, changeUsernameSchema } from '$validation/authSchemas';
+	import toaster from '$stores/toaster.svelte';
 
 	let { data } = $props()
 
