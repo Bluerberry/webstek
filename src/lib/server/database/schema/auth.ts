@@ -19,7 +19,7 @@ export const users = pgTable('users', {
     collectMetadata: boolean('collect_metadata')
         .notNull()
         .default(true),
-    createdAt: timestamp('created_at')
+    createdAt: timestamp('created_at', { withTimezone: true })
         .notNull()
         .defaultNow()
 })
@@ -43,10 +43,10 @@ export const sessions = pgTable('sessions', {
     country:  varchar('country', { length: 255 }),
     browserName: varchar('browser_name', { length: 255 }),
     browserVersion: varchar('browser_version', { length: 255 }),
-    lastValidatedAt: timestamp('last_validated_at')
+    lastValidatedAt: timestamp('last_validated_at', { withTimezone: true })
         .notNull()
         .defaultNow(),
-    createdAt: timestamp('created_at')
+    createdAt: timestamp('created_at', { withTimezone: true })
         .notNull()
         .defaultNow()
 })
@@ -66,7 +66,7 @@ export const verifications = pgTable('verifications', {
     userId: integer('user_id')
         .notNull()
         .references(() => users.id, { onDelete: 'cascade' }),
-    createdAt: timestamp('created_at')
+    createdAt: timestamp('created_at', { withTimezone: true })
         .notNull()
         .defaultNow()
 })

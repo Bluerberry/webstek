@@ -16,7 +16,7 @@
 		const total = Math.ceil(remainingCooldown / 1000)
 		const m = Math.floor(total / 60)
 		const s = total % 60
-		return `${m}:${String(s).padStart(2, '0')}`
+		return `Wait ${m}:${String(s).padStart(2, '0')} to resend`
 	})
 
 	$effect(() => {
@@ -29,7 +29,8 @@
 <Form.Root
 	form={data.verifyForm}
 	schema={verifySchema}
-	action="?/verify{page.url.search}"
+	action="?/verify{page.url.search.replace('?', '&')}"
+	style="centered"
 >
 	{#snippet header()}
 		<h1> Verify your email </h1>
@@ -46,8 +47,16 @@
 	{/snippet}
 </Form.Root>
 
-<form method="POST" action="?/resend{page.url.search}" use:enhance>
+<form method="POST" action="?/resend{page.url.search.replace('?', '&')}" use:enhance>
 	<Button type="submit" style="outline" disabled={onCooldown}>
 		{onCooldown ? cooldownLabel() : 'Resend email'}
 	</Button>
 </form>
+
+<style lang="scss">
+
+	form {
+		margin-top: 0.5rem;
+	}
+
+</style>

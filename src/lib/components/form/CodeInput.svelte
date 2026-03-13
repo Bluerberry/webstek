@@ -1,7 +1,6 @@
-
 <script lang="ts" generics="T extends Record<string, any>">
 
-    import { getContext } from 'svelte'
+	import { getContext } from 'svelte'
 	import { formFieldProxy } from 'sveltekit-superforms'
 
 	import type { SuperForm, FormPathLeaves, FormPathType } from 'sveltekit-superforms'
@@ -20,47 +19,71 @@
 		if (digits.every(d => d !== '')) superform.submit()
 	})
 
-	function onInput(i: number, e: Event) {
-		const val = (e.target as HTMLInputElement).value.replace(/\D/g, '').slice(-1)
-		digits[i] = val
-		if (val && i < 5) inputs[i + 1].focus()
+	function onBeforeInput(i: number, event: InputEvent) {
+		if (event.data && !/^\d$/.test(event.data)) event.preventDefault()
 	}
 
-	function onKeydown(i: number, e: KeyboardEvent) {
-		if (e.key === 'Backspace' && !digits[i] && i > 0) {
+	function onInput(i: number, event: Event) {
+		const input = event.target as HTMLInputElement
+		const value = input.value.replace(/\D/g, '').slice(-1)
+
+		digits[i] = value
+		input.value = value
+		if (value && i < 5) inputs[i + 1].focus()
+	}
+
+	function onKeydown(i: number, event: KeyboardEvent) {
+		if (event.key === 'Backspace') {
+			event.preventDefault()
+			if (digits[i]) {
+				digits[i] = ''
+			} else if (i > 0) {
+				digits[i - 1] = ''
+				inputs[i - 1].focus()
+			}
+		} else if (event.key === 'ArrowLeft' && i > 0) {
 			inputs[i - 1].focus()
+		} else if (event.key === 'ArrowRight' && i < 5) {
+			inputs[i + 1].focus()
 		}
 	}
 
-	function onPaste(e: ClipboardEvent) {
-		const text = e.clipboardData?.getData('text').replace(/\D/g, '').slice(0, 6) ?? ''
+	function onPaste(event: ClipboardEvent) {
+		const text = event.clipboardData?.getData('text').replace(/\D/g, '').slice(0, 6) ?? ''
 		if (!text) return
-		e.preventDefault()
-		text.split('').forEach((c, i) => { digits[i] = c })
+
+		event.preventDefault()
+		digits = [...text.split(''), ...Array(6 - text.length).fill('')]
 		inputs[Math.min(text.length, 5)].focus()
 	}
 
 </script>
 
 <div class="code-input">
+	<input type="hidden" name={field} value={digits.join('')} />
 	{#each digits as digit, i}
 		<input
 			type="text"
 			inputmode="numeric"
 			maxlength="1"
 			value={digit}
-			name={i === 0 ? field : undefined}
-			bind:this={inputs[i]}
+			autocomplete="off"
+			data-lpignore="true"
+			data-1p-ignore
+			data-bwignore
+			data-form-type="other"
+			onbeforeinput={(e) => onBeforeInput(i, e)}
 			oninput={(e) => onInput(i, e)}
 			onkeydown={(e) => onKeydown(i, e)}
 			onpaste={onPaste}
+			bind:this={inputs[i]}
 		/>
 	{/each}
 </div>
 
 <style lang="scss">
 
-    @use '$styles/variables' as *;
+	@use '$styles/variables' as *;
 	@use '$styles/themes' as *;
 
 	.code-input {
@@ -71,11 +94,11 @@
 		input {
 			width: 3rem;
 			height: 3.5rem;
-            
-            padding: $thin-field-padding $thick-field-padding;			
+			
+			padding: $thin-field-padding $thick-field-padding;			
 			border: 2px solid var(--foreground);
 			border-radius: $border-radius;
-            
+			
 			font-size: $l-font;
 			text-align: center;
 			color: var(--foreground);

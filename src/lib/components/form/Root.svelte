@@ -13,7 +13,7 @@
 		form: SuperValidated<T>
 		schema: any
 		action?: string
-		style?: 'grid'
+		style?: 'grid' | 'centered'
 		header?: Snippet
 		paragraph?: Snippet
 		footer?: Snippet
@@ -62,9 +62,7 @@
 	use:superform.enhance
 >
 	{#if header}
-		<div class="row">
-			{@render header()}
-		</div>
+		{@render header()}
 	{/if}
 
 	{#if paragraph}
@@ -74,7 +72,7 @@
 	{@render children()}
 
 	{#if footer}
-		<div class="row">
+		<div class="footer">
 			{@render footer()}
 		</div>
 	{/if}
@@ -83,6 +81,7 @@
 <style lang="scss">
 
 	@use '$styles/variables' as *;
+	@use '$styles/themes' as *;
 
 	form {
 		width: 100%;
@@ -95,24 +94,37 @@
 			
 			max-width: 30rem;
 
-			.row {
+			:global(> h1), :global(> p), .footer {
 				grid-column: right;
 			}
 		}
 
-		.row {
+		&.centered {
+			display: flex;
+			flex-flow: column nowrap;
+			align-items: center;
+			max-width: 30rem;
+
+			:global(> h1), :global(> p) {
+				align-self: flex-start;
+			}
+		}
+
+		:global(> h1) {
+			margin-bottom: 0.5rem;
+		}
+
+		:global(> p) {
+			margin-bottom: 2rem;
+		}
+
+		.footer {
 			display: flex;
 			flex-flow: row nowrap;
 			align-items: center;
 			gap: 1rem;
-			
-			&:first-child {
-				margin-bottom: 0.5rem;
-			}
 
-			&:last-child {
-				margin-top: 0.25rem;
-			}
+			margin-top: 0.25rem;
 		}
 	}
 

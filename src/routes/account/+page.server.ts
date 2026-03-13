@@ -3,6 +3,7 @@ import { redirect } from '@sveltejs/kit'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { message, superValidate } from 'sveltekit-superforms'
 import { changeUsernameSchema, changeEmailSchema, changePasswordSchema } from '$validation/authSchemas'
+import { sendEmail, emailChangeNotificationTemplate, passwordChangeNotificationTemplate } from '$server/scripts/email'
 import { hashPassword, validatePassword } from '$server/scripts/auth'
 import { startFlow } from '$lib/flow'
 import { User } from '$server/services'
@@ -64,13 +65,20 @@ export const actions: Actions = {
 			return message(form, 'Invalid credentials', { status: 401 })
 		}
 
+		// Send notification
+		sendEmail(
+			locals.user.email,
+			'Your email has been changed',
+			emailChangeNotificationTemplate(locals.user.username)
+		)
+
 		// Update email
 		locals.user.email = form.data.email
 		locals.user.verified = false
 		await User.update(locals.user)
 
 		// Redirect to verification
-		redirect(303, '/auth/verify')
+		redirect(303, '/auth/verify?' + startFlow('update', '/account'))
 	},
 
 	'change-password': async ({ request, locals }) => {
@@ -94,6 +102,13 @@ export const actions: Actions = {
 		if (!await validatePassword(form.data.oldPassword, user.password)) {
 			return message(form, 'Invalid credentials', { status: 401 })
 		}
+
+		// Send notification
+		sendEmail(
+			locals.user.email,
+			'Your password has been changed',
+			passwordChangeNotificationTemplate(locals.user.username)
+		)
 
 		// Update password
 		await User.update({

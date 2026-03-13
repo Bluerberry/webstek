@@ -4,13 +4,14 @@ import { message, superValidate } from 'sveltekit-superforms'
 import { error, fail, redirect } from '@sveltejs/kit'
 import { getFlowIntent, redirectToDestination } from '$lib/flow'
 import { Verification } from '$server/services'
-import { emailVerificationTemplate, sendEmail } from '$server/scripts/email'
+import { emailVerificationTemplate, emailUpdateVerificationTemplate, sendEmail } from '$server/scripts/email'
 import { verifySchema } from '$validation/authSchemas'
 import { zod4 } from 'sveltekit-superforms/adapters'
 
+import type { FlowIntent } from '$lib/types'
 import type { PageServerLoad, Actions } from './$types'
 
-async function requestVerification(locals: App.Locals) {
+async function requestVerification(locals: App.Locals, intent: FlowIntent | undefined) {
 	const now = Date.now()
 
 	if (locals.user === undefined) throw error(401, 'Unauthorized')
@@ -30,11 +31,11 @@ async function requestVerification(locals: App.Locals) {
 	const code = generateCode()
 	const verification = await Verification.create(locals.user.id, await hashToken(code))
 
-	sendEmail(
-		locals.user.email,
-		'Verify your email',
-		emailVerificationTemplate(locals.user.username, code)
-	)
+	const template = intent === 'update'
+		? emailUpdateVerificationTemplate(locals.user.username, code)
+		: emailVerificationTemplate(locals.user.username, code)
+
+	sendEmail(locals.user.email, 'Verify your email', template)
 
 	return verification.createdAt.getTime() + EMAIL_VERIFICATION_COOLDOWN_MS
 }
@@ -44,9 +45,10 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		redirect(303, '/')
 	}
 
+	const intent = getFlowIntent(url, 'register')
+
 	return {
-		intent: getFlowIntent(url, 'register'),
-		cooldown: await requestVerification(locals),
+		cooldown: await requestVerification(locals, intent),
 		verifyForm: await superValidate(zod4(verifySchema))
 	}
 }
@@ -75,8 +77,8 @@ export const actions: Actions = {
 		redirectToDestination(url, 303, '/')
 	},
 
-	resend: async ({ locals }) => {
+	resend: async ({ url, locals }) => {
 		if (locals.user === undefined) return fail(401)
-		await requestVerification(locals)
+		await requestVerification(locals, getFlowIntent(url))
 	}
 }

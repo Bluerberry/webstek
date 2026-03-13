@@ -240,7 +240,7 @@
 		schema={changePasswordSchema}
 		onResult={({ result }) => {
 			if (result.type === 'success') passwordModal = false;
-			toaster.show('Sucessfully changed username')
+			toaster.show('Sucessfully changed password')
 		}}
 	>
 		<Form.TextField type="password" field="oldPassword" label="Old Password" />

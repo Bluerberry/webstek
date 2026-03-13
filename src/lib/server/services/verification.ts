@@ -10,7 +10,7 @@ export class Verification {
 		const [ verification ] = await db.insert(verifications)
 			.values({ userId, code })
 			.returning()
-
+ 
 		return verification
 	}
 
