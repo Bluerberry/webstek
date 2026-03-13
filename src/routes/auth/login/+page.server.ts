@@ -1,14 +1,15 @@
 
-import { redirect } from '@sveltejs/kit'
-import { zod4 } from 'sveltekit-superforms/adapters'
-import { loginSchema } from '$validation/authSchemas'
-import { superValidate, message } from 'sveltekit-superforms'
+import { env } from '$env/dynamic/private'
 import { generateToken, hashToken, SESSION_INACTIVITY_TIMEOUT_MS, validatePassword } from '$server/scripts/auth'
-import { User, Session } from '$server/services'
+import { loginSchema } from '$validation/authSchemas'
+import { redirect } from '@sveltejs/kit'
+import { redirectToDestination } from '$server/scripts/flow'
+import { superValidate, message } from 'sveltekit-superforms'
 import { UAParser } from 'ua-parser-js'
+import { User, Session } from '$server/services'
+import { zod4 } from 'sveltekit-superforms/adapters'
 
 import type { PageServerLoad, Actions } from './$types'
-import { env } from '$env/dynamic/private'
 
 export const load: PageServerLoad = async ({ locals }) => {
 
@@ -23,7 +24,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 }
 
 export const actions: Actions = {
-	default: async ({ request, locals, cookies, fetch, getClientAddress }) => {
+	default: async ({ request, url, locals, cookies, fetch, getClientAddress }) => {
 
 		// Validate form
 		const form = await superValidate(request, zod4(loginSchema))
@@ -81,6 +82,6 @@ export const actions: Actions = {
 		})
 
 		// Redirect
-		redirect(303, '/')
+		redirectToDestination(url, 303, '/')
 	}
 }

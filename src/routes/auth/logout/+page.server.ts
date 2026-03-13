@@ -1,11 +1,12 @@
 
 import { fail } from '@sveltejs/kit'
+import { redirectToDestination } from '$server/scripts/flow'
 import { Session } from '$server/services'
 
 import type { Actions } from './$types'
 
 export const actions: Actions = {
-	default: async ({ locals, cookies }) => {
+	default: async ({ url, locals, cookies }) => {
 
 		// Validate userstate
 		if (locals.user === undefined) {
@@ -23,5 +24,8 @@ export const actions: Actions = {
 		cookies.delete('webstek_session', { path: '/' })
 		const [ sessionId ] = sessionCookie.split(':')
 		await Session.delete(sessionId)
+
+		// Redirect
+		redirectToDestination(url, 303, '/')
 	}
 }

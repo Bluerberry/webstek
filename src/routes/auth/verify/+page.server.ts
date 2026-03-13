@@ -1,15 +1,16 @@
 
-import { redirect } from '@sveltejs/kit'
-import { zod4 } from 'sveltekit-superforms/adapters'
-import { verifySchema } from '$validation/authSchemas'
-import { message, superValidate } from 'sveltekit-superforms'
 import { EMAIL_VERIFICATION_TIMEOUT_MS, validateToken } from '$server/scripts/auth'
-import { Verification } from '$server/services'
+import { message, superValidate } from 'sveltekit-superforms'
+import { redirect } from '@sveltejs/kit'
+import { getFlowIntent, redirectToDestination } from '$server/scripts/flow'
 import { requestVerification } from './verify.remote'
+import { Verification } from '$server/services'
+import { verifySchema } from '$validation/authSchemas'
+import { zod4 } from 'sveltekit-superforms/adapters'
 
 import type { PageServerLoad, Actions } from './$types'
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ url, locals }) => {
 
 	// Validate userstate
 	if (locals.user === undefined || locals.user.verified) {
@@ -20,12 +21,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 	await requestVerification()
 
 	return {
+		intent: getFlowIntent(url, 'register'),
 		verifyForm: await superValidate(zod4(verifySchema))
 	}
 }
 
 export const actions: Actions = {
-	default: async ({ request, locals }) => {
+	default: async ({ request, url, locals }) => {
 		const now = new Date()
 		
 		// Validate form
@@ -60,7 +62,7 @@ export const actions: Actions = {
 			verification.userId
 		)
 		
-		// Redirect appropriately
-		redirect(303, '/')
+		// Redirect
+		redirectToDestination(url, 303, '/')
 	}
 }

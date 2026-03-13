@@ -1,12 +1,13 @@
 
+import { env } from '$env/dynamic/private'
+import { generateToken, hashPassword, hashToken, SESSION_INACTIVITY_TIMEOUT_MS } from '$server/scripts/auth'
 import { redirect } from '@sveltejs/kit'
-import { zod4 } from 'sveltekit-superforms/adapters'
+import { redirectPreservingFlow } from '$server/scripts/flow'
 import { registerSchema } from '$validation/authSchemas'
 import { superValidate, message } from 'sveltekit-superforms'
-import { generateToken, hashPassword, hashToken, SESSION_INACTIVITY_TIMEOUT_MS } from '$server/scripts/auth'
-import { User, Session } from '$server/services'
 import { UAParser } from 'ua-parser-js'
-import { env } from '$env/dynamic/private'
+import { User, Session } from '$server/services'
+import { zod4 } from 'sveltekit-superforms/adapters'
 
 import type { PageServerLoad, Actions } from './$types'
 
@@ -23,7 +24,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 }
 
 export const actions: Actions = {
-	default: async ({ request, locals, cookies, getClientAddress, fetch }) => {
+	default: async ({ request, url, locals, cookies, getClientAddress, fetch }) => {
 
 		// Validate form
 		const form = await superValidate(request, zod4(registerSchema))
@@ -81,7 +82,7 @@ export const actions: Actions = {
 			maxAge: SESSION_INACTIVITY_TIMEOUT_MS / 1000
 		})
 
-		// Redirect to verification
-		redirect(303, '/auth/verify')
+		// Redirect
+		redirectPreservingFlow(url, 303, '/auth/verify')
 	}
 }
