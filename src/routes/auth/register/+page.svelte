@@ -17,7 +17,7 @@
 <Form.Root
 	form={data.registerForm}
 	schema={registerSchema}
-	action={flowAction('register', page.url)}
+	action={flowAction(page.url, 'register')}
 	style="grid"
 >
 	{#snippet above()}

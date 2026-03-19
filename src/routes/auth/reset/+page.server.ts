@@ -29,21 +29,21 @@ export const actions: Actions = {
 
 		// Get user
 		const user = await User.getByEmail(form.data.email)
-		if (!user) return message(form, { type: 'error', text: 'Invalid form data.' }, { status: 400 })
+		if (!user) return message(form, { type: 'error', text: 'Invalid form data' }, { status: 400 })
 
 		// Get reset
 		const reset = await PasswordReset.getByUserId(user.id)
-		if (!reset) return message(form, { type: 'error', text: 'No reset request found.' }, { status: 500 })
+		if (!reset) return message(form, { type: 'error', text: 'Failed to find reset request' }, { status: 500 })
 
 		// Check expiry
 		if (Date.now() - reset.createdAt.getTime() >= PASSWORD_RESET_TIMEOUT_MS) {
 			await PasswordReset.delete(reset.id)
-			return message(form,{ type: 'error', text: 'Reset code expired.' }, { status: 400 })
+			return message(form,{ type: 'error', text: 'Reset code expired' }, { status: 400 })
 		}
 
 		// Check code
 		if (!await validateToken(form.data.code, reset.code)) {
-			return message(form, { type: 'error', text: 'Incorrect code.' }, { status: 400 })
+			return message(form, { type: 'error', text: 'Incorrect code' }, { status: 400 })
 		}
 
 		return message(form, { type: 'success' })
@@ -55,21 +55,21 @@ export const actions: Actions = {
 
 		// Get user
 		const user = await User.getByEmail(form.data.email)
-		if (!user) return message(form, { type: 'error', text: 'Invalid form data.' }, { status: 400 })
+		if (!user) return message(form, { type: 'error', text: 'Invalid form data' }, { status: 400 })
 
 		// Get reset
 		const reset = await PasswordReset.getByUserId(user.id)
-		if (!reset) return message(form, { type: 'error', text: 'No reset request found.' }, { status: 500 })
+		if (!reset) return message(form, { type: 'error', text: 'Failed to find reset request' }, { status: 500 })
 
 		// Re-check expiry
 		if (Date.now() - reset.createdAt.getTime() >= PASSWORD_RESET_TIMEOUT_MS) {
 			await PasswordReset.deleteAllByUserId(user.id)
-			return message(form, { type: 'error', text: 'Reset code expired.' }, { status: 400 })
+			return message(form, { type: 'error', text: 'Reset code expired' }, { status: 400 })
 		}
 
 		// Re-check code
 		if (!await validateToken(form.data.code, reset.code)) {
-			return message(form, { type: 'error', text: 'Invalid form data.' }, { status: 400 })
+			return message(form, { type: 'error', text: 'Invalid form data' }, { status: 400 })
 		}
 
 		// Update password

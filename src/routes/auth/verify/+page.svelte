@@ -9,6 +9,7 @@
 	import Button from '$components/Button.svelte'
 
 	import type { PageData } from './$types'
+    import { flowAction } from '$scripts/flow';
 
 	type Props = { data: PageData }
 	let { data }: Props = $props()
@@ -45,11 +46,11 @@
 <Form.Root
 	form={data.verifyForm}
 	schema={emailverificationSchema}
-	action="?/verify{page.url.search.replace('?', '&')}"
+	action={flowAction(page.url, 'verify')}
 	style="centered"
 >
 	{#snippet above()}
-		<h1> Verify your email </h1>
+		<h2> Verify your email </h2>
 		<p> To ensure the safety of your account, Webstek requires you to verify your email to access most features. </p>
 	{/snippet}
 

@@ -2,8 +2,8 @@
 <script lang="ts">
 
 	import { page } from '$app/state'
-    import { flowAction, redirectWithFlow } from '$scripts/flow'
 	import { loginSchema } from '$validation/authSchemas'
+    import { flowAction, getFlow, withFlow } from '$scripts/flow'
 	
 	import * as Form from '$components/form'
 	import Button from '$components/Button.svelte'
@@ -20,7 +20,7 @@
 <Form.Root
 	form={data.loginForm}
 	schema={loginSchema}
-	action={flowAction('login', page.url)}
+	action={flowAction(page.url, 'login')}
 	style="grid"
 >
 	{#snippet above()}
@@ -37,11 +37,11 @@
 </Form.Root>
 
 <div class="footer">
-	<Button style="link" href={redirectWithFlow(page.url, 303, '/auth/register')}>
+	<Button style="link" href={withFlow('/auth/register', getFlow(page.url))}>
 		Register an account
 	</Button>
 	<Dot />
-	<Button style="link" href={redirectWithFlow(page.url, 303, '/auth/reset')}>
+	<Button style="link" href={withFlow('/auth/reset', getFlow(page.url))}>
 		Reset your password
 	</Button>
 </div>

@@ -1,4 +1,5 @@
 
+import { goto } from '$app/navigation'
 import { redirect } from '@sveltejs/kit'
 
 export type FlowIntent = 'login'
@@ -37,7 +38,7 @@ export function withFlow(path: string, flow: Flow | URLSearchParams): string {
 	return `${path}${separator}${params}`
 }
 
-export function flowAction(actionName: string, url: URL): string {
+export function flowAction(url: URL, actionName: string): string {
 	const { intent, destination } = getFlow(url)
 	const params = createFlow(intent, destination)
 	if (params.size === 0) return `?/${actionName}`
@@ -53,6 +54,15 @@ export function redirectWithFlow(url: URL, status: Parameters<typeof redirect>[0
 
 export function redirectToDestination(url: URL, status: Parameters<typeof redirect>[0], fallback: string): never {
 	redirect(status, getFlow(url).destination ?? fallback)
+}
+
+export function gotoWithFlow(url: URL, path: string) {
+	const { intent, destination } = getFlow(url)
+	goto(withFlow(path, { intent, destination }))
+}
+
+export function gotoDestination(url: URL, fallback: string) {
+	goto(getFlow(url).destination ?? fallback)
 }
 
 // ─── Auth guard ──────────────────────────────────────────────────────────────

@@ -50,6 +50,11 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'You are not logged in' }, { status: 401 })
 		}
 
+		// Check for duplicate emails
+		if (await User.getByEmail(form.data.newEmail)) {
+			return message(form, { type: 'error', text: 'Email already exists' }, { status: 400 })
+		}
+
 		// Get user
 		const user = await User.getById(locals.user.id)
 		if (user === undefined) {

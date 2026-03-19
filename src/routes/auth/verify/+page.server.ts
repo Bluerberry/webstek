@@ -36,7 +36,7 @@ export const actions: Actions = {
 
 		// Validate email verification
 		const emailverification = await EmailVerification.getByUserId(locals.user.id)
-		if (emailverification === undefined) return message(form, { type: 'error', text: 'Email verification not found' }, { status: 400 })
+		if (emailverification === undefined) return message(form, { type: 'error', text: 'Failed to find email verification' }, { status: 500 })
 
 		if (now.getTime() - emailverification.createdAt.getTime() >= EMAIL_VERIFICATION_TIMEOUT_MS) {
 			return message(form, { type: 'error', text: 'Email verification expired' }, { status: 400 })

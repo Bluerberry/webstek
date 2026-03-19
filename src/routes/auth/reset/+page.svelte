@@ -4,7 +4,7 @@
     import { page } from '$app/state'
 	import toaster from '$stores/toaster.svelte'
 	import { requestCode } from './reset.remote'
-    import { redirectWithFlow } from '$scripts/flow'
+    import { getFlow, gotoDestination, gotoWithFlow } from '$scripts/flow'
 	import { requestResetSchema, verifyResetSchema, resetPasswordSchema } from '$validation/authSchemas'
 
 	import * as Form from '$components/form'
@@ -123,7 +123,7 @@
 		onUpdated={({ form }) => {
 			if (form.valid) {
 				toaster.show('Successfully reset password')
-				redirectWithFlow(page.url, 303, '/auth/login')
+				gotoWithFlow(page.url, '/auth/login')
 			}
 		}}
 	>
