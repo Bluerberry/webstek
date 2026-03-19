@@ -1,9 +1,8 @@
-
 <script lang="ts">
 
+	import { onMount } from 'svelte'
 	import { page } from '$app/state'
-	import { enhance } from '$app/forms'
-    import { flowAction } from '$scripts/flow'
+	import { requestCode } from './verify.remote'
 	import { verificationSchema } from '$validation/authSchemas'
 
 	import * as Form from '$components/form'
@@ -14,9 +13,10 @@
 	type Props = { data: PageData }
 	let { data }: Props = $props()
 
+	let cooldownUntil = $state(0)
 	let now = $state(Date.now())
 
-	const remainingCooldown = $derived(data.cooldown - now)
+	const remainingCooldown = $derived(cooldownUntil - now)
 	const onCooldown = $derived(remainingCooldown > 0)
 	const cooldownLabel = $derived(() => {
 		const total = Math.ceil(remainingCooldown / 1000)
@@ -30,12 +30,22 @@
 		return () => clearInterval(interval)
 	})
 
+	async function handleCodeRequest() {
+		const intent = page.url.searchParams.get('intent') ?? undefined
+		const cooldown = await requestCode(intent)
+		if (cooldown) cooldownUntil = cooldown
+	}
+
+	onMount(() => {
+		handleCodeRequest()
+	})
+
 </script>
 
 <Form.Root
 	form={data.verifyForm}
 	schema={verificationSchema}
-	action={flowAction('verify', page.url)}
+	action="?/verify{page.url.search.replace('?', '&')}"
 	style="centered"
 >
 	{#snippet above()}
@@ -46,11 +56,9 @@
 	<Form.CodeInput field="code" />
 
 	{#snippet below()}
-		<form method="POST" action={flowAction('resend', page.url)} use:enhance>
-			<Button type="submit" style="default" disabled={onCooldown}>
-				{onCooldown ? cooldownLabel() : 'Resend email'}
-			</Button>
-		</form>
+		<Button style="default" disabled={onCooldown} onclick={handleCodeRequest}>
+			{onCooldown ? cooldownLabel() : 'Resend email'}
+		</Button>
 
 		<Form.Response />
 	{/snippet}

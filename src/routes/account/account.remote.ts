@@ -11,9 +11,9 @@ function formatCollateral(count: number, singular: string, plural?: string) {
 }
 
 export const getSessions = query(async () => {
+	const { locals } = getRequestEvent()
 	
 	// Check if logged in
-	const { locals } = getRequestEvent()
 	if (locals.user === undefined) {
 		throw error(401, 'Unauthorized')
 	}
@@ -24,9 +24,9 @@ export const getSessions = query(async () => {
 })
 
 export const getCollateralDamage = query(async () => {
+	const { locals } = getRequestEvent()
 	
 	// Check if logged in
-	const { locals } = getRequestEvent()
 	if (locals.user === undefined) {
 		throw error(401, 'Unauthorized')
 	}
@@ -60,9 +60,9 @@ export const getCollateralDamage = query(async () => {
 })
 
 export const setCollectMetadata = command(z.boolean(), async value => {
+	const { locals } = getRequestEvent()
 	
 	// Check if logged in
-	const { locals } = getRequestEvent()
 	if (locals.user === undefined) {
 		throw error(401, 'Unauthorized')
 	}
@@ -72,9 +72,9 @@ export const setCollectMetadata = command(z.boolean(), async value => {
 })
 
 export const endSession = command(z.string(), async sessionId => {
+	const { locals } = getRequestEvent()
 
 	// Check if logged in
-	const { locals } = getRequestEvent()
 	if (locals.user === undefined) {
 		throw error(401, 'Unauthorized')
 	}
@@ -93,9 +93,9 @@ export const endSession = command(z.string(), async sessionId => {
 })
 
 export const deleteAccount = command(async () => {
+	const { locals, cookies } = getRequestEvent()
 
 	// Check if logged in
-	const { locals, cookies } = getRequestEvent()
 	if (locals.user === undefined) {
 		throw error(401, 'Unauthorized')
 	}

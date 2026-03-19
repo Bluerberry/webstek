@@ -3,8 +3,9 @@
 
 	import '$styles/global.scss'
     import { page } from '$app/state'
-    import { enhance } from '$app/forms'
+    import { goto } from '$app/navigation'
 	import theme from '$stores/theme.svelte'
+	import { logout } from './auth/logout/logout.remote'
     import { createFlow, withFlow } from '$scripts/flow.js'
 	
     import { Toaster } from '$components/toaster'
@@ -37,11 +38,9 @@
 				<Button href="/account">
 					Account
 				</Button>
-				<form method="POST" action="/auth/logout" use:enhance>
-					<Button type="submit" style="outline">
-						Logout
-					</Button>
-				</form>
+				<Button style="outline" onclick={async () => { await logout(); goto('/') }}>
+				    Logout
+				</Button>
 			{:else}
 				<h3>Welcome stranger</h3>
 				<Button href={withFlow('/auth/register', createFlow('register', destination))}>

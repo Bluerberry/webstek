@@ -2,6 +2,7 @@
 <script lang="ts">
 
 	import { page } from '$app/state'
+    import { flowAction } from '$scripts/flow'
 	import { registerSchema } from '$validation/authSchemas'
 	
 	import * as Form from '$components/form'
@@ -16,7 +17,7 @@
 <Form.Root
 	form={data.registerForm}
 	schema={registerSchema}
-	action="/auth/register{page.url.search}"
+	action={flowAction('register', page.url)}
 	style="grid"
 >
 	{#snippet above()}

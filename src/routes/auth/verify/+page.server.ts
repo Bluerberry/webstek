@@ -1,49 +1,14 @@
 
 
-import { fail, redirect } from '@sveltejs/kit'
+import { redirect } from '@sveltejs/kit'
 import { Verification } from '$server/services'
 import { zod4 } from 'sveltekit-superforms/adapters'
+import { redirectToDestination } from '$scripts/flow'
 import { verificationSchema } from '$validation/authSchemas'
 import { message, superValidate } from 'sveltekit-superforms'
-import { getFlow, redirectToDestination } from '$scripts/flow'
-import { emailVerificationTemplate, emailUpdateVerificationTemplate, sendEmail } from '$server/scripts/email'
-import { EMAIL_VERIFICATION_TIMEOUT_MS, EMAIL_VERIFICATION_COOLDOWN_MS, validateToken, generateCode, hashToken } from '$server/scripts/auth'
+import { EMAIL_VERIFICATION_TIMEOUT_MS, validateToken } from '$server/scripts/auth'
 
-import type { FlowIntent } from '$scripts/flow'
 import type { PageServerLoad, Actions } from './$types'
-
-async function requestVerification(userId: number, userEmail: string, username: string, intent: FlowIntent | undefined) {
-	const now = Date.now()
-
-	// Check cooldown
-	const existing = await Verification.getByUserId(userId)
-
-	if (existing) {
-		const age = now - existing.createdAt.getTime()
-		if (age < EMAIL_VERIFICATION_COOLDOWN_MS) {
-			return existing.createdAt.getTime() + EMAIL_VERIFICATION_COOLDOWN_MS
-		}
-
-		await Verification.delete(existing.id)
-	}
-
-	// Create verification
-	const code = generateCode()
-	const verification = await Verification.create(userId, await hashToken(code))
-
-	// Send email
-	const template = intent === 'verify'
-		? emailUpdateVerificationTemplate(username, code)
-		: emailVerificationTemplate(username, code)
-
-	sendEmail(
-		userEmail, 
-		'Webstek - Verify your email', 
-		template
-	)
-
-	return verification.createdAt.getTime() + EMAIL_VERIFICATION_COOLDOWN_MS
-}
 
 export const load: PageServerLoad = async ({ url, locals }) => {
 
@@ -52,15 +17,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		redirect(303, '/')
 	}
 
-	const cooldown = await requestVerification(
-		locals.user.id, 
-		locals.user.email, 
-		locals.user.username, 
-		getFlow(url).intent
-	)
-
 	return {
-		cooldown: cooldown,
 		verifyForm: await superValidate(zod4(verificationSchema))
 	}
 }
@@ -93,19 +50,5 @@ export const actions: Actions = {
 
 		// Redirect
 		redirectToDestination(url, 303, '/')
-	},
-
-	resend: async ({ url, locals }) => {
-
-		// Validate userstate
-		if (locals.user === undefined) return fail(401)
-
-		// Resend
-		await requestVerification(
-			locals.user.id, 
-			locals.user.email, 
-			locals.user.username, 
-			getFlow(url).intent
-		)
 	}
 }

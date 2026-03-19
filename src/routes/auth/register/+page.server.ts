@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 }
 
 export const actions: Actions = {
-	default: async ({ request, url, locals, cookies, getClientAddress, fetch }) => {
+	register: async ({ request, url, locals, cookies, getClientAddress, fetch }) => {
 
 		// Validate form
 		const form = await superValidate(request, zod4(registerSchema))

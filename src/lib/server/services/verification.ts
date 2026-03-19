@@ -38,4 +38,12 @@ export class Verification {
 		await db.delete(verifications)
 				.where(eq(verifications.id, id))
 	}
+
+	static async deleteAllByUserId(userId: number) {
+		const deleted = await db.delete(verifications)
+			.where(eq(verifications.userId, userId))
+			.returning()
+
+		return deleted
+	}
 }

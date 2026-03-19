@@ -32,12 +32,10 @@
 		return () => clearInterval(interval)
 	})
 
-	function handleCodeRequest() {
-		if (email) {
-			requestCode(email).then(cooldown => {
-				if (cooldown) cooldownUntil = cooldown
-			})
-		}
+	async function handleCodeRequest() {
+		if (email === undefined) return
+		const cooldown = await requestCode(email)
+		if (cooldown) cooldownUntil = cooldown
 	}
 
 	// If the user is logged in, skip step 1
