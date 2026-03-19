@@ -3,7 +3,7 @@ import { zod4 } from 'sveltekit-superforms/adapters'
 import { message, superValidate } from 'sveltekit-superforms'
 import { User, Session, PasswordReset } from '$server/services'
 import { sendEmail, passwordChangeNotificationTemplate } from '$server/scripts/email'
-import { validateToken, hashPassword, PASSWORD_RESET_TIMEOUT_MS, hashToken } from '$server/scripts/auth'
+import { validateToken, hashPassword, PASSWORD_RESET_TIMEOUT_MS } from '$server/scripts/auth'
 import { requestResetSchema, verifyResetSchema, resetPasswordSchema } from '$validation/authSchemas'
 
 import type { PageServerLoad, Actions } from './$types'

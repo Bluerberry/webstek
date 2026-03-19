@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte'
 	import { page } from '$app/state'
 	import { requestCode } from './verify.remote'
-	import { verificationSchema } from '$validation/authSchemas'
+	import { emailverificationSchema } from '$validation/authSchemas'
 
 	import * as Form from '$components/form'
 	import Button from '$components/Button.svelte'
@@ -44,7 +44,7 @@
 
 <Form.Root
 	form={data.verifyForm}
-	schema={verificationSchema}
+	schema={emailverificationSchema}
 	action="?/verify{page.url.search.replace('?', '&')}"
 	style="centered"
 >

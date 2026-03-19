@@ -64,6 +64,13 @@
       "when": 1773412600473,
       "tag": "0008_warm_matthew_murdock",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1773922468849,
+      "tag": "0009_flippant_mastermind",
+      "breakpoints": true
     }
   ]
 }

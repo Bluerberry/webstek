@@ -7,11 +7,11 @@ type TPasswordResetWithUser = TPasswordReset & { user: typeof users.$inferSelect
 
 export class PasswordReset {
 	static async create(userId: number, code: string) {
-		const [ verification ] = await db.insert(passwordResets)
+		const [ emailVerification ] = await db.insert(passwordResets)
 			.values({ userId, code })
 			.returning()
  
-		return verification
+		return emailVerification
 	}
 
 	static async getByUserId(userId: number, includeUser: true): Promise<undefined | TPasswordResetWithUser>

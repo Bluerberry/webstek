@@ -1,8 +1,10 @@
 <script lang="ts">
 	
 	import { onMount } from 'svelte'
+    import { page } from '$app/state'
 	import toaster from '$stores/toaster.svelte'
 	import { requestCode } from './reset.remote'
+    import { redirectWithFlow } from '$scripts/flow'
 	import { requestResetSchema, verifyResetSchema, resetPasswordSchema } from '$validation/authSchemas'
 
 	import * as Form from '$components/form'
@@ -10,7 +12,6 @@
 	import Carrousel from '$components/Carrousel.svelte'
 
 	import type { PageData } from './$types'
-    import { goto } from '$app/navigation';
 
 	type Props = { data: PageData }
 	let { data }: Props = $props()
@@ -122,7 +123,7 @@
 		onUpdated={({ form }) => {
 			if (form.valid) {
 				toaster.show('Successfully reset password')
-				goto('/auth/login')
+				redirectWithFlow(page.url, 303, '/auth/login')
 			}
 		}}
 	>

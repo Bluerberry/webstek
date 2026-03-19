@@ -41,7 +41,7 @@ export const changePasswordSchema = z.object({
 		.min(1, { message: 'New password is required' })
 })
 
-export const verificationSchema = z.object({
+export const emailverificationSchema = z.object({
 	code: z.string()
 		.length(6, { message: 'Code must be 6 digits' }),
 })

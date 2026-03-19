@@ -73,7 +73,7 @@ export const actions: Actions = {
 		locals.user.verified = false
 		await User.update(locals.user)
 
-		// Redirect to verification
+		// Redirect to email verification
 		redirect(303, withFlow('/auth/verify', createFlow('verify', '/account')))
 	},
 

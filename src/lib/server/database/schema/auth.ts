@@ -26,7 +26,7 @@ export const users = pgTable('users', {
 
 export const userRelations = relations(users, ({ one, many }) => ({
     sessions: many(sessions),
-    verification: one(verifications),
+    emailVerification: one(emailVerifications),
     passwordReset: one(passwordResets),
     recipes: many(recipes),
     recipeNotes: many(recipeNotes),
@@ -59,7 +59,7 @@ export const sessionRelations = relations(sessions, ({ one }) => ({
     })
 }))
 
-export const verifications = pgTable('verifications', {
+export const emailVerifications = pgTable('email_verifications', {
     id: serial('id')
         .primaryKey(),
     code: varchar('code', { length: 64 })
@@ -72,9 +72,9 @@ export const verifications = pgTable('verifications', {
         .defaultNow()
 })
 
-export const verificationRelations = relations(verifications, ({ one }) => ({
+export const emailVerificationRelations = relations(emailVerifications, ({ one }) => ({
     user: one(users, {
-        fields: [verifications.userId],
+        fields: [emailVerifications.userId],
         references: [users.id]
     })
 }))
