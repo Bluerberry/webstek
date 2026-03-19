@@ -33,7 +33,6 @@ export const actions: Actions = {
 
 		// Check expiry
 		if (Date.now() - reset.createdAt.getTime() >= PASSWORD_RESET_TIMEOUT_MS) {
-			await PasswordReset.delete(reset.id)
 			return message(form,{ type: 'error', text: 'Reset request expired' }, { status: 400 })
 		}
 
@@ -51,6 +50,6 @@ export const actions: Actions = {
 			maxAge: PASSWORD_RESET_TIMEOUT_MS / 1000
 		})
 
-		redirectWithFlow(url, 303, '/auth/reset/final')
+		redirectWithFlow(url, 303, '/auth/reset/resolve')
 	}
 }

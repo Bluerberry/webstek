@@ -1,4 +1,5 @@
 
+import { User } from './user'
 import { eq, sql } from 'drizzle-orm'
 import { db, users, passwordResets } from '$server/database'
 
@@ -8,7 +9,7 @@ type TPasswordReset = typeof passwordResets.$inferSelect
 type TPasswordResetWithUser = TPasswordReset & { user: typeof users.$inferSelect }
 
 export class PasswordReset {
-	static async create(userId: number, code: string, dbOrTx: DbOrTx = db) {
+	static async upsert(userId: number, code: string, dbOrTx: DbOrTx = db) {
 		const [ passwordReset ] = await dbOrTx.insert(passwordResets)
 			.values({ userId, code })
 			.onConflictDoUpdate({
@@ -29,8 +30,15 @@ export class PasswordReset {
 		})
 	}
 
-	static async delete(id: number, dbOrTx: DbOrTx = db) {
-		await dbOrTx.delete(passwordResets)
+	static async resolve(id: number, password: string, dbOrTx: DbOrTx = db) {
+		return await dbOrTx.transaction(async tx => {
+			const [ deleted ] = await tx.delete(passwordResets)
 				.where(eq(passwordResets.id, id))
+				.returning()
+
+			if (!deleted) return false
+			await User.update({ id: deleted.userId, password }, tx)
+			return true
+		})
 	}
 }

@@ -24,13 +24,11 @@ export const requestCode = command(async () => {
 			if (age < PASSWORD_RESET_COOLDOWN_MS) {
 				return existing.createdAt.getTime() + PASSWORD_RESET_COOLDOWN_MS
 			}
-
-			await PasswordReset.deleteByUserId(user.id)
 		}
 
 		// Send new code
 		const code = generateCode()
-		const reset = await PasswordReset.create(user.id, await hashPassword(code))
+		const reset = await PasswordReset.upsert(user.id, await hashPassword(code))
 		sendEmail(user.email, 'Webstek - Reset your password', passwordResetTemplate(user.username, code))
 		return reset.createdAt.getTime() + PASSWORD_RESET_COOLDOWN_MS
 	}

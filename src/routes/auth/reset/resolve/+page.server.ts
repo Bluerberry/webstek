@@ -30,27 +30,33 @@ export const actions: Actions = {
 		const user = await User.getByEmail(email)
 		if (!user) return message(form, { type: 'error', text: 'Invalid recovery state' }, { status: 500 })
 
-		// Get reset
-		const reset = await PasswordReset.getByUserId(user.id)
-		if (!reset) return message(form, { type: 'error', text: 'Invalid recovery state' }, { status: 500 })
-
-		// Re-check expiry
-		if (Date.now() - reset.createdAt.getTime() >= PASSWORD_RESET_TIMEOUT_MS) {
-			await PasswordReset.delete(reset.id)
-			return message(form, { type: 'error', text: 'Reset request expired' }, { status: 400 })
-		}
-
-		// Re-check code
-		if (!await validatePassword(code, reset.code)) {
+		// Get password reset
+		const passwordReset = await PasswordReset.getByUserId(user.id, false)
+		if (!passwordReset) {
 			return message(form, { type: 'error', text: 'Invalid recovery state' }, { status: 500 })
 		}
 
-		// Update password
-		user.password = await hashPassword(form.data.newPassword)
-		await User.update(user)
+		// Check expiry
+		if (Date.now() - passwordReset.createdAt.getTime() >= PASSWORD_RESET_TIMEOUT_MS) {
+			return message(form, { type: 'error', text: 'Reset request expired' }, { status: 400 })
+		}
+
+		// Check code
+		if (!await validatePassword(code, passwordReset.code)) {
+			return message(form, { type: 'error', text: 'Invalid recovery state' }, { status: 500 })
+		}
+
+		// Resolve
+		const resolved = await PasswordReset.resolve(
+			passwordReset.id,
+			await hashPassword(form.data.newPassword)
+		)
+
+		if (!resolved) {
+			return message(form, { type: 'error', text: 'Reset request expired' }, { status: 400 })
+		}
 
 		// Cleanup
-		await PasswordReset.delete(reset.id)
 		if (locals.session) {
 			await Session.deleteAllExceptCurrent(user.id, locals.session.id)
 		} else {

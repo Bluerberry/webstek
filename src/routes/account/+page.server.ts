@@ -35,8 +35,7 @@ export const actions: Actions = {
 		}
 
 		// Update username
-		locals.user.username = form.data.newUsername
-		await User.update(locals.user)
+		await User.update({ id: locals.user.id, username: form.data.newUsername })
 	},
 
 	'change-email': async ({ request, locals }) => {
@@ -50,26 +49,28 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'You are not logged in' }, { status: 401 })
 		}
 
-		// Check for duplicate emails
-		if (await User.getByEmail(form.data.newEmail)) {
-			return message(form, { type: 'error', text: 'Email already exists' }, { status: 400 })
-		}
-
 		// Get user
 		const user = await User.getById(locals.user.id)
 		if (user === undefined) {
 			return message(form, { type: 'error', text: 'Failed to find user' }, { status: 500 })
 		}
-	
+
 		// Validate password
 		if (!await validatePassword(form.data.password, user.password)) {
 			return message(form, { type: 'error', text: 'Invalid credentials' }, { status: 401 })
 		}
 
 		// Update email
-		locals.user.email = form.data.newEmail
-		locals.user.verified = false
-		await User.update(locals.user)
+		try {
+			await User.update({ id: locals.user.id, email: form.data.newEmail, verified: false })
+		} catch (error: any) {
+			if (error.code === '23505') { // Postgress unique violation
+				return message(form, { type: 'error', text: 'Email already exists' }, { status: 400 })
+			}
+
+			throw error
+		}
+
 		await Session.deleteAllExceptCurrent(user.id, locals.session.id)
 
 		// Send notification
@@ -99,7 +100,7 @@ export const actions: Actions = {
 		if (user === undefined) {
 			return message(form, { type: 'error', text: 'Failed to find user' }, { status: 500 })
 		}
-	
+
 		// Validate password
 		if (!await validatePassword(form.data.oldPassword, user.password)) {
 			return message(form, { type: 'error', text: 'Invalid credentials' }, { status: 401 })

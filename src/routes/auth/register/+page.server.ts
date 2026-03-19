@@ -35,17 +35,20 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'Already logged in' }, { status: 403 })
 		}
 
-		// Check for duplicate emails
-		if (await User.getByEmail(form.data.email)) {
-			return message(form, { type: 'error', text: 'Email already exists' }, { status: 400 })
-		}
-
 		// Register
-		const user = await User.create(
-			form.data.email, 
-			form.data.username, 
-			await hashPassword(form.data.password)
-		)
+		try {
+			var user = await User.create(
+				form.data.email,
+				form.data.username,
+				await hashPassword(form.data.password)
+			)
+		} catch (error: any) {
+			if (error.code === '23505') { // Postgres unique violation
+				return message(form, { type: 'error', text: 'Email already exists' }, { status: 400 })
+			}
+
+			throw error
+		}
 
 		// Session metadata
 		let ipInfo: any = undefined
@@ -66,7 +69,7 @@ export const actions: Actions = {
 		const sessionToken = generateToken()
 
 		await Session.create(
-			sessionId, 
+			sessionId,
 			await hashToken(sessionToken),
 			user.id,
 			ipInfo?.country,

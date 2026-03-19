@@ -3,6 +3,7 @@ import z from 'zod'
 import { query, command, getRequestEvent } from '$app/server'
 import { Session, User, Recipe, RecipeNote } from '$server/services'
 import { error } from '@sveltejs/kit';
+import { db } from '$server/database';
 
 function formatCollateral(count: number, singular: string, plural?: string) {
 	if (count === 0) return null
@@ -68,7 +69,17 @@ export const setCollectMetadata = command(z.boolean(), async value => {
 	}
 
 	// Set collect metadata
-	await User.setCollectMetadata(locals.user.id, value);
+	await db.transaction(async tx => {
+		await User.update({ id: locals.user!.id, collectMetadata: value}, tx)
+		if (value) return
+
+		await Session.updateByUserId({
+			userId: locals.user!.id,
+			country: null,
+			browserName: null,
+			browserVersion: null
+		}, tx)
+	})
 })
 
 export const endSession = command(z.string(), async sessionId => {

@@ -38,6 +38,12 @@ export class Session {
 			.where(eq(sessions.id, data.id))
 	}
 
+	static async updateByUserId(data: Partial<TSession> & { userId: number }, dbOrTx: DbOrTx = db) {
+		await dbOrTx.update(sessions)
+			.set(data)
+			.where(eq(sessions.userId, data.userId))
+	}
+
 	static async delete(id: string, dbOrTx: DbOrTx = db) {
 		const [ deleted ] = await dbOrTx.delete(sessions)
 			.where(eq(sessions.id, id))

@@ -1,4 +1,5 @@
 
+import { User } from './user'
 import { eq, sql } from 'drizzle-orm'
 import { db, users, emailVerifications } from '$server/database'
 
@@ -8,7 +9,7 @@ type TEmailVerification = typeof emailVerifications.$inferSelect
 type TEmailVerificationWithUser = TEmailVerification & { user: typeof users.$inferSelect }
 
 export class EmailVerification {
-	static async create(userId: number, code: string, dbOrTx: DbOrTx = db) {
+	static async upsert(userId: number, code: string, dbOrTx: DbOrTx = db) {
 		const [ emailVerification ] = await dbOrTx.insert(emailVerifications)
 			.values({ userId, code })
 			.onConflictDoUpdate({
@@ -29,16 +30,15 @@ export class EmailVerification {
 		})
 	}
 
-	static async delete(id: number, dbOrTx: DbOrTx = db) {
-		await dbOrTx.delete(emailVerifications)
+	static async resolve(id: number, dbOrTx: DbOrTx = db) {
+		return await dbOrTx.transaction(async tx => {
+			const [ deleted ] = await tx.delete(emailVerifications)
 				.where(eq(emailVerifications.id, id))
-	}
+				.returning()
 
-	static async deleteByUserId(userId: number, dbOrTx: DbOrTx = db) {
-		const deleted = await dbOrTx.delete(emailVerifications)
-			.where(eq(emailVerifications.userId, userId))
-			.returning()
-
-		return deleted
+			if (!deleted) return false
+			await User.update({ id: deleted.userId, verified: true }, tx)
+			return true
+		})
 	}
 }

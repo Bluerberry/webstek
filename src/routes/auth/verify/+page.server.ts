@@ -9,6 +9,7 @@ import { message, superValidate } from 'sveltekit-superforms'
 import { EMAIL_VERIFICATION_TIMEOUT_MS, validatePassword } from '$server/scripts/auth'
 
 import type { PageServerLoad, Actions } from './$types'
+import { db } from '$server/database'
 
 export const load: PageServerLoad = async ({ locals }) => {
 
@@ -31,30 +32,34 @@ export const actions: Actions = {
 		if (!form.valid) return message(form, { type: 'error', text: 'Invalid form data' }, { status: 400 })
 
 		// Validate userstate
-		if (locals.user === undefined) return message(form, { type: 'error', text: 'Must be logged in to verify' }, { status: 401 })
-		if (locals.user.verified) return message(form, { type: 'error', text: 'Already verified' }, { status: 403 })
+		if (locals.user === undefined || locals.session === undefined) {
+			return message(form, { type: 'error', text: 'Must be logged in to verify' }, { status: 401 })
+		}
 
-		// Validate email verification
+		if (locals.user.verified) {
+			return message(form, { type: 'error', text: 'Already verified' }, { status: 403 })
+		}
+
+		// Get email verification
 		const emailverification = await EmailVerification.getByUserId(locals.user.id)
-		if (emailverification === undefined) return message(form, { type: 'error', text: 'Failed to find email verification' }, { status: 500 })
+		if (!emailverification) {
+			return message(form, { type: 'error', text: 'Failed to find email verification' }, { status: 500 })
+		}
 
+		// Check expiry
 		if (now.getTime() - emailverification.createdAt.getTime() >= EMAIL_VERIFICATION_TIMEOUT_MS) {
 			return message(form, { type: 'error', text: 'Email verification expired' }, { status: 400 })
 		}
 
-		const valid = await validatePassword(form.data.code, emailverification.code)
-		if (!valid) return message(form, { type: 'error', text: 'Incorrect code' }, { status: 400 })
+		// Check code
+		if (!await validatePassword(form.data.code, emailverification.code)) {
+			return message(form, { type: 'error', text: 'Incorrect code' }, { status: 400 })
+		}
 
-		// Verify
-		locals.user.verified = true
-		await User.update(locals.user)
-
-		// Cleanup
-		await EmailVerification.delete(emailverification.id)
-		if (locals.session) {
-			await Session.deleteAllExceptCurrent(locals.user.id, locals.session.id)
-		} else {
-			await Session.deleteByUserId(locals.user.id)
+		// Resolve
+		const resolved = await EmailVerification.resolve(emailverification.id)
+		if (!resolved) {
+			return message(form, { type: 'error', text: 'Email verification expired' }, { status: 400 })
 		}
 
 		// Redirect
