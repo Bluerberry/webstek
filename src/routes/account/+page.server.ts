@@ -1,6 +1,6 @@
 
-import { User } from '$server/services'
 import { redirect } from '@sveltejs/kit'
+import { Session, User } from '$server/services'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { message, superValidate } from 'sveltekit-superforms'
 import { createFlow, requireAuth, withFlow } from '$scripts/flow'
@@ -46,7 +46,7 @@ export const actions: Actions = {
 		if (!form.valid) return message(form, { type: 'error', text: 'Invalid form data' }, { status: 400 })
 
 		// Validate userstate
-		if (locals.user === undefined) {
+		if (locals.user === undefined || locals.session === undefined) {
 			return message(form, { type: 'error', text: 'You are not logged in' }, { status: 401 })
 		}
 
@@ -66,17 +66,18 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'Invalid credentials' }, { status: 401 })
 		}
 
+		// Update email
+		locals.user.email = form.data.newEmail
+		locals.user.verified = false
+		await User.update(locals.user)
+		await Session.deleteAllExceptCurrent(user.id, locals.session.id)
+
 		// Send notification
 		sendEmail(
 			locals.user.email,
 			'Webstek - Your email has been changed',
 			emailChangeNotificationTemplate(locals.user.username)
 		)
-
-		// Update email
-		locals.user.email = form.data.newEmail
-		locals.user.verified = false
-		await User.update(locals.user)
 
 		// Redirect to email verification
 		redirect(303, withFlow('/auth/verify', createFlow('verify', '/account')))
@@ -104,17 +105,17 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'Invalid credentials' }, { status: 401 })
 		}
 
+		// Update password
+		await User.update({
+			id: locals.user.id,
+			password: await hashPassword(form.data.newPassword)
+		})
+
 		// Send notification
 		sendEmail(
 			locals.user.email,
 			'Webstek - Your password has been changed',
 			passwordChangeNotificationTemplate(locals.user.username)
 		)
-
-		// Update password
-		await User.update({
-			id: locals.user.id,
-			password: await hashPassword(form.data.newPassword)
-		})
 	}
 }

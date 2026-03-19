@@ -38,6 +38,7 @@ export const actions: Actions = {
 		// Get user
 		const user = await User.getByEmail(form.data.email)
 		if (user === undefined) {
+			await validatePassword(form.data.password, 'qwerty') // Validate bogus password to fight timing attacks
 			return message(form, { type: 'error', text: 'Invalid credentials' }, { status: 401 })
 		}
 

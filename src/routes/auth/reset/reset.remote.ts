@@ -2,7 +2,7 @@
 import { command, getRequestEvent } from '$app/server'
 import { User, PasswordReset } from '$server/services'
 import { sendEmail, passwordResetTemplate } from '$server/scripts/email'
-import { generateCode, hashToken, PASSWORD_RESET_COOLDOWN_MS } from '$server/scripts/auth'
+import { generateCode, hashPassword, PASSWORD_RESET_COOLDOWN_MS } from '$server/scripts/auth'
 
 export const requestCode = command(async () => {
 		const { cookies } = getRequestEvent()
@@ -25,12 +25,12 @@ export const requestCode = command(async () => {
 				return existing.createdAt.getTime() + PASSWORD_RESET_COOLDOWN_MS
 			}
 
-			await PasswordReset.deleteAllByUserId(user.id)
+			await PasswordReset.deleteByUserId(user.id)
 		}
 
 		// Send new code
 		const code = generateCode()
-		const reset = await PasswordReset.create(user.id, await hashToken(code))
+		const reset = await PasswordReset.create(user.id, await hashPassword(code))
 		sendEmail(user.email, 'Webstek - Reset your password', passwordResetTemplate(user.username, code))
 		return reset.createdAt.getTime() + PASSWORD_RESET_COOLDOWN_MS
 	}

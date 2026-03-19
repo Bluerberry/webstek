@@ -4,7 +4,7 @@ import { zod4 } from 'sveltekit-superforms/adapters'
 import { User, PasswordReset } from '$server/services'
 import { message, superValidate } from 'sveltekit-superforms'
 import { verifyCodeSchema } from '$validation/authSchemas'
-import { validateToken, PASSWORD_RESET_TIMEOUT_MS } from '$server/scripts/auth'
+import { PASSWORD_RESET_TIMEOUT_MS, validatePassword } from '$server/scripts/auth'
 
 import type { PageServerLoad, Actions } from './$types'
 
@@ -38,7 +38,7 @@ export const actions: Actions = {
 		}
 
 		// Check code
-		if (!await validateToken(form.data.code, reset.code)) {
+		if (!await validatePassword(form.data.code, reset.code)) {
 			return message(form, { type: 'error', text: 'Incorrect code' }, { status: 400 })
 		}
 

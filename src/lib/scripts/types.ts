@@ -12,6 +12,6 @@ export type SanitizedSession = {
 	country?: string,
 	browserName?: string,
 	browserVersion?: string,
-	lastVerifiedAt: Date,
+	lastValidatedAt: Date,
 	createdAt: Date
 }

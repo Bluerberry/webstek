@@ -4,7 +4,7 @@ import { error } from '@sveltejs/kit'
 import { command } from '$app/server'
 import { getRequestEvent } from '$app/server'
 import { EmailVerification } from '$server/services'
-import { EMAIL_VERIFICATION_COOLDOWN_MS, generateCode, hashToken } from '$server/scripts/auth'
+import { EMAIL_VERIFICATION_COOLDOWN_MS, generateCode, hashPassword } from '$server/scripts/auth'
 import { sendEmail, emailVerificationTemplate, emailUpdateVerificationTemplate } from '$server/scripts/email'
 
 export const requestCode = command(z.string().optional(), async intent => {
@@ -25,12 +25,12 @@ export const requestCode = command(z.string().optional(), async intent => {
             return existing.createdAt.getTime() + EMAIL_VERIFICATION_COOLDOWN_MS
         }
 
-        await EmailVerification.deleteAllByUserId(locals.user.id)
+        await EmailVerification.deleteByUserId(locals.user.id)
     }
 
     // Send new code
     const code = generateCode()
-    const emailverification = await EmailVerification.create(locals.user.id, await hashToken(code))
+    const emailverification = await EmailVerification.create(locals.user.id, await hashPassword(code))
     const template = intent === 'update'
         ? emailUpdateVerificationTemplate(locals.user.username, code)
         : emailVerificationTemplate(locals.user.username, code)

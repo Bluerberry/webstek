@@ -164,7 +164,7 @@
 					{metadata}
 				</span>
 
-				<span class="cell"> {session.lastVerifiedAt.toDateString()} </span>
+				<span class="cell"> {session.lastValidatedAt.toDateString()} </span>
 
 				{#if session.id === data.session.id}
 					<span class="label muted"> Your current session </span>

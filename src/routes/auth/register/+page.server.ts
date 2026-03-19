@@ -40,7 +40,7 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'Email already exists' }, { status: 400 })
 		}
 
-		// Register	
+		// Register
 		const user = await User.create(
 			form.data.email, 
 			form.data.username, 

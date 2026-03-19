@@ -66,6 +66,7 @@ export const emailVerifications = pgTable('email_verifications', {
         .notNull(),
     userId: integer('user_id')
         .notNull()
+        .unique()
         .references(() => users.id, { onDelete: 'cascade' }),
     createdAt: timestamp('created_at', { withTimezone: true })
         .notNull()
@@ -86,6 +87,7 @@ export const passwordResets = pgTable('password_resets', {
         .notNull(),
     userId: integer('user_id')
         .notNull()
+        .unique()
         .references(() => users.id, { onDelete: 'cascade' }),
     createdAt: timestamp('created_at', { withTimezone: true })
         .notNull()

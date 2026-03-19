@@ -1,11 +1,11 @@
 
-import { redirectWithFlow } from '$scripts/flow'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { resetPasswordSchema } from '$validation/authSchemas'
 import { message, superValidate } from 'sveltekit-superforms'
 import { User, Session, PasswordReset } from '$server/services'
+import { redirectToDestination, redirectWithFlow } from '$scripts/flow'
 import { sendEmail, passwordChangeNotificationTemplate } from '$server/scripts/email'
-import { validateToken, hashPassword, PASSWORD_RESET_TIMEOUT_MS } from '$server/scripts/auth'
+import { hashPassword, PASSWORD_RESET_TIMEOUT_MS, validatePassword } from '$server/scripts/auth'
 
 import type { PageServerLoad, Actions } from './$types'
 
@@ -16,7 +16,7 @@ export const load: PageServerLoad = async () => {
 }
 
 export const actions: Actions = {
-	reset: async ({ url, request, cookies }) => {
+	reset: async ({ url, request, locals, cookies }) => {
 		const form = await superValidate(request, zod4(resetPasswordSchema))
 		if (!form.valid) return message(form, { type: 'error', text: 'Invalid form data' }, { status: 400 })
 
@@ -36,12 +36,12 @@ export const actions: Actions = {
 
 		// Re-check expiry
 		if (Date.now() - reset.createdAt.getTime() >= PASSWORD_RESET_TIMEOUT_MS) {
-			await PasswordReset.deleteAllByUserId(user.id)
+			await PasswordReset.delete(reset.id)
 			return message(form, { type: 'error', text: 'Reset request expired' }, { status: 400 })
 		}
 
 		// Re-check code
-		if (!await validateToken(code, reset.code)) {
+		if (!await validatePassword(code, reset.code)) {
 			return message(form, { type: 'error', text: 'Invalid recovery state' }, { status: 500 })
 		}
 
@@ -50,8 +50,12 @@ export const actions: Actions = {
 		await User.update(user)
 
 		// Cleanup
-		await Session.deleteAllByUserId(user.id)
-		await PasswordReset.deleteAllByUserId(user.id)
+		await PasswordReset.delete(reset.id)
+		if (locals.session) {
+			await Session.deleteAllExceptCurrent(user.id, locals.session.id)
+		} else {
+			await Session.deleteByUserId(user.id)
+		}
 
 		cookies.delete('webstek_reset_email', { path: '/' })
 		cookies.delete('webstek_reset_code', { path: '/' })
@@ -62,6 +66,10 @@ export const actions: Actions = {
 			passwordChangeNotificationTemplate(user.username)
 		)
 
-		redirectWithFlow(url, 303, '/auth/login')
+		if (locals.session) {
+			redirectToDestination(url, 303, '/')
+		} else {
+			redirectWithFlow(url, 303, '/auth/login')
+		}
 	}
 }

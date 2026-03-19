@@ -1,12 +1,12 @@
 
 
 import { redirect } from '@sveltejs/kit'
-import { EmailVerification } from '$server/services'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { redirectToDestination } from '$scripts/flow'
 import { verifyCodeSchema } from '$validation/authSchemas'
+import { EmailVerification, Session, User } from '$server/services'
 import { message, superValidate } from 'sveltekit-superforms'
-import { EMAIL_VERIFICATION_TIMEOUT_MS, validateToken } from '$server/scripts/auth'
+import { EMAIL_VERIFICATION_TIMEOUT_MS, validatePassword } from '$server/scripts/auth'
 
 import type { PageServerLoad, Actions } from './$types'
 
@@ -42,11 +42,20 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'Email verification expired' }, { status: 400 })
 		}
 
-		const valid = await validateToken(form.data.code, emailverification.code)
+		const valid = await validatePassword(form.data.code, emailverification.code)
 		if (!valid) return message(form, { type: 'error', text: 'Incorrect code' }, { status: 400 })
 
 		// Verify
-		await EmailVerification.resolve(emailverification.id, emailverification.userId)
+		locals.user.verified = true
+		await User.update(locals.user)
+
+		// Cleanup
+		await EmailVerification.delete(emailverification.id)
+		if (locals.session) {
+			await Session.deleteAllExceptCurrent(locals.user.id, locals.session.id)
+		} else {
+			await Session.deleteByUserId(locals.user.id)
+		}
 
 		// Redirect
 		redirectToDestination(url, 303, '/')

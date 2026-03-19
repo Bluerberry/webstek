@@ -1,56 +1,41 @@
 
 import { eq } from 'drizzle-orm'
 import { db, sessions, users } from '$server/database'
+
+import type { DbOrTx } from '$server/database'
 import type { SanitizedUser } from '$scripts/types'
 
 type TUser = typeof users.$inferSelect
 
 export class User {
-	static async create(email: string, username: string, password: string) {
-		const [ user ] = await db.insert(users)
+	static async create(email: string, username: string, password: string, dbOrTx: DbOrTx = db) {
+		const [ user ] = await dbOrTx.insert(users)
 			.values({ email, username, password })
 			.returning()
 
 		return user
 	}
 
-	static async getById(id: number) {
-		return await db.query.users.findFirst({
+	static async getById(id: number, dbOrTx: DbOrTx = db) {
+		return await dbOrTx.query.users.findFirst({
 			where: eq(users.id, id)
 		})
 	}
 
-	static async getByEmail(email: string) {
-		return await db.query.users.findFirst({
+	static async getByEmail(email: string, dbOrTx: DbOrTx = db) {
+		return await dbOrTx.query.users.findFirst({
 			where: eq(users.email, email)
 		})
 	}
 
-	static async setCollectMetadata(id: number, value: boolean) {
-		await db.transaction(async tx => {
-			await tx.update(users)
-				.set({ collectMetadata: value })
-				.where(eq(users.id, id))
-	
-			if (value === false) {
-				await tx.update(sessions)
-					.set({
-						country: null,
-						browserName: null,
-						browserVersion: null
-					})
-			}
-		})
-	}
-
-	static async update(data: Partial<TUser> & { id: number }) {
-		await db.update(users)
+	static async update(data: Partial<TUser> & { id: number }, dbOrTx: DbOrTx = db) {
+		await dbOrTx.update(users)
 			.set(data)
 			.where(eq(users.id, data.id))
 	}
 
-	static async delete(id: number) {
-		const [ user ] = await db.delete(users)
+	static async delete(id: number, dbOrTx: DbOrTx = db) {
+		const [ user ] = await dbOrTx.delete(users)
 			.where(eq(users.id, id))
 			.returning()
 
