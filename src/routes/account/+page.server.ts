@@ -1,9 +1,9 @@
 
 import { User } from '$server/services'
 import { redirect } from '@sveltejs/kit'
-import { startFlow } from '$scripts/flow'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { message, superValidate } from 'sveltekit-superforms'
+import { createFlow, requireAuth, withFlow } from '$scripts/flow'
 import { hashPassword, validatePassword } from '$server/scripts/auth'
 import { changeUsernameSchema, changeEmailSchema, changePasswordSchema } from '$validation/authSchemas'
 import { sendEmail, emailChangeNotificationTemplate, passwordChangeNotificationTemplate } from '$server/scripts/email'
@@ -11,11 +11,7 @@ import { sendEmail, emailChangeNotificationTemplate, passwordChangeNotificationT
 import type { PageServerLoad, Actions } from './$types'
 
 export const load: PageServerLoad = async ({ url, locals }) => {
-
-	// Validate userstate
-	if (locals.user === undefined || locals.session === undefined) {
-		redirect(303, '/auth/login?' + startFlow('login', '/account'))
-	}
+	requireAuth(url, locals)
 
 	return {
 		user: locals.user,
@@ -78,7 +74,7 @@ export const actions: Actions = {
 		await User.update(locals.user)
 
 		// Redirect to verification
-		redirect(303, '/auth/verify?' + startFlow('update', '/account'))
+		redirect(303, withFlow('/auth/verify', createFlow('verify', '/account')))
 	},
 
 	'change-password': async ({ request, locals }) => {

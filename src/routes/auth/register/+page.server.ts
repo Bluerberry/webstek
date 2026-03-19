@@ -3,8 +3,8 @@ import { UAParser } from 'ua-parser-js'
 import { redirect } from '@sveltejs/kit'
 import { env } from '$env/dynamic/private'
 import { User, Session } from '$server/services'
+import { redirectWithFlow } from '$scripts/flow'
 import { zod4 } from 'sveltekit-superforms/adapters'
-import { redirectPreservingFlow } from '$scripts/flow'
 import { registerSchema } from '$validation/authSchemas'
 import { superValidate, message } from 'sveltekit-superforms'
 import { generateToken, hashPassword, hashToken, SESSION_INACTIVITY_TIMEOUT_MS } from '$server/scripts/auth'
@@ -83,6 +83,6 @@ export const actions: Actions = {
 		})
 
 		// Redirect
-		redirectPreservingFlow(url, 303, '/auth/verify')
+		redirectWithFlow(url, 303, '/auth/verify')
 	}
 }

@@ -3,6 +3,7 @@
 
 	import { page } from '$app/state'
 	import { enhance } from '$app/forms'
+    import { flowAction } from '$scripts/flow'
 	import { verificationSchema } from '$validation/authSchemas'
 
 	import * as Form from '$components/form'
@@ -34,7 +35,7 @@
 <Form.Root
 	form={data.verifyForm}
 	schema={verificationSchema}
-	action="?/verify{page.url.search.replace('?', '&')}"
+	action={flowAction('verify', page.url)}
 	style="centered"
 >
 	{#snippet above()}
@@ -45,7 +46,7 @@
 	<Form.CodeInput field="code" />
 
 	{#snippet below()}
-		<form method="POST" action="?/resend{page.url.search.replace('?', '&')}" use:enhance>
+		<form method="POST" action={flowAction('resend', page.url)} use:enhance>
 			<Button type="submit" style="default" disabled={onCooldown}>
 				{onCooldown ? cooldownLabel() : 'Resend email'}
 			</Button>

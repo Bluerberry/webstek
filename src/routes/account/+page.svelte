@@ -2,7 +2,7 @@
 <script lang="ts">
 
 	import { goto } from '$app/navigation'
-	import { startFlow } from '$scripts/flow.js'
+	import { createFlow, withFlow } from '$scripts/flow.js'
 	import toaster from '$stores/toaster.svelte'
 	import { changeEmailSchema, changePasswordSchema, changeUsernameSchema } from '$validation/authSchemas'
 	import { getSessions, endSession, setCollectMetadata, getCollateralDamage, deleteAccount } from './account.remote'
@@ -131,7 +131,7 @@
 				<Button
 					style='link'
 					disabled={data.user.verified}
-					href="/auth/verify?{startFlow('update', '/account')}"
+					href={withFlow('/auth/verify', createFlow('verify', '/account'))}
 				> Verify </Button>
 			</div>
 
@@ -145,7 +145,7 @@
 				<Button
 					style="link"
 					disabled={!data.user.verified}
-					href="/auth/reset?{startFlow('reset', '/account')}"
+					href={withFlow('/auth/reset', createFlow('reset', '/account'))}
 				> Reset </Button>
 			</div>
 		</div>

@@ -1,15 +1,15 @@
 
 
+import { fail, redirect } from '@sveltejs/kit'
 import { Verification } from '$server/services'
 import { zod4 } from 'sveltekit-superforms/adapters'
-import { fail, redirect } from '@sveltejs/kit'
 import { verificationSchema } from '$validation/authSchemas'
 import { message, superValidate } from 'sveltekit-superforms'
-import { getFlowIntent, redirectToDestination } from '$scripts/flow'
+import { getFlow, redirectToDestination } from '$scripts/flow'
 import { emailVerificationTemplate, emailUpdateVerificationTemplate, sendEmail } from '$server/scripts/email'
 import { EMAIL_VERIFICATION_TIMEOUT_MS, EMAIL_VERIFICATION_COOLDOWN_MS, validateToken, generateCode, hashToken } from '$server/scripts/auth'
 
-import type { FlowIntent } from '$scripts/types'
+import type { FlowIntent } from '$scripts/flow'
 import type { PageServerLoad, Actions } from './$types'
 
 async function requestVerification(userId: number, userEmail: string, username: string, intent: FlowIntent | undefined) {
@@ -32,7 +32,7 @@ async function requestVerification(userId: number, userEmail: string, username: 
 	const verification = await Verification.create(userId, await hashToken(code))
 
 	// Send email
-	const template = intent === 'update'
+	const template = intent === 'verify'
 		? emailUpdateVerificationTemplate(username, code)
 		: emailVerificationTemplate(username, code)
 
@@ -56,7 +56,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		locals.user.id, 
 		locals.user.email, 
 		locals.user.username, 
-		getFlowIntent(url, 'register')
+		getFlow(url).intent
 	)
 
 	return {
@@ -105,7 +105,7 @@ export const actions: Actions = {
 			locals.user.id, 
 			locals.user.email, 
 			locals.user.username, 
-			getFlowIntent(url)
+			getFlow(url).intent
 		)
 	}
 }

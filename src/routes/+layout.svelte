@@ -2,12 +2,14 @@
 <script lang="ts">
 
 	import '$styles/global.scss'
+    import { page } from '$app/state'
     import { enhance } from '$app/forms'
 	import theme from '$stores/theme.svelte'
+    import { createFlow, withFlow } from '$scripts/flow.js'
 	
+    import { Toaster } from '$components/toaster'
 	import Button from '$components/Button.svelte'
 	import { Navigation } from '$components/navigation'
-    import { Toaster } from '$components/toaster'
 
 	let { data, children } = $props()
 
@@ -20,6 +22,10 @@
 			{ label: 'Why am I poor?', path: '/projects/why-am-i-poor' }
 		]}
 	]
+
+	const destination = $derived(
+	    page.url.pathname.startsWith('/auth') ? '/' : page.url.pathname
+	)
 
 </script>
 
@@ -38,10 +44,10 @@
 				</form>
 			{:else}
 				<h3>Welcome stranger</h3>
-				<Button href="/auth/register">
+				<Button href={withFlow('/auth/register', createFlow('register', destination))}>
 					Register
 				</Button>
-				<Button href="/auth/login" style="outline">
+				<Button href={withFlow('/auth/login', createFlow('login', destination))} style="outline">
 					Login
 				</Button>
 			{/if}

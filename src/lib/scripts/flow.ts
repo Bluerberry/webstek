@@ -1,27 +1,64 @@
 
-import type { FlowIntent } from '$scripts/types'
 import { redirect } from '@sveltejs/kit'
 
-export function startFlow(intent?: FlowIntent, destination?: string) {
-	const params: Record<string, string> = {}
-	if (intent !== undefined) params.intent = intent
-	if (destination !== undefined) params.dest = destination
+export type FlowIntent = 'login'
+					   | 'logout'
+					   | 'register'
+					   | 'verify'
+					   | 'reset'
 
-	return new URLSearchParams(params).toString()
+export type Flow = {
+	intent?: FlowIntent
+	destination?: string
 }
 
-export function getFlowDestination(url: URL, defaultLocation: string) {
-	return url.searchParams.get('dest') ?? defaultLocation
+// ─── Reading ────────────────────────────────────────────────────────────────
+
+export function getFlow(url: URL): Flow {
+	return {
+		intent: (url.searchParams.get('intent') ?? undefined) as FlowIntent | undefined,
+		destination: url.searchParams.get('dest') ?? undefined
+	}
 }
 
-export function getFlowIntent(url: URL, defaultIntent?: FlowIntent) {
-	return (url.searchParams.get('intent') ?? defaultIntent) as FlowIntent | undefined
+// ─── Building ───────────────────────────────────────────────────────────────
+
+export function createFlow(intent?: FlowIntent, destination?: string): URLSearchParams {
+	const params = new URLSearchParams()
+	if (intent !== undefined) params.set('intent', intent)
+	if (destination !== undefined) params.set('dest', destination)
+	return params
 }
 
-export function redirectToDestination(url: URL, status: number, defaultLocation: string) {
-	redirect(status, getFlowDestination(url, defaultLocation))
+export function withFlow(path: string, flow: Flow | URLSearchParams): string {
+	const params = flow instanceof URLSearchParams ? flow : createFlow(flow.intent, flow.destination)
+	if (params.size === 0) return path
+	const separator = path.includes('?') ? '&' : '?'
+	return `${path}${separator}${params}`
 }
 
-export function redirectPreservingFlow(url: URL, status: number, location: string) {
-	redirect(status, location + '?' + url.searchParams.toString())	
+export function flowAction(actionName: string, url: URL): string {
+	const { intent, destination } = getFlow(url)
+	const params = createFlow(intent, destination)
+	if (params.size === 0) return `?/${actionName}`
+	return `?/${actionName}&${params}`
+}
+
+// ─── Redirecting ─────────────────────────────────────────────────────────────
+
+export function redirectWithFlow(url: URL, status: Parameters<typeof redirect>[0], path: string): never {
+	const { intent, destination } = getFlow(url)
+	redirect(status, withFlow(path, { intent, destination }))
+}
+
+export function redirectToDestination(url: URL, status: Parameters<typeof redirect>[0], fallback: string): never {
+	redirect(status, getFlow(url).destination ?? fallback)
+}
+
+// ─── Auth guard ──────────────────────────────────────────────────────────────
+
+export function requireAuth(url: URL, locals: App.Locals): asserts locals is App.Locals & { user: NonNullable<App.Locals['user']>, session: NonNullable<App.Locals['session']> } {
+	if (locals.user === undefined) {
+		redirect(303, withFlow('/auth/login', createFlow('login', url.pathname)))
+	}
 }
