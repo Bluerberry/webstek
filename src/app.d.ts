@@ -1,5 +1,5 @@
 
-import type { Flow, SanitizedUser, SanitizedSession } from '$lib/types'
+import type { Flow, SanitizedUser, SanitizedSession } from '$scripts/types'
 
 declare global {
 	namespace App {

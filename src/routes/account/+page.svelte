@@ -1,19 +1,23 @@
 
 <script lang="ts">
 
+	import { goto } from '$app/navigation'
+	import { startFlow } from '$scripts/flow.js'
+	import toaster from '$stores/toaster.svelte'
+	import { changeEmailSchema, changePasswordSchema, changeUsernameSchema } from '$validation/authSchemas'
+	import { getSessions, endSession, setCollectMetadata, getCollateralDamage, deleteAccount } from './account.remote'
+
 	import * as Form from '$components/form'
 	import Modal from '$components/Modal.svelte'
 	import Button from '$components/Button.svelte'
-	import Checkbox from '$components/Checkbox.svelte';
-	import { Dot } from '@lucide/svelte'
-	
-	import { goto } from '$app/navigation';
-	import { startFlow } from '$lib/flow';
-	import { getSessions, endSession, setCollectMetadata, getCollateralDamage, deleteAccount } from './account.remote'
-	import { changeEmailSchema, changePasswordSchema, changeUsernameSchema } from '$validation/authSchemas';
-	import toaster from '$stores/toaster.svelte';
+	import Checkbox from '$components/Checkbox.svelte'
 
-	let { data } = $props()
+	import { Dot } from '@lucide/svelte'
+
+	import type { PageData } from './$types'
+
+	type Props = { data: PageData }
+	let { data }: Props = $props()
 
 	let usernameModal = $state(false)
 	let emailModal = $state(false)
@@ -123,13 +127,12 @@
 
 			<div class="row">
 				<Button style="link" onclick={() => emailModal = true}> Change </Button>
-				{#if !data.user.verified}
-					<Dot />
-					<Button
-						style='link'
-						href="/auth/verify?{startFlow('update', '/account')}"
-					> Verify </Button>
-				{/if}
+				<Dot />
+				<Button
+					style='link'
+					disabled={data.user.verified}
+					href="/auth/verify?{startFlow('update', '/account')}"
+				> Verify </Button>
 			</div>
 
 			<!-- PASSWORD -->
@@ -139,7 +142,11 @@
 			<div class="row">
 				<Button style="link" onclick={() => passwordModal = true}> Change </Button>
 				<Dot />
-				<Button style="link" disabled={!data.user.verified}> Recover </Button>
+				<Button
+					style="link"
+					disabled={!data.user.verified}
+					href="/auth/reset?{startFlow('reset', '/account')}"
+				> Reset </Button>
 			</div>
 		</div>
 	</section>
@@ -200,9 +207,13 @@
 			}
 		}}
 	>
-		<Form.TextField field="username" label="New Username" />
+		{#snippet above()}
+			<h2> Change your username </h2>
+		{/snippet}
 
-		{#snippet footer()}
+		<Form.TextField field="newUsername" label="New Username" />
+
+		{#snippet below()}
 			<Form.Submit> Save </Form.Submit>
 			<Form.Response />
 		{/snippet}
@@ -222,10 +233,14 @@
 			}
 		}}
 	>
-		<Form.TextField field="email" label="New Email" />
+		{#snippet above()}
+			<h2> Change your email </h2>
+		{/snippet}
+
+		<Form.TextField field="newEmail" label="New Email" />
 		<Form.TextField type="password" field="password" label="Password" />
 
-		{#snippet footer()}
+		{#snippet below()}
 			<Form.Submit> Save </Form.Submit>
 			<Form.Response />
 		{/snippet}
@@ -239,14 +254,20 @@
 		form={data.changePasswordForm}
 		schema={changePasswordSchema}
 		onResult={({ result }) => {
-			if (result.type === 'success') passwordModal = false;
-			toaster.show('Sucessfully changed password')
+			if (result.type === 'success') {
+				passwordModal = false
+				toaster.show('Sucessfully changed password')
+			}
 		}}
 	>
+		{#snippet above()}
+			<h2> Change your password </h2>
+		{/snippet}
+
 		<Form.TextField type="password" field="oldPassword" label="Old Password" />
 		<Form.TextField type="password" field="newPassword" label="New Password" />
 
-		{#snippet footer()}
+		{#snippet below()}
 			<Form.Submit> Save </Form.Submit>
 			<Form.Response />
 		{/snippet}

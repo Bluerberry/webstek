@@ -2,10 +2,14 @@
 <script lang="ts">
 
 	import { page } from '$app/state'
-	import * as Form from '$components/form'
 	import { registerSchema } from '$validation/authSchemas'
+	
+	import * as Form from '$components/form'
 
-	let { data } = $props()
+	import type { PageData } from './$types'
+
+	type Props = { data: PageData }
+	let { data }: Props = $props()
 
 </script>
 
@@ -15,7 +19,7 @@
 	action="/auth/register{page.url.search}"
 	style="grid"
 >
-	{#snippet header()}
+	{#snippet above()}
 		<h1> Register </h1>
 	{/snippet}
 
@@ -23,7 +27,7 @@
 	<Form.TextField field="email" label="Email" />
 	<Form.TextField type="password" field="password" label="Password" />
 
-	{#snippet footer()}
+	{#snippet below()}
 		<Form.Submit> Register </Form.Submit>
 		<Form.Response />
 	{/snippet}

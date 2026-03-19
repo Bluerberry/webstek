@@ -1,7 +1,7 @@
 
 import { eq } from 'drizzle-orm'
 import { db, users, sessions } from '$server/database'
-import type { SanitizedSession } from '$lib/types'
+import type { SanitizedSession } from '$scripts/types'
 
 type TSession = typeof sessions.$inferSelect
 type TSessionWithUser = TSession & { user: typeof users.$inferSelect }
@@ -37,11 +37,19 @@ export class Session {
 	}
 
 	static async delete(id: string) {
-		const [ session ] = await db.delete(sessions)
+		const [ deleted ] = await db.delete(sessions)
 			.where(eq(sessions.id, id))
 			.returning()
 
-		return session
+		return deleted
+	}
+
+	static async deleteAllByUserId(userId: number) {
+		const deleted = await db.delete(sessions)
+			.where(eq(sessions.userId, userId))
+			.returning()
+
+		return deleted
 	}
 
 	static sanitize(session: TSession): SanitizedSession {

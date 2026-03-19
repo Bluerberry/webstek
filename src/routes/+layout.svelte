@@ -25,7 +25,28 @@
 
 <div class="layout theme-{theme.invert()}">
 	<div class="gutter">
-		{@render account()}
+		<div class="account">
+			{#if data.user}
+				<h3>Welcome, {data.user.username}</h3>
+				<Button href="/account">
+					Account
+				</Button>
+				<form method="POST" action="/auth/logout" use:enhance>
+					<Button type="submit" style="outline">
+						Logout
+					</Button>
+				</form>
+			{:else}
+				<h3>Welcome stranger</h3>
+				<Button href="/auth/register">
+					Register
+				</Button>
+				<Button href="/auth/login" style="outline">
+					Login
+				</Button>
+			{/if}
+		</div>
+
 		<Navigation {navtree} />
 	</div>
 
@@ -36,37 +57,11 @@
 	</main>
 </div>
 
-{#snippet account()}
-	<div class="account">
-		{#if data.user}
-			<h3>Welcome, {data.user.username}</h3>
-			<Button href="/account">
-				Account
-			</Button>
-			<form method="POST" action="/auth/logout" use:enhance>
-				<Button type="submit" style="outline">
-					Logout
-				</Button>
-			</form>
-		{:else}
-			<h3>Welcome stranger</h3>
-			<Button href="/auth/register">
-				Register
-			</Button>
-			<Button href="/auth/login" style="outline">
-				Login
-			</Button>
-		{/if}
-	</div>
-{/snippet}
-
 <style lang="scss">
 
 	@use '$styles/variables' as *;
 	@use '$styles/themes' as *;
 	@include themed();
-
-	$layout-padding: 6rem 4rem;
 
 	.layout {
 		display: flex;

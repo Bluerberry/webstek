@@ -12,6 +12,8 @@ const transporter = nodemailer.createTransport({
 });
 
 export async function sendEmail(to: string, subject: string, html: string) {
+	if (env.ENVIRONMENT === 'dev') return
+
 	try {
 		await transporter.sendMail({
 			from: env.GMAIL_USER,
@@ -23,6 +25,11 @@ export async function sendEmail(to: string, subject: string, html: string) {
 }
 
 export const emailVerificationTemplate = (username: string, code: string) => {
+	if (env.ENVIRONMENT === 'dev') {
+		console.log(`Email signup verification ${code}`)
+		return ''
+	}
+
 	const formattedTimeout = Math.round(EMAIL_VERIFICATION_TIMEOUT_MS / 60000)
 	const formattedCode = code.split('').join(' ')
 
@@ -59,6 +66,11 @@ export const emailVerificationTemplate = (username: string, code: string) => {
 `}
 
 export const emailUpdateVerificationTemplate = (username: string, code: string) => {
+	if (env.ENVIRONMENT === 'dev') {
+		console.log(`Email update verification ${code}`)
+		return ''
+	}
+	
 	const formattedTimeout = Math.round(EMAIL_VERIFICATION_TIMEOUT_MS / 60000)
 	const formattedCode = code.split('').join(' ')
 
@@ -86,7 +98,7 @@ export const emailUpdateVerificationTemplate = (username: string, code: string) 
 				</td></tr>
 				<tr><td align="center" style="font-size:12px; color:#86867E; padding-top:30px;">
 					This code will expire in ${formattedTimeout} minutes for your security.
-					If you did not request this change, take immediate action.
+					If you did not request this change, <strong>take immediate action</strong>.
 				</td></tr>
 			</table>
 		</td></tr>
@@ -96,6 +108,11 @@ export const emailUpdateVerificationTemplate = (username: string, code: string) 
 `}
 
 export const emailChangeNotificationTemplate = (username: string) => {
+	if (env.ENVIRONMENT === 'dev') {
+		console.log(`Email change for ${username}`)
+		return ''
+	}
+
 	return `
 <!DOCTYPE html>
 <html>
@@ -112,7 +129,48 @@ export const emailChangeNotificationTemplate = (username: string) => {
 				</td></tr>
 				<tr><td style="font-size:16px; line-height:24px; padding-bottom:30px;">
 					Hi ${username}, <br />
-					You have successfully changed your email! This will be the last message you recieve from us on this address. If you did not request a change of email, take immediate action.
+					You have successfully changed your email! This will be the last message you recieve from us on this address. If you did not request a change of email, <strong>take immediate action</strong>.
+				</td></tr>
+			</table>
+		</td></tr>
+	</table>
+</body>
+</html>
+`}
+
+export const passwordResetTemplate = (username: string, code: string) => {
+	if (env.ENVIRONMENT === 'dev') {
+		console.log(`Password reset verification ${code}`)
+		return ''
+	}
+
+	const formattedTimeout = Math.round(EMAIL_VERIFICATION_TIMEOUT_MS / 60000)
+	const formattedCode = code.split('').join(' ')
+
+	return `
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>Password reset</title>
+</head>
+<body style="margin:0; padding:20px; font-family: Arial, sans-serif; color:#141204;">
+	<table width="100%" cellspacing="0" cellpadding="0" bgcolor="#ffffff">
+		<tr><td align="center">
+			<table width="600" cellspacing="0" cellpadding="0" bgcolor="#f7f9f7" style="border-radius:8px; padding:30px;">
+				<tr><td align="center" style="font-size:24px; font-weight:bold; padding-bottom:20px;">
+					Password Reset
+				</td></tr>
+				<tr><td style="font-size:16px; line-height:24px; padding-bottom:30px;">
+					Hi ${username}, <br />
+					You requested to reset your password. Use the code below to verify your identity!
+					If you did not request a password reset, <strong>take immediate action</strong>.
+				</td></tr>
+				<tr><td align="center" style="font-size:32px; font-weight:bold;">
+					${formattedCode}
+				</td></tr>
+				<tr><td align="center" style="font-size:12px; color:#86867E; padding-top:30px;">
+					This code will expire in ${formattedTimeout} minutes for your security.
 				</td></tr>
 			</table>
 		</td></tr>
@@ -122,6 +180,11 @@ export const emailChangeNotificationTemplate = (username: string) => {
 `}
 
 export const passwordChangeNotificationTemplate = (username: string) => {
+	if (env.ENVIRONMENT === 'dev') {
+		console.log(`Email change for ${username}`)
+		return ''
+	}
+
 	return `
 <!DOCTYPE html>
 <html>
@@ -139,7 +202,7 @@ export const passwordChangeNotificationTemplate = (username: string) => {
 				<tr><td style="font-size:16px; line-height:24px; padding-bottom:30px;">
 					Hi ${username}, <br />
 					Your account password was recently changed. If you made this change,
-					no further action is needed. If you did not request this, take immediate action.
+					no further action is needed. If you did not request this, <strong>take immediate action</strong>.
 				</td></tr>
 			</table>
 		</td></tr>

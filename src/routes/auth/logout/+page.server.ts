@@ -1,7 +1,7 @@
 
 import { fail } from '@sveltejs/kit'
-import { redirectToDestination } from '$lib/flow'
 import { Session } from '$server/services'
+import { redirectToDestination } from '$scripts/flow'
 
 import type { Actions } from './$types'
 

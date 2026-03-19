@@ -1,13 +1,13 @@
 
-import { env } from '$env/dynamic/private'
-import { generateToken, hashToken, SESSION_INACTIVITY_TIMEOUT_MS, validatePassword } from '$server/scripts/auth'
-import { loginSchema } from '$validation/authSchemas'
-import { redirect } from '@sveltejs/kit'
-import { redirectToDestination } from '$lib/flow'
-import { superValidate, message } from 'sveltekit-superforms'
 import { UAParser } from 'ua-parser-js'
+import { redirect } from '@sveltejs/kit'
+import { env } from '$env/dynamic/private'
 import { User, Session } from '$server/services'
 import { zod4 } from 'sveltekit-superforms/adapters'
+import { loginSchema } from '$validation/authSchemas'
+import { redirectToDestination } from '$scripts/flow'
+import { superValidate, message } from 'sveltekit-superforms'
+import { generateToken, hashToken, SESSION_INACTIVITY_TIMEOUT_MS, validatePassword } from '$server/scripts/auth'
 
 import type { PageServerLoad, Actions } from './$types'
 
@@ -28,22 +28,22 @@ export const actions: Actions = {
 
 		// Validate form
 		const form = await superValidate(request, zod4(loginSchema))
-		if (!form.valid) return message(form, 'Invalid form data', { status: 400 })
+		if (!form.valid) return message(form, { type: 'error', text: 'Invalid form data' }, { status: 400 })
 
 		// Validate userstate
 		if (locals.user !== undefined) {
-			return message(form, 'Already logged in', { status: 403 })
+			return message(form, { type: 'error', text: 'Already logged in' }, { status: 403 })
 		}
 
 		// Get user
 		const user = await User.getByEmail(form.data.email)
 		if (user === undefined) {
-			return message(form, 'Invalid credentials', { status: 401 })
+			return message(form, { type: 'error', text: 'Invalid credentials' }, { status: 401 })
 		}
 
 		// Validate password
 		if (!await validatePassword(form.data.password, user.password)) {
-			return message(form, 'Invalid credentials', { status: 401 })
+			return message(form, { type: 'error', text: 'Invalid credentials' }, { status: 401 })
 		}
 
 		// Session metadata

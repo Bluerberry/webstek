@@ -27,6 +27,7 @@ export const users = pgTable('users', {
 export const userRelations = relations(users, ({ one, many }) => ({
     sessions: many(sessions),
     verification: one(verifications),
+    passwordReset: one(passwordResets),
     recipes: many(recipes),
     recipeNotes: many(recipeNotes),
     recipeFavorites: many(recipeFavorites)
@@ -74,6 +75,26 @@ export const verifications = pgTable('verifications', {
 export const verificationRelations = relations(verifications, ({ one }) => ({
     user: one(users, {
         fields: [verifications.userId],
+        references: [users.id]
+    })
+}))
+
+export const passwordResets = pgTable('password_resets', {
+    id: serial('id')
+        .primaryKey(),
+    code: varchar('code', { length: 64 })
+        .notNull(),
+    userId: integer('user_id')
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+        .notNull()
+        .defaultNow()
+})
+
+export const passwordResetRelations = relations(passwordResets, ({ one }) => ({
+    user: one(users, {
+        fields: [passwordResets.userId],
         references: [users.id]
     })
 }))

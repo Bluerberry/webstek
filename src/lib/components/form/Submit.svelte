@@ -12,10 +12,10 @@
 	let { children }: Props = $props()
 
 	const superform: SuperForm<any> = getContext('superform')
-	const { submitting } = superform
+	const { formId, submitting } = superform
 
 </script>
 
-<Button type="submit" loading={$submitting}>
+<Button type="submit" form={$formId} loading={$submitting}>
 	{@render children()}
 </Button>

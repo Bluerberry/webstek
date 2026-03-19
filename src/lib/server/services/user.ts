@@ -1,7 +1,7 @@
 
 import { eq } from 'drizzle-orm'
 import { db, sessions, users } from '$server/database'
-import type { SanitizedUser } from '$lib/types'
+import type { SanitizedUser } from '$scripts/types'
 
 type TUser = typeof users.$inferSelect
 

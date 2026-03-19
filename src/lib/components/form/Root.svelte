@@ -14,10 +14,12 @@
 		schema: any
 		action?: string
 		style?: 'grid' | 'centered'
+		children: Snippet
 		header?: Snippet
 		paragraph?: Snippet
 		footer?: Snippet
-		children: Snippet
+		above?: Snippet
+		below?: Snippet
 		onError?: Events['onError']
 		onResult?: Events['onResult']
 		onSubmit?: Events['onSubmit']
@@ -30,10 +32,9 @@
 		schema,
 		action,
 		style,
-		header,
-		paragraph,
-		footer,
 		children,
+		above,
+		below,
 		onError,
 		onResult,
 		onSubmit,
@@ -41,8 +42,10 @@
 		onUpdated
 	}: Props = $props()
 
+	const formId = crypto.randomUUID()
 	const superform = superForm(form, {
 		validators: zod4(schema),
+		id: formId,
 		onError,
 		onResult,
 		onSubmit,
@@ -56,34 +59,34 @@
 
 <form
 	{action}
+	id={formId}
 	method="POST"
 	enctype="multipart/form-data"
-	class={style}
 	use:superform.enhance
->
-	{#if header}
-		{@render header()}
-	{/if}
+></form>
 
-	{#if paragraph}
-		{@render paragraph()}
+<div class="form {style}" >
+	{#if above}
+		<div class="row above">
+			{@render above()}
+		</div>
 	{/if}
 
 	{@render children()}
 
-	{#if footer}
-		<div class="footer">
-			{@render footer()}
+	{#if below}
+		<div class="row below">
+			{@render below()}
 		</div>
 	{/if}
-</form>
+</div>
 
 <style lang="scss">
 
 	@use '$styles/variables' as *;
 	@use '$styles/themes' as *;
 
-	form {
+	.form {
 		width: 100%;
 
 		&.grid {
@@ -92,9 +95,9 @@
 			align-items: center;
 			gap: 1rem;
 			
-			max-width: 30rem;
+			max-width: 32rem;
 
-			:global(> h1), :global(> p), .footer {
+			.row {
 				grid-column: right;
 			}
 		}
@@ -103,28 +106,30 @@
 			display: flex;
 			flex-flow: column nowrap;
 			align-items: center;
-			max-width: 30rem;
+			gap: 1rem;
 
-			:global(> h1), :global(> p) {
-				align-self: flex-start;
-			}
+			max-width: 32rem;
 		}
 
-		:global(> h1) {
-			margin-bottom: 0.5rem;
+		.row :global(p) {
+			margin-top: 0.5rem;
 		}
 
-		:global(> p) {
-			margin-bottom: 2rem;
-		}
+		.above {
+			display: flex;
+			flex-flow: column nowrap;
+			gap: 0.5;
 
-		.footer {
+			margin-bottom: 0.75rem;
+		}
+		
+		.below {
 			display: flex;
 			flex-flow: row nowrap;
 			align-items: center;
 			gap: 1rem;
 
-			margin-top: 0.25rem;
+			margin-top: 0.75rem;
 		}
 	}
 

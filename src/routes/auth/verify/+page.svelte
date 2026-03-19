@@ -3,13 +3,18 @@
 
 	import { page } from '$app/state'
 	import { enhance } from '$app/forms'
-	import * as Form from '$components/form'
-	import { verifySchema } from '$validation/authSchemas'
-	import Button from '$components/Button.svelte';
+	import { verificationSchema } from '$validation/authSchemas'
 
-	let { data } = $props()
+	import * as Form from '$components/form'
+	import Button from '$components/Button.svelte'
+
+	import type { PageData } from './$types'
+
+	type Props = { data: PageData }
+	let { data }: Props = $props()
 
 	let now = $state(Date.now())
+
 	const remainingCooldown = $derived(data.cooldown - now)
 	const onCooldown = $derived(remainingCooldown > 0)
 	const cooldownLabel = $derived(() => {
@@ -28,35 +33,24 @@
 
 <Form.Root
 	form={data.verifyForm}
-	schema={verifySchema}
+	schema={verificationSchema}
 	action="?/verify{page.url.search.replace('?', '&')}"
 	style="centered"
 >
-	{#snippet header()}
+	{#snippet above()}
 		<h1> Verify your email </h1>
-	{/snippet}
-
-	{#snippet paragraph()}
 		<p> To ensure the safety of your account, Webstek requires you to verify your email to access most features. </p>
 	{/snippet}
 
 	<Form.CodeInput field="code" />
 
-	{#snippet footer()}
+	{#snippet below()}
+		<form method="POST" action="?/resend{page.url.search.replace('?', '&')}" use:enhance>
+			<Button type="submit" style="default" disabled={onCooldown}>
+				{onCooldown ? cooldownLabel() : 'Resend email'}
+			</Button>
+		</form>
+
 		<Form.Response />
 	{/snippet}
 </Form.Root>
-
-<form method="POST" action="?/resend{page.url.search.replace('?', '&')}" use:enhance>
-	<Button type="submit" style="default" disabled={onCooldown}>
-		{onCooldown ? cooldownLabel() : 'Resend email'}
-	</Button>
-</form>
-
-<style lang="scss">
-
-	form {
-		margin-top: 0.5rem;
-	}
-
-</style>

@@ -22,26 +22,29 @@
 		type = 'text'
 	}: Props = $props()
 
-	const fieldID = `${field}-${crypto.randomUUID()}`
 	let show = $state(type === 'text')
 
 	const superform: SuperForm<T> = getContext('superform')
+	const fieldId = crypto.randomUUID()
+	const formId = superform.formId
+
 	const { value, errors } = formFieldProxy(superform, field)
 
 </script>
 
 {#if label}
-	<label for={fieldID}> {label} </label>
+	<label for={fieldId}> {label} </label>
 {/if}
 
 <div class="textfield">
 	<input
 		type={show ? 'text' : 'password'}
-		id={fieldID}
+		id={fieldId}
 		name={field}
+		form={$formId}
+		autocomplete="off"
 		class:password={type === 'password'}
 		aria-invalid={$errors ? 'true' : undefined}
-		autocomplete="off"
 		bind:value={$value}
 	/>
 
@@ -111,7 +114,7 @@
 
 		span {
 			position: absolute;
-			top: 100%;
+			top: calc(100% + 0.2 * $s-font);
 			left: 0;
 
 			font-size: $s-font;

@@ -1,13 +1,13 @@
 
-import { env } from '$env/dynamic/private'
-import { generateToken, hashPassword, hashToken, SESSION_INACTIVITY_TIMEOUT_MS } from '$server/scripts/auth'
-import { redirect } from '@sveltejs/kit'
-import { redirectPreservingFlow } from '$lib/flow'
-import { registerSchema } from '$validation/authSchemas'
-import { superValidate, message } from 'sveltekit-superforms'
 import { UAParser } from 'ua-parser-js'
+import { redirect } from '@sveltejs/kit'
+import { env } from '$env/dynamic/private'
 import { User, Session } from '$server/services'
 import { zod4 } from 'sveltekit-superforms/adapters'
+import { redirectPreservingFlow } from '$scripts/flow'
+import { registerSchema } from '$validation/authSchemas'
+import { superValidate, message } from 'sveltekit-superforms'
+import { generateToken, hashPassword, hashToken, SESSION_INACTIVITY_TIMEOUT_MS } from '$server/scripts/auth'
 
 import type { PageServerLoad, Actions } from './$types'
 
@@ -28,16 +28,16 @@ export const actions: Actions = {
 
 		// Validate form
 		const form = await superValidate(request, zod4(registerSchema))
-		if (!form.valid) return message(form, 'Invalid form data', { status: 400 })
+		if (!form.valid) return message(form, { type: 'error', text: 'Invalid form data' }, { status: 400 })
 
 		// Validate userstate
 		if (locals.user !== undefined) {
-			return message(form, 'Already logged in', { status: 403 })
+			return message(form, { type: 'error', text: 'Already logged in' }, { status: 403 })
 		}
 
 		// Check for duplicate emails
 		if (await User.getByEmail(form.data.email)) {
-			return message(form, 'Email already exists', { status: 400 })
+			return message(form, { type: 'error', text: 'Email already exists' }, { status: 400 })
 		}
 
 		// Register	

@@ -1,5 +1,5 @@
 
-import type { FlowIntent } from '$lib/types'
+import type { FlowIntent } from '$scripts/types'
 import { redirect } from '@sveltejs/kit'
 
 export function startFlow(intent?: FlowIntent, destination?: string) {

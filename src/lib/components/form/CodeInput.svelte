@@ -7,8 +7,11 @@
 
 	type Props = { field: FormPathLeaves<T> }
 	let { field }: Props = $props()
-
+	
 	const superform: SuperForm<T> = getContext('superform')
+	const fieldId = crypto.randomUUID()
+	const formId = superform.formId
+
 	const { value } = formFieldProxy(superform, field)
 
 	let digits = $state(['', '', '', '', '', ''])
@@ -21,15 +24,6 @@
 
 	function onBeforeInput(i: number, event: InputEvent) {
 		if (event.data && !/^\d$/.test(event.data)) event.preventDefault()
-	}
-
-	function onInput(i: number, event: Event) {
-		const input = event.target as HTMLInputElement
-		const value = input.value.replace(/\D/g, '').slice(-1)
-
-		digits[i] = value
-		input.value = value
-		if (value && i < 5) inputs[i + 1].focus()
 	}
 
 	function onKeydown(i: number, event: KeyboardEvent) {
@@ -48,6 +42,15 @@
 		}
 	}
 
+	function onInput(i: number, event: Event) {
+		const input = event.target as HTMLInputElement
+		const value = input.value.replace(/\D/g, '').slice(-1)
+
+		digits[i] = value
+		input.value = value
+		if (value && i < 5) inputs[i + 1].focus()
+	}
+
 	function onPaste(event: ClipboardEvent) {
 		const text = event.clipboardData?.getData('text').replace(/\D/g, '').slice(0, 6) ?? ''
 		if (!text) return
@@ -60,22 +63,25 @@
 </script>
 
 <div class="code-input">
-	<input type="hidden" name={field} value={digits.join('')} />
+	<input 
+		type="hidden"
+		id={fieldId}
+		name={field} 
+		form={$formId}
+		value={digits.join('')} 
+	/>
+
 	{#each digits as digit, i}
 		<input
 			type="text"
-			inputmode="numeric"
-			maxlength="1"
 			value={digit}
+			maxlength="1"
+			inputmode="numeric"
 			autocomplete="off"
-			data-lpignore="true"
-			data-1p-ignore
-			data-bwignore
-			data-form-type="other"
-			onbeforeinput={(e) => onBeforeInput(i, e)}
-			oninput={(e) => onInput(i, e)}
-			onkeydown={(e) => onKeydown(i, e)}
-			onpaste={onPaste}
+			onbeforeinput={event => onBeforeInput(i, event)}
+			onkeydown={event => onKeydown(i, event)}
+			oninput={event => onInput(i, event)}
+			onpaste={event => onPaste(event)}
 			bind:this={inputs[i]}
 		/>
 	{/each}

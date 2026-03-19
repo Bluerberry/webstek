@@ -10,6 +10,7 @@
 		disabled?: boolean
 		loading?: boolean
 		href?: string
+		form?: string
 		onclick?: MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>
 		children: Snippet
 	}
@@ -20,6 +21,7 @@
 		disabled = false,
 		loading = false,
 		href,
+		form,
 		onclick,
 		children
 	}: Props = $props()
@@ -45,6 +47,7 @@
 {:else}
 	<button
 		{type}
+		{form}
 		{onclick}
 		class="button {style}"
 		class:disabled={ disabled || loading }

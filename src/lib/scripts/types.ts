@@ -3,6 +3,7 @@ export type FlowIntent = 'login'
 					   | 'logout'
 					   | 'register'
 					   | 'update'
+					   | 'reset'
 
 export type Flow = {
 	intent?: FlowIntent
