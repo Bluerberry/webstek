@@ -4,13 +4,13 @@ import { redirect } from '@sveltejs/kit'
 import { EmailVerification } from '$server/services'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { redirectToDestination } from '$scripts/flow'
-import { emailverificationSchema } from '$validation/authSchemas'
+import { verifyCodeSchema } from '$validation/authSchemas'
 import { message, superValidate } from 'sveltekit-superforms'
 import { EMAIL_VERIFICATION_TIMEOUT_MS, validateToken } from '$server/scripts/auth'
 
 import type { PageServerLoad, Actions } from './$types'
 
-export const load: PageServerLoad = async ({ url, locals }) => {
+export const load: PageServerLoad = async ({ locals }) => {
 
 	// Validate userstate
 	if (locals.user === undefined || locals.user.verified) {
@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	}
 
 	return {
-		verifyForm: await superValidate(zod4(emailverificationSchema))
+		verifyForm: await superValidate(zod4(verifyCodeSchema))
 	}
 }
 
@@ -27,7 +27,7 @@ export const actions: Actions = {
 		const now = new Date()
 
 		// Validate form
-		const form = await superValidate(request, zod4(emailverificationSchema))
+		const form = await superValidate(request, zod4(verifyCodeSchema))
 		if (!form.valid) return message(form, { type: 'error', text: 'Invalid form data' }, { status: 400 })
 
 		// Validate userstate

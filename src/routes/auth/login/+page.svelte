@@ -41,7 +41,7 @@
 		Register an account
 	</Button>
 	<Dot />
-	<Button style="link" href={withFlow('/auth/reset', getFlow(page.url))}>
+	<Button style="link" href={withFlow('/auth/reset/request', getFlow(page.url))}>
 		Reset your password
 	</Button>
 </div>
@@ -54,14 +54,12 @@
 	$dot-size: 1rem;
 
 	.footer {
-		position: fixed;
+		position: absolute;
 		bottom: 0;
 
 		display: flex;
 		align-items: center;
 		gap: 0.25rem;
-
-		padding: $layout-padding;
 
 		:global(.lucide) {
 			width: $dot-size;

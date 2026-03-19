@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte'
 	import { page } from '$app/state'
 	import { requestCode } from './verify.remote'
-	import { emailverificationSchema } from '$validation/authSchemas'
+	import { verifyCodeSchema } from '$validation/authSchemas'
 
 	import * as Form from '$components/form'
 	import Button from '$components/Button.svelte'
@@ -45,7 +45,7 @@
 
 <Form.Root
 	form={data.verifyForm}
-	schema={emailverificationSchema}
+	schema={verifyCodeSchema}
 	action={flowAction(page.url, 'verify')}
 	style="centered"
 >

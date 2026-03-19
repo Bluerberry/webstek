@@ -2,10 +2,11 @@
 <script lang="ts">
 
 	import { page } from '$app/state'
-    import { flowAction } from '$scripts/flow'
 	import { registerSchema } from '$validation/authSchemas'
+    import { flowAction, getFlow, withFlow } from '$scripts/flow'
 	
 	import * as Form from '$components/form'
+    import Button from '$components/Button.svelte'
 
 	import type { PageData } from './$types'
 
@@ -33,3 +34,32 @@
 		<Form.Response />
 	{/snippet}
 </Form.Root>
+
+<div class="footer">
+	<Button style="link" href={withFlow('/auth/login', getFlow(page.url))}>
+		Login with an existing account
+	</Button>
+</div>
+
+<style lang="scss">
+
+	@use '$styles/variables' as *;
+	@use '$styles/themes' as *;
+	
+	$dot-size: 1rem;
+
+	.footer {
+		position: absolute;
+		bottom: 0;
+
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+
+		:global(.lucide) {
+			width: $dot-size;
+			height: $dot-size;
+		}
+	}
+
+</style>

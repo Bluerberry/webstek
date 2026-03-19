@@ -145,7 +145,7 @@
 				<Button
 					style="link"
 					disabled={!data.user.verified}
-					href={withFlow('/auth/reset', createFlow('reset', '/account'))}
+					href={withFlow('/auth/reset/request', createFlow('reset', '/account'))}
 				> Reset </Button>
 			</div>
 		</div>

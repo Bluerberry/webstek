@@ -41,31 +41,18 @@ export const changePasswordSchema = z.object({
 		.min(1, { message: 'New password is required' })
 })
 
-export const emailverificationSchema = z.object({
-	code: z.string()
-		.length(6, { message: 'Code must be 6 digits' }),
-})
-
-export const requestResetSchema = z.object({
-    email: z.string()
+export const requestResetPasswordSchema = z.object({
+	email: z.string()
 		.min(1, { message: 'Email is required' })
-		.email({ message: 'Invalid email address' }),
-})
-
-export const verifyResetSchema = z.object({
-    email: z.string()
-		.min(1, { message: 'Email is required' })
-		.email({ message: 'Invalid email address' }),
-    code: z.string()
-		.length(6, { message: 'Code must be 6 digits' }),
+		.email({ message: 'Invalid email address' })
 })
 
 export const resetPasswordSchema = z.object({
-   email: z.string()
-		.min(1, { message: 'Email is required' })
-		.email({ message: 'Invalid email address' }),
-    code: z.string()
-		.length(6, { message: 'Code must be 6 digits' }),
-    newPassword: z.string()
+	newPassword: z.string()
 		.min(1, { message: 'New password is required' })
+})
+
+export const verifyCodeSchema = z.object({
+	code: z.string()
+		.length(6, { message: 'Code must be 6 digits' })
 })

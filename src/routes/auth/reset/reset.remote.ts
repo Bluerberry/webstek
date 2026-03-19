@@ -1,12 +1,16 @@
 
-import { z } from 'zod'
-import { command } from '$app/server'
+import { command, getRequestEvent } from '$app/server'
 import { User, PasswordReset } from '$server/services'
 import { sendEmail, passwordResetTemplate } from '$server/scripts/email'
 import { generateCode, hashToken, PASSWORD_RESET_COOLDOWN_MS } from '$server/scripts/auth'
 
-export const requestCode = command(z.string().email(), async email => {
+export const requestCode = command(async () => {
+		const { cookies } = getRequestEvent()
 	    const now = Date.now()
+
+		// Get email
+		const email = cookies.get('webstek_reset_email')
+		if (!email) return null
 
 		// Get user
 		const user = await User.getByEmail(email)
