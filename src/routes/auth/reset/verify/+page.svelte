@@ -1,7 +1,9 @@
 <script lang="ts">
 	
 	import { onMount } from 'svelte'
+    import { page } from '$app/state'
 	import { requestCode } from '../reset.remote'
+    import { flowAction, getFlow, withFlow } from '$scripts/flow'
 	import { verifyCodeSchema } from '$validation/authSchemas'
 
 	import * as Form from '$components/form'
@@ -14,6 +16,7 @@
 
 	let now = $state(Date.now())
 	let cooldownUntil = $state(0)
+	let critical = $state(false)
  
 	const onCooldown = $derived(cooldownUntil > now)
 	const cooldownSeconds = $derived(Math.ceil((cooldownUntil - now) / 1000))
@@ -38,10 +41,15 @@
 </script>
 
 <Form.Root
+	style="centered"
 	form={data.verifyCodeForm}
 	schema={verifyCodeSchema}
-	action="?/verify"
-	style="centered"
+	action={flowAction(page.url, 'verify')}
+	onUpdated={({ form }) => {
+		if (form.message?.type === 'critical') {
+			critical = true
+		}
+	}}
 >
 	{#snippet above()}
 		<h1> Verify it's you </h1>
@@ -49,15 +57,20 @@
 	{/snippet}
 
 	<Form.CodeInput field="code" />
-	{#snippet below()}
 
-		<Button
-			type="button"
-			disabled={onCooldown}
-			onclick={() => handleCodeRequest()}
-		>
-			{onCooldown ? cooldownLabel : 'Resend email'}
-		</Button>
+	{#snippet below()}
+		{#if critical}
+			<Button href={withFlow('/auth/reset/request', getFlow(page.url))}>
+				Restart recovery
+			</Button>
+		{:else}
+			<Button
+				disabled={onCooldown}
+				onclick={() => handleCodeRequest()}
+			>
+				{onCooldown ? cooldownLabel : 'Resend email'}
+			</Button>
+		{/if}
 		
 		<Form.Response />
 	{/snippet}

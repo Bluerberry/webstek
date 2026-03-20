@@ -22,7 +22,7 @@
 
 	@use '$styles/themes' as *;
 
-	.error {
+	.error, .critical {
 		color: var(--failure);
 	}
 

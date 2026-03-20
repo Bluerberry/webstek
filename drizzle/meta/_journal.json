@@ -71,6 +71,20 @@
       "when": 1773922468849,
       "tag": "0009_flippant_mastermind",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1774004449539,
+      "tag": "0010_black_paibok",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1774004680261,
+      "tag": "0011_bent_bulldozer",
+      "breakpoints": true
     }
   ]
 }

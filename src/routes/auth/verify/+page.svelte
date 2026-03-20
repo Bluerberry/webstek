@@ -2,14 +2,15 @@
 
 	import { onMount } from 'svelte'
 	import { page } from '$app/state'
+    import toaster from '$stores/toaster.svelte'
 	import { requestCode } from './verify.remote'
 	import { verifyCodeSchema } from '$validation/authSchemas'
+    import { flowAction, getFlow, gotoDestination } from '$scripts/flow'
 
 	import * as Form from '$components/form'
 	import Button from '$components/Button.svelte'
 
 	import type { PageData } from './$types'
-    import { flowAction } from '$scripts/flow';
 
 	type Props = { data: PageData }
 	let { data }: Props = $props()
@@ -44,10 +45,22 @@
 </script>
 
 <Form.Root
+	style="centered"
 	form={data.verifyForm}
 	schema={verifyCodeSchema}
 	action={flowAction(page.url, 'verify')}
-	style="centered"
+	onUpdated={({ form }) => {
+		if (form.valid) {
+			const { intent } = getFlow(page.url)
+			if (intent === 'register') {
+				toaster.show('Successfully registered')
+			} else {
+				toaster.show('Successfully verified email')
+			}
+
+			gotoDestination(page.url, '/')
+		}
+	}}
 >
 	{#snippet above()}
 		<h2> Verify your email </h2>

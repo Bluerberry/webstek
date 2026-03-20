@@ -21,15 +21,15 @@ export const actions: Actions = {
 
 		// Get cookies
 		const email = cookies.get('webstek_reset_email')
-		if (!email) return message(form, { type: 'error', text: 'Invalid recovery state'}, { status: 500 })
+		if (!email) return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 
 		// Get user
 		const user = await User.getByEmail(email)
-		if (!user) return message(form, { type: 'error', text: 'Invalid recovery state' }, { status: 500 })
+		if (!user) return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 
 		// Get reset
 		const reset = await PasswordReset.getByUserId(user.id)
-		if (!reset) return message(form, { type: 'error', text: 'Invalid recovery state' }, { status: 500 })
+		if (!reset) return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 
 		// Check expiry
 		if (Date.now() - reset.createdAt.getTime() >= PASSWORD_RESET_TIMEOUT_MS) {

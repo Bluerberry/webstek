@@ -16,24 +16,24 @@ export const load: PageServerLoad = async () => {
 }
 
 export const actions: Actions = {
-	reset: async ({ url, request, locals, cookies }) => {
+	resolve: async ({ url, request, locals, cookies }) => {
 		const form = await superValidate(request, zod4(resetPasswordSchema))
 		if (!form.valid) return message(form, { type: 'error', text: 'Invalid form data' }, { status: 400 })
 
 		// Get cookies
 		const email = cookies.get('webstek_reset_email')
-		if (!email) return message(form, { type: 'error', text: 'Invalid recovery state'}, { status: 500 })
+		if (!email) return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 		const code = cookies.get('webstek_reset_code')
-		if (!code) return message(form, { type: 'error', text: 'Invalid recovery state'}, { status: 500 })
+		if (!code) return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 
 		// Get user
 		const user = await User.getByEmail(email)
-		if (!user) return message(form, { type: 'error', text: 'Invalid recovery state' }, { status: 500 })
+		if (!user) return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 
 		// Get password reset
 		const passwordReset = await PasswordReset.getByUserId(user.id, false)
 		if (!passwordReset) {
-			return message(form, { type: 'error', text: 'Invalid recovery state' }, { status: 500 })
+			return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 		}
 
 		// Check expiry
@@ -43,7 +43,7 @@ export const actions: Actions = {
 
 		// Check code
 		if (!await validatePassword(code, passwordReset.code)) {
-			return message(form, { type: 'error', text: 'Invalid recovery state' }, { status: 500 })
+			return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 		}
 
 		// Resolve

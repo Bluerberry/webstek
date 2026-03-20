@@ -82,7 +82,6 @@ export const actions: Actions = {
 			maxAge: SESSION_INACTIVITY_TIMEOUT_MS / 1000
 		})
 
-		// Redirect
-		redirectToDestination(url, 303, '/')
+		return message(form, { type: 'success' })
 	}
 }

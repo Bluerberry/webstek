@@ -43,7 +43,7 @@ export const actions: Actions = {
 		// Get email verification
 		const emailverification = await EmailVerification.getByUserId(locals.user.id)
 		if (!emailverification) {
-			return message(form, { type: 'error', text: 'Failed to find email verification' }, { status: 500 })
+			return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 		}
 
 		// Check expiry
@@ -62,7 +62,6 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'Email verification expired' }, { status: 400 })
 		}
 
-		// Redirect
-		redirectToDestination(url, 303, '/')
+		return message(form, { type: 'success' })
 	}
 }

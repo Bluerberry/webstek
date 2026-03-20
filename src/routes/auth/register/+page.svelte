@@ -16,10 +16,10 @@
 </script>
 
 <Form.Root
-	form={data.registerForm}
-	schema={registerSchema}
-	action={flowAction(page.url, 'register')}
 	style="grid"
+	schema={registerSchema}
+	form={data.registerForm}
+	action={flowAction(page.url, 'register')}
 >
 	{#snippet above()}
 		<h1> Register </h1>

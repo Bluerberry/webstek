@@ -2,6 +2,7 @@
 <script lang="ts">
 
 	import '$styles/global.scss'
+
     import { page } from '$app/state'
     import { goto } from '$app/navigation'
 	import theme from '$stores/theme.svelte'
@@ -38,7 +39,13 @@
 				<Button href="/account">
 					Account
 				</Button>
-				<Button style="outline" onclick={async () => { await logout(); goto('/') }}>
+				<Button 
+					style="outline" 
+					onclick={async () => {
+						await logout();
+						goto('/', { invalidateAll: true })
+					}}
+				>
 				    Logout
 				</Button>
 			{:else}

@@ -1,7 +1,10 @@
 <script lang="ts">
 
-	import { requestResetPasswordSchema } from '$validation/authSchemas'
+	import { page } from '$app/state'
 	import * as Form from '$components/form'
+	import { flowAction } from '$scripts/flow'
+	import { requestResetPasswordSchema } from '$validation/authSchemas'
+
 	import type { PageData } from './$types'
 
 	type Props = { data: PageData }
@@ -10,10 +13,10 @@
 </script>
 
 <Form.Root
+	style="grid"
 	form={data.requestResetPasswordForm}
 	schema={requestResetPasswordSchema}
-	action="?/request"
-	style="grid"
+	action={flowAction(page.url, 'request')}
 >
 	{#snippet above()}
 		<h1> Reset your password </h1>

@@ -52,7 +52,7 @@ export const actions: Actions = {
 		// Get user
 		const user = await User.getById(locals.user.id)
 		if (user === undefined) {
-			return message(form, { type: 'error', text: 'Failed to find user' }, { status: 500 })
+			return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 		}
 
 		// Validate password
@@ -98,7 +98,7 @@ export const actions: Actions = {
 		// Get user
 		const user = await User.getById(locals.user.id)
 		if (user === undefined) {
-			return message(form, { type: 'error', text: 'Failed to find user' }, { status: 500 })
+			return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 		}
 
 		// Validate password
