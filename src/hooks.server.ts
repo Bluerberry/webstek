@@ -1,5 +1,5 @@
 
 import { sequence } from '@sveltejs/kit/hooks'
-import { auth, rateLimit } from '$server/hooks'
+import { auth, rateLimit, securityHeaders } from '$server/hooks'
 
-export const handle = sequence(rateLimit, auth)
+export const handle = sequence(rateLimit, auth, securityHeaders)

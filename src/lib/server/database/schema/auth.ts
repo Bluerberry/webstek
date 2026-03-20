@@ -1,7 +1,6 @@
 
 import { relations } from 'drizzle-orm'
 import { pgTable, serial, varchar, integer, timestamp, boolean } from 'drizzle-orm/pg-core'
-import { recipes, recipeFavorites, recipeNotes } from './underworld-cookbook'
 
 export const users = pgTable('users', {
     id: serial('id')
@@ -27,10 +26,7 @@ export const users = pgTable('users', {
 export const userRelations = relations(users, ({ one, many }) => ({
     sessions: many(sessions),
     emailVerification: one(emailVerifications),
-    passwordReset: one(passwordResets),
-    recipes: many(recipes),
-    recipeNotes: many(recipeNotes),
-    recipeFavorites: many(recipeFavorites)
+    passwordReset: one(passwordResets)
 }))
 
 export const sessions = pgTable('sessions', {

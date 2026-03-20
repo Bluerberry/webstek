@@ -29,7 +29,7 @@ export const requestCode = command(z.string().optional(), async intent => {
 	// Send new code
 	const code = generateCode()
 	const emailverification = await EmailVerification.upsert(locals.user.id, await hashPassword(code))
-	const template = intent === 'update'
+	const template = intent === 'verify'
 		? emailUpdateVerificationTemplate(locals.user.username, code)
 		: emailVerificationTemplate(locals.user.username, code)
 

@@ -3,8 +3,9 @@ import { error } from '@sveltejs/kit'
 import type { Handle } from '@sveltejs/kit'
 
 type RateLimitRule = {
-	limit: number		// Max requests
-	windowMs: number	// Time window in milliseconds
+	limit: number
+	windowMs: number
+	blockMs: number
 }
 
 type RequestRecord = {
@@ -12,12 +13,17 @@ type RequestRecord = {
 	blockedUntil?: number
 }
 
-const BLOCK_DURATION_MS = 1000 * 60 * 10
 const RULES: [string, RateLimitRule][] = [
-	['/auth', { limit: 10, windowMs: 1000 * 60 * 5 }],		// 10 per 5 min
-	['/account', { limit: 30, windowMs: 1000 * 60 * 5 }],	// 30 per 5 min
-	['/', { limit: 200, windowMs: 1000 * 60 * 15 }]			// 200 per 15 min
+	['/auth', { limit: 15, windowMs: 1000 * 60 * 5, blockMs: 1000 * 60 * 10 }],		// 15 rqst per 5 min - blocks 10 min
+	['/account', { limit: 30, windowMs: 1000 * 60 * 5, blockMs: 1000 * 60 * 5 }],	// 30 rqst per 5 min - blocks 5 min
+	['/', { limit: 200, windowMs: 1000 * 60 * 15, blockMs: 1000 * 60 * 5 }]			// 200 rqst per 15 min - blocks 5 min
 ]
+
+/* We currently use an in-memory store. This is only okay for
+ * single-server deployment. If at any point we scale horizontally,
+ * this will silently break, and will require a Redis-backed store
+ * or similar.
+ */
 
 const store = new Map<string, Map<string, RequestRecord>>()
 
@@ -69,7 +75,7 @@ export const rateLimit: Handle = async ({ event, resolve }) => {
 	const [prefix, rule] = match
 
 	// Get record
-	const ip = request.headers.get('x-forwarded-for') || getClientAddress()
+	const ip = getClientAddress()
 	const record = getRecord(ip, prefix)
 
 	// Check active block
@@ -81,15 +87,13 @@ export const rateLimit: Handle = async ({ event, resolve }) => {
 	// Evict timestamps outside the window
 	record.timestamps = record.timestamps.filter(t => now - t < rule.windowMs)
 	record.timestamps.push(now)
-	console.log('limit: ' + rule.limit)
-	console.log('remaining: ' + (rule.limit - record.timestamps.length))
 
 	// Breach — apply block
 	if (record.timestamps.length > rule.limit) {
-		record.blockedUntil = now + BLOCK_DURATION_MS
+		record.blockedUntil = now + rule.blockMs
 		record.timestamps = []
 
-		const retryAfter = Math.ceil(BLOCK_DURATION_MS / 1000)
+		const retryAfter = Math.ceil(rule.blockMs / 1000)
 		throw error(429, { message: 'Too many requests', retryAfter } as any)
 	}
 

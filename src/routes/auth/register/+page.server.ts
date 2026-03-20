@@ -55,7 +55,7 @@ export const actions: Actions = {
 		let userAgent: UAParser.IResult | undefined = undefined
 
 		if (user.collectMetadata) {
-			const ip = request.headers.get('x-forwarded-for') || getClientAddress()
+			const ip = getClientAddress()
 			const response = await fetch(`https://api.ipinfo.io/lite/${ip}?token=${env.IPINFO_TOKEN}`)
 			ipInfo = await response.json()
 

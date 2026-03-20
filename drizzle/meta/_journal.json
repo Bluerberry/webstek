@@ -5,85 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1765136028884,
-      "tag": "0000_funny_vengeance",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1766242045115,
-      "tag": "0001_messy_arachne",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1766243892419,
-      "tag": "0002_simple_masque",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1767621011716,
-      "tag": "0003_big_grim_reaper",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1767621254219,
-      "tag": "0004_smiling_ego",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1767710991682,
-      "tag": "0005_robust_chamber",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1773408979820,
-      "tag": "0006_stormy_bedlam",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1773412282622,
-      "tag": "0007_living_the_hood",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1773412600473,
-      "tag": "0008_warm_matthew_murdock",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1773922468849,
-      "tag": "0009_flippant_mastermind",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "7",
-      "when": 1774004449539,
-      "tag": "0010_black_paibok",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "7",
-      "when": 1774004680261,
-      "tag": "0011_bent_bulldozer",
+      "when": 1774011671062,
+      "tag": "0000_plain_gressill",
       "breakpoints": true
     }
   ]

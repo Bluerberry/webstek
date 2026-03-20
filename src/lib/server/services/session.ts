@@ -9,7 +9,7 @@ type TSession = typeof sessions.$inferSelect
 type TSessionWithUser = TSession & { user: typeof users.$inferSelect }
 
 export class Session {
-	static async create(id: string, token: string, userId: number, country: string, browserName?: string, browserVersion?: string, dbOrTx: DbOrTx = db) {
+	static async create(id: string, token: string, userId: number, country?: string, browserName?: string, browserVersion?: string, dbOrTx: DbOrTx = db) {
 		const [ session ] = await dbOrTx.insert(sessions)
 			.values({ id, token, userId, country, browserName, browserVersion })
 			.returning()

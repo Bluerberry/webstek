@@ -2,14 +2,12 @@
 
 import { redirect } from '@sveltejs/kit'
 import { zod4 } from 'sveltekit-superforms/adapters'
-import { redirectToDestination } from '$scripts/flow'
+import { EmailVerification } from '$server/services'
 import { verifyCodeSchema } from '$validation/authSchemas'
-import { EmailVerification, Session, User } from '$server/services'
 import { message, superValidate } from 'sveltekit-superforms'
 import { EMAIL_VERIFICATION_TIMEOUT_MS, validatePassword } from '$server/scripts/auth'
 
 import type { PageServerLoad, Actions } from './$types'
-import { db } from '$server/database'
 
 export const load: PageServerLoad = async ({ locals }) => {
 

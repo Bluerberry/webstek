@@ -1,7 +1,7 @@
 
 import z from 'zod'
 import { query, command, getRequestEvent } from '$app/server'
-import { Session, User, Recipe, RecipeNote } from '$server/services'
+import { Session, User } from '$server/services'
 import { error } from '@sveltejs/kit';
 import { db } from '$server/database';
 
@@ -31,15 +31,18 @@ export const getCollateralDamage = query(async () => {
 	if (locals.user === undefined) {
 		throw error(401, 'Unauthorized')
 	}
+
+	// Build result...
+	const result: { title: string, collateral: string[] }[] = []
+	
+	/* Removed underworld cookbook from project.
+	   I left this here for reference
 	
 	// Get data
 	const [ recipes, notes ] = await Promise.all([
 		Recipe.getByAuthorId(locals.user.id),
 		RecipeNote.getByUserId(locals.user.id)
 	])
-	
-	// Build result...
-	const result: { title: string, collateral: string[] }[] = []
 	
 	// Underworld Cookbook collateral
 	const publicRecipes = recipes.filter(recipe => recipe.isPublic)
@@ -56,6 +59,7 @@ export const getCollateralDamage = query(async () => {
 			collateral: underworldCollateral
 		})
 	}
+	*/
 
 	return result
 })

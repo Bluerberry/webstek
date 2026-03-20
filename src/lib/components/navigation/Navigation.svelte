@@ -20,7 +20,7 @@
 		// Cull paths whose label doesnt match query
 		if (item.path) {
 			const formattedLabel = item.label.toLowerCase().trim() 
-			if (formattedLabel.includes(formattedQuery)) {
+			if (formattedLabel.includes(query)) {
 				return item 
 			}
 		}
