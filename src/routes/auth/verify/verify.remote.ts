@@ -4,6 +4,7 @@ import { error } from '@sveltejs/kit'
 import { command } from '$app/server'
 import { getRequestEvent } from '$app/server'
 import { EmailVerification } from '$server/services'
+import { isLoggedIn } from '$server/scripts/permissions'
 import { EMAIL_VERIFICATION_COOLDOWN_MS, generateCode, hashPassword } from '$server/scripts/auth'
 import { sendEmail, emailVerificationTemplate, emailUpdateVerificationTemplate } from '$server/scripts/email'
 
@@ -12,7 +13,7 @@ export const requestCode = command(z.string().optional(), async intent => {
 	const now = Date.now()
 
 	// Get User
-	if (locals.user === undefined) {
+	if (!isLoggedIn(locals) || locals.user.verified) {
 		throw error(401, 'Unauthorized')
 	}
 

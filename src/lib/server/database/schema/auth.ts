@@ -1,6 +1,8 @@
 
 import { relations } from 'drizzle-orm'
-import { pgTable, serial, varchar, integer, timestamp, boolean } from 'drizzle-orm/pg-core'
+import { pgTable, serial, varchar, integer, timestamp, boolean, pgEnum } from 'drizzle-orm/pg-core'
+
+export const userRole = pgEnum('user_role', ['user', 'admin'])
 
 export const users = pgTable('users', {
     id: serial('id')
@@ -15,6 +17,9 @@ export const users = pgTable('users', {
         .notNull(),
     password: varchar('password', { length: 255 })
         .notNull(),
+    role: userRole()
+        .notNull()
+        .default('user'),
     collectMetadata: boolean('collect_metadata')
         .notNull()
         .default(true),

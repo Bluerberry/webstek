@@ -1,22 +1,19 @@
 
 import { UAParser } from 'ua-parser-js'
-import { redirect } from '@sveltejs/kit'
 import { env } from '$env/dynamic/private'
 import { User, Session } from '$server/services'
+import { setToast } from '$server/scripts/toaster'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { loginSchema } from '$validation/authSchemas'
 import { redirectToDestination } from '$scripts/flow'
+import { isLoggedIn, requireStranger } from '$server/scripts/permissions'
 import { superValidate, message } from 'sveltekit-superforms'
 import { generateToken, hashToken, SESSION_INACTIVITY_TIMEOUT_MS, validatePassword } from '$server/scripts/auth'
 
 import type { PageServerLoad, Actions } from './$types'
 
-export const load: PageServerLoad = async ({ locals }) => {
-
-	// Validate userstate
-	if (locals.user !== undefined) {
-		redirect(303, '/')
-	}
+export const load: PageServerLoad = async event => {
+	requireStranger(event)
 
 	return {
 		loginForm: await superValidate(zod4(loginSchema))
@@ -31,7 +28,7 @@ export const actions: Actions = {
 		if (!form.valid) return message(form, { type: 'error', text: 'Invalid form data' }, { status: 400 })
 
 		// Validate userstate
-		if (locals.user !== undefined) {
+		if (isLoggedIn(locals)) {
 			return message(form, { type: 'error', text: 'Already logged in' }, { status: 403 })
 		}
 
@@ -82,6 +79,8 @@ export const actions: Actions = {
 			maxAge: SESSION_INACTIVITY_TIMEOUT_MS / 1000
 		})
 
-		return message(form, { type: 'success' })
+		// Redirect
+		setToast(cookies, 'Successfully logged in')
+		redirectToDestination(url, 303, '/')
 	}
 }

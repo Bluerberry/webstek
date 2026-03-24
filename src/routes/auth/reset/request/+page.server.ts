@@ -1,15 +1,16 @@
 
 import { redirectWithFlow } from '$scripts/flow'
 import { zod4 } from 'sveltekit-superforms/adapters'
+import { isLoggedIn, requireUnverified, requireUser } from '$server/scripts/permissions'
 import { message, superValidate } from 'sveltekit-superforms'
 import { PASSWORD_RESET_TIMEOUT_MS } from '$server/scripts/auth'
 import { requestResetPasswordSchema } from '$validation/authSchemas'
 
 import type { PageServerLoad, Actions } from './$types'
 
-export const load: PageServerLoad = async ({ url, locals, cookies }) => {
-	if (locals.user !== undefined) {
-		cookies.set('webstek_reset_email', locals.user.email, {
+export const load: PageServerLoad = async event => {
+	if (isLoggedIn(event.locals)) {
+		event.cookies.set('webstek_reset_email', event.locals.user.email, {
 			path: '/',
 			httpOnly: true,
 			sameSite: 'strict',
@@ -17,7 +18,7 @@ export const load: PageServerLoad = async ({ url, locals, cookies }) => {
 			maxAge: PASSWORD_RESET_TIMEOUT_MS / 1000
 		})
 
-		redirectWithFlow(url, 303, '/auth/reset/verify')
+		redirectWithFlow(event.url, 303, '/auth/reset/verify')
 	}
 
 	return {

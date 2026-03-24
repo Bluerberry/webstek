@@ -23,10 +23,7 @@
 	schema={resetPasswordSchema}
 	action={flowAction(page.url, 'resolve')}
 	onUpdated={({ form }) => {
-		if (form.valid) {
-			toaster.show('Successfully reset password')
-			gotoWithFlow(page.url, '/auth/login')
-		} else if (form.message?.type === 'critical') {
+		if (form.message?.type === 'critical') {
 			critical = true
 		}
 	}}

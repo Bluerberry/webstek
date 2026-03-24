@@ -2,8 +2,8 @@
 <script lang="ts">
 
 	import { goto } from '$app/navigation'
-	import { createFlow, withFlow } from '$scripts/flow.js'
 	import toaster from '$stores/toaster.svelte'
+	import { createFlow, withFlow } from '$scripts/flow.js'
 	import { changeEmailSchema, changePasswordSchema, changeUsernameSchema } from '$validation/authSchemas'
 	import { getSessions, endSession, setCollectMetadata, getCollateralDamage, deleteAccount } from './account.remote'
 
@@ -203,7 +203,6 @@
 		onResult={({ result }) => {
 			if (result.type === 'success') {
 				usernameModal = false
-				toaster.show('Sucessfully changed username')
 			}
 		}}
 	>
@@ -229,7 +228,6 @@
 		onResult={({ result }) => {
 			if (result.type === 'success') {
 				emailModal = false
-				toaster.show('Sucessfully changed email', 'Make sure to verify to regain access to all of Webstek')
 			}
 		}}
 	>
@@ -256,7 +254,6 @@
 		onResult={({ result }) => {
 			if (result.type === 'success') {
 				passwordModal = false
-				toaster.show('Sucessfully changed password')
 			}
 		}}
 	>

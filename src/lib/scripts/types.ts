@@ -1,9 +1,12 @@
 
+export type UserRole = 'user' | 'admin'
+
 export type SanitizedUser = {
 	id: number,
 	email: string,
 	verified: boolean,
 	username: string,
+	role: UserRole,
 	collectMetadata: boolean
 }
 

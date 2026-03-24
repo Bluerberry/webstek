@@ -1,20 +1,18 @@
 
 
-import { redirect } from '@sveltejs/kit'
+import { setToast } from '$server/scripts/toaster'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { EmailVerification } from '$server/services'
 import { verifyCodeSchema } from '$validation/authSchemas'
 import { message, superValidate } from 'sveltekit-superforms'
+import { getFlow, redirectToDestination } from '$scripts/flow'
 import { EMAIL_VERIFICATION_TIMEOUT_MS, validatePassword } from '$server/scripts/auth'
 
 import type { PageServerLoad, Actions } from './$types'
+import { isLoggedIn, requireUnverified } from '$server/scripts/permissions'
 
-export const load: PageServerLoad = async ({ locals }) => {
-
-	// Validate userstate
-	if (locals.user === undefined || locals.user.verified) {
-		redirect(303, '/')
-	}
+export const load: PageServerLoad = async event => {
+	requireUnverified(event)
 
 	return {
 		verifyForm: await superValidate(zod4(verifyCodeSchema))
@@ -22,7 +20,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 }
 
 export const actions: Actions = {
-	verify: async ({ request, url, locals }) => {
+	verify: async ({ request, url, locals, cookies }) => {
 		const now = new Date()
 
 		// Validate form
@@ -30,7 +28,7 @@ export const actions: Actions = {
 		if (!form.valid) return message(form, { type: 'error', text: 'Invalid form data' }, { status: 400 })
 
 		// Validate userstate
-		if (locals.user === undefined || locals.session === undefined) {
+		if (!isLoggedIn(locals)) {
 			return message(form, { type: 'error', text: 'Must be logged in to verify' }, { status: 401 })
 		}
 
@@ -60,6 +58,13 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'Email verification expired' }, { status: 400 })
 		}
 
-		return message(form, { type: 'success' })
+		const { intent } = getFlow(url)
+		if (intent === 'register') {
+			setToast(cookies, 'Welcome ' + locals.user.username, 'You successfully registered and verified your new account')
+		} else {
+			setToast(cookies, 'Successfully verified email')
+		}
+
+		redirectToDestination(url, 303, '/')
 	}
 }

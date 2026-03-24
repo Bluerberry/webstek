@@ -1,7 +1,7 @@
 
 import 'crypto'
 
-type Message = {
+type Toast = {
 	id: string
 	title: string
 	body?: string
@@ -9,25 +9,25 @@ type Message = {
 }
 
 const toaster = $state({
-	queue: [] as Message[],
+	queue: [] as Toast[],
 
 	show: (title: string, body?: string, duration?: 'default' | 'dismiss') => {
 		const id = crypto.randomUUID()
-		const message: Message = { id, title, body }
+		const toast: Toast = { id, title, body }
 
 		if (duration !== 'dismiss') {
-			message.timeoutId = setTimeout(() => {
+			toast.timeoutId = setTimeout(() => {
 				toaster.dismiss(id)
 			}, 10000) as unknown as number
 		}
 
-		toaster.queue.push(message)
+		toaster.queue.push(toast)
 	},
 
 	dismiss: (id: string) => {
-		const message = toaster.queue.find(m => m.id === id)
-		if (message?.timeoutId) {
-			clearTimeout(message.timeoutId)
+		const toast = toaster.queue.find(m => m.id === id)
+		if (toast?.timeoutId) {
+			clearTimeout(toast.timeoutId)
 		}
 
 		toaster.queue = toaster.queue.filter(m => m.id !== id)

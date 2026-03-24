@@ -49,18 +49,6 @@
 	form={data.verifyForm}
 	schema={verifyCodeSchema}
 	action={flowAction(page.url, 'verify')}
-	onUpdated={({ form }) => {
-		if (form.valid) {
-			const { intent } = getFlow(page.url)
-			if (intent === 'register') {
-				toaster.show('Successfully registered')
-			} else {
-				toaster.show('Successfully verified email')
-			}
-
-			gotoDestination(page.url, '/')
-		}
-	}}
 >
 	{#snippet above()}
 		<h2> Verify your email </h2>

@@ -1,22 +1,18 @@
 
 import { UAParser } from 'ua-parser-js'
-import { redirect } from '@sveltejs/kit'
 import { env } from '$env/dynamic/private'
 import { User, Session } from '$server/services'
 import { redirectWithFlow } from '$scripts/flow'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { registerSchema } from '$validation/authSchemas'
+import { isLoggedIn, requireStranger } from '$server/scripts/permissions'
 import { superValidate, message } from 'sveltekit-superforms'
 import { generateToken, hashPassword, hashToken, SESSION_INACTIVITY_TIMEOUT_MS } from '$server/scripts/auth'
 
 import type { PageServerLoad, Actions } from './$types'
 
-export const load: PageServerLoad = async ({ locals }) => {
-
-	// Validate userstate
-	if (locals.user !== undefined) {
-		redirect(303, '/')
-	}
+export const load: PageServerLoad = async event => {
+	requireStranger(event)
 
 	return {
 		registerForm: await superValidate(zod4(registerSchema))
@@ -31,7 +27,7 @@ export const actions: Actions = {
 		if (!form.valid) return message(form, { type: 'error', text: 'Invalid form data' }, { status: 400 })
 
 		// Validate userstate
-		if (locals.user !== undefined) {
+		if (isLoggedIn(locals)) {
 			return message(form, { type: 'error', text: 'Already logged in' }, { status: 403 })
 		}
 

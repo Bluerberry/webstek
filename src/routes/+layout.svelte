@@ -3,13 +3,14 @@
 
 	import '$styles/global.scss'
 
-    import { page } from '$app/state'
-    import { goto } from '$app/navigation'
+	import { page } from '$app/state'
+	import { goto } from '$app/navigation'
 	import theme from '$stores/theme.svelte'
+	import toaster from '$stores/toaster.svelte.js'
 	import { logout } from './auth/logout/logout.remote'
-    import { createFlow, withFlow } from '$scripts/flow.js'
+	import { createFlow, withFlow } from '$scripts/flow.js'
 	
-    import { Toaster } from '$components/toaster'
+	import { Toaster } from '$components/toaster'
 	import Button from '$components/Button.svelte'
 	import { Navigation } from '$components/navigation'
 
@@ -26,8 +27,14 @@
 	]
 
 	const destination = $derived(
-	    page.url.pathname.startsWith('/auth') ? '/' : page.url.pathname
+		page.url.pathname.startsWith('/auth') ? '/' : page.url.pathname
 	)
+
+	$effect(() => {
+		if (data.toast) {
+			toaster.show(data.toast.title, data.toast.body)
+		}
+	})
 
 </script>
 
@@ -46,7 +53,7 @@
 						goto('/', { invalidateAll: true })
 					}}
 				>
-				    Logout
+					Logout
 				</Button>
 			{:else}
 				<h3>Welcome stranger</h3>

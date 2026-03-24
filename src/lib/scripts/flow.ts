@@ -52,7 +52,7 @@ export function redirectWithFlow(url: URL, status: Parameters<typeof redirect>[0
 	redirect(status, withFlow(path, { intent, destination }))
 }
 
-export function redirectToDestination(url: URL, status: Parameters<typeof redirect>[0], fallback: string): never {
+export function redirectToDestination(url: URL, status: Parameters<typeof redirect>[0], fallback: string = '/'): never {
 	redirect(status, getFlow(url).destination ?? fallback)
 }
 
@@ -61,14 +61,6 @@ export function gotoWithFlow(url: URL, path: string) {
 	goto(withFlow(path, { intent, destination }))
 }
 
-export function gotoDestination(url: URL, fallback: string) {
+export function gotoDestination(url: URL, fallback: string = '/') {
 	goto(getFlow(url).destination ?? fallback)
-}
-
-// ─── Auth guard ──────────────────────────────────────────────────────────────
-
-export function requireAuth(url: URL, locals: App.Locals): asserts locals is App.Locals & { user: NonNullable<App.Locals['user']>, session: NonNullable<App.Locals['session']> } {
-	if (locals.user === undefined) {
-		redirect(303, withFlow('/auth/login', createFlow('login', url.pathname)))
-	}
 }

@@ -2,9 +2,8 @@
 <script lang="ts">
 
 	import { page } from '$app/state'
-    import toaster from '$stores/toaster.svelte'
 	import { loginSchema } from '$validation/authSchemas'
-    import { flowAction, getFlow, gotoDestination, withFlow } from '$scripts/flow'
+    import { flowAction, getFlow, withFlow } from '$scripts/flow'
 	
 	import * as Form from '$components/form'
 	import Button from '$components/Button.svelte'
@@ -23,12 +22,6 @@
 	form={data.loginForm}
 	schema={loginSchema}
 	action={flowAction(page.url, 'login')}
-	onUpdated={({ form }) => {
-		if (form.valid) {
-			toaster.show('Successfully logged in')
-			gotoDestination(page.url, '/')
-		}
-	}}
 >
 	{#snippet above()}
 		<h1> Login </h1>
