@@ -1,17 +1,19 @@
 
 
-import { setToast } from '$server/scripts/toaster'
+import { showToast } from '$server/scripts/toaster'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { EmailVerification } from '$server/services'
 import { verifyCodeSchema } from '$validation/authSchemas'
 import { message, superValidate } from 'sveltekit-superforms'
 import { getFlow, redirectToDestination } from '$scripts/flow'
+import { isUnverified, isUser, requireUnverified } from '$server/scripts/permissions'
 import { EMAIL_VERIFICATION_TIMEOUT_MS, validatePassword } from '$server/scripts/auth'
 
 import type { PageServerLoad, Actions } from './$types'
-import { isLoggedIn, requireUnverified } from '$server/scripts/permissions'
 
 export const load: PageServerLoad = async event => {
+	
+	// Check permissions
 	requireUnverified(event)
 
 	return {
@@ -27,12 +29,12 @@ export const actions: Actions = {
 		const form = await superValidate(request, zod4(verifyCodeSchema))
 		if (!form.valid) return message(form, { type: 'error', text: 'Invalid form data' }, { status: 400 })
 
-		// Validate userstate
-		if (!isLoggedIn(locals)) {
+		// Check permissions
+		if (!isUser(locals) ) {
 			return message(form, { type: 'error', text: 'Must be logged in to verify' }, { status: 401 })
 		}
 
-		if (locals.user.verified) {
+		if (!isUnverified(locals)) {
 			return message(form, { type: 'error', text: 'Already verified' }, { status: 403 })
 		}
 
@@ -60,9 +62,9 @@ export const actions: Actions = {
 
 		const { intent } = getFlow(url)
 		if (intent === 'register') {
-			setToast(cookies, 'Welcome ' + locals.user.username, 'You successfully registered and verified your new account')
+			showToast(locals, 'Welcome ' + locals.user.username, 'You successfully registered and verified your new account')
 		} else {
-			setToast(cookies, 'Successfully verified email')
+			showToast(locals, 'Successfully verified email')
 		}
 
 		redirectToDestination(url, 303, '/')

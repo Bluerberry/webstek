@@ -11,7 +11,7 @@ type Toast = {
 const toaster = $state({
 	queue: [] as Toast[],
 
-	show: (title: string, body?: string, duration?: 'default' | 'dismiss') => {
+	show: (title: string, body?: string, duration: 'default' | 'dismiss' = 'default') => {
 		const id = crypto.randomUUID()
 		const toast: Toast = { id, title, body }
 

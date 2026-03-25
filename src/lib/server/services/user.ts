@@ -48,6 +48,7 @@ export class User {
 			email: user.email,
 			verified: user.verified,
 			username: user.username,
+			role: user.role,
 			collectMetadata: user.collectMetadata
 		}
 	}

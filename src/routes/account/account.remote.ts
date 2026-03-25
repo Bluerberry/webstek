@@ -1,10 +1,10 @@
 
 import z from 'zod'
-import { query, command, getRequestEvent } from '$app/server'
+import { db } from '$server/database'
+import { error } from '@sveltejs/kit'
 import { Session, User } from '$server/services'
-import { error } from '@sveltejs/kit';
-import { db } from '$server/database';
-import { isLoggedIn } from '$server/scripts/permissions';
+import { query, command, getRequestEvent } from '$app/server'
+import { isUser, isVerified } from '$server/scripts/permissions'
 
 function formatCollateral(count: number, singular: string, plural?: string) {
 	if (count === 0) return null
@@ -15,8 +15,8 @@ function formatCollateral(count: number, singular: string, plural?: string) {
 export const getSessions = query(async () => {
 	const { locals } = getRequestEvent()
 	
-	// Check if logged in
-	if (!isLoggedIn(locals)) {
+	// Check permissions
+	if (!isUser(locals)) {
 		throw error(401, 'Unauthorized')
 	}
 
@@ -28,8 +28,8 @@ export const getSessions = query(async () => {
 export const getCollateralDamage = query(async () => {
 	const { locals } = getRequestEvent()
 	
-	// Check if logged in
-	if (!isLoggedIn(locals)) {
+	// Check permissions
+	if (!isUser(locals)) {
 		throw error(401, 'Unauthorized')
 	}
 
@@ -68,8 +68,8 @@ export const getCollateralDamage = query(async () => {
 export const setCollectMetadata = command(z.boolean(), async value => {
 	const { locals } = getRequestEvent()
 	
-	// Check if logged in
-	if (!isLoggedIn(locals)) {
+	// Check permissions
+	if (!isVerified(locals)) {
 		throw error(401, 'Unauthorized')
 	}
 
@@ -90,8 +90,8 @@ export const setCollectMetadata = command(z.boolean(), async value => {
 export const endSession = command(z.string(), async sessionId => {
 	const { locals } = getRequestEvent()
 
-	// Check if logged in
-	if (!isLoggedIn(locals)) {
+	// Check permissions
+	if (!isVerified(locals)) {
 		throw error(401, 'Unauthorized')
 	}
 	
@@ -111,8 +111,8 @@ export const endSession = command(z.string(), async sessionId => {
 export const deleteAccount = command(async () => {
 	const { locals, cookies } = getRequestEvent()
 
-	// Check if logged in
-	if (!isLoggedIn(locals)) {
+	// Check permissions
+	if (!isVerified(locals)) {
 		throw error(401, 'Unauthorized')
 	}
 

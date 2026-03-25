@@ -1,12 +1,13 @@
 
-import type { SanitizedUser, SanitizedSession } from '$scripts/types'
+import type { SanitizedUser, SanitizedSession, Toast } from '$scripts/types'
 
 
 declare global {
 	namespace App {
 		interface Locals {
 			user?: SanitizedUser,
-			session?: SanitizedSession
+			session?: SanitizedSession,
+			toasts: Toast[]
 		}
 	}
 }

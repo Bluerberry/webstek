@@ -23,7 +23,8 @@
 			{ label: 'Fuck Spotify', path: '/projects/fuck-spotify' },
 			{ label: 'Underworld Cookbook', path: '/projects/underworld-cookbook' },
 			{ label: 'Why am I poor?', path: '/projects/why-am-i-poor' }
-		]}
+		]},
+		{ label: 'Admin Panel', path: '/admin-panel', adminOnly: true },
 	]
 
 	const destination = $derived(
@@ -31,8 +32,8 @@
 	)
 
 	$effect(() => {
-		if (data.toast) {
-			toaster.show(data.toast.title, data.toast.body)
+		for (const toast in data.toasts) {
+			toaster.show(toast.title, toast.body, toast.duration)
 		}
 	})
 

@@ -5,13 +5,15 @@ import { User, Session } from '$server/services'
 import { redirectWithFlow } from '$scripts/flow'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { registerSchema } from '$validation/authSchemas'
-import { isLoggedIn, requireStranger } from '$server/scripts/permissions'
+import { isStranger, requireStranger } from '$server/scripts/permissions'
 import { superValidate, message } from 'sveltekit-superforms'
 import { generateToken, hashPassword, hashToken, SESSION_INACTIVITY_TIMEOUT_MS } from '$server/scripts/auth'
 
 import type { PageServerLoad, Actions } from './$types'
 
 export const load: PageServerLoad = async event => {
+	
+	// Check permissions
 	requireStranger(event)
 
 	return {
@@ -26,8 +28,8 @@ export const actions: Actions = {
 		const form = await superValidate(request, zod4(registerSchema))
 		if (!form.valid) return message(form, { type: 'error', text: 'Invalid form data' }, { status: 400 })
 
-		// Validate userstate
-		if (isLoggedIn(locals)) {
+		// Check permissions
+		if (!isStranger(locals)) {
 			return message(form, { type: 'error', text: 'Already logged in' }, { status: 403 })
 		}
 

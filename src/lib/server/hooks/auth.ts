@@ -11,12 +11,13 @@ import type { Handle } from '@sveltejs/kit'
 
 export const auth: Handle = async ({ event, resolve }) => {
 	const now = new Date()
+	const { cookies, locals } = event;
 
 	// Get session cookie
-	const sessionCookie = event.cookies.get('webstek_session')
+	const sessionCookie = cookies.get('webstek_session')
 	if (sessionCookie === undefined) {
-		event.locals.user = undefined
-		event.locals.session = undefined
+		locals.user = undefined
+		locals.session = undefined
 		return await resolve(event)
 	}
 
@@ -24,26 +25,26 @@ export const auth: Handle = async ({ event, resolve }) => {
 	const [ sessionId, sessionToken ] = sessionCookie.split(':')
 	const session = await Session.getById(sessionId, true)
 	if (session === undefined) {
-		event.cookies.delete('webstek_session', { path: '/' })
-		event.locals.user = undefined
-		event.locals.session = undefined
+		cookies.delete('webstek_session', { path: '/' })
+		locals.user = undefined
+		locals.session = undefined
 		return await resolve(event)
 	}
 
 	// Validate timeout
 	if (now.getTime() - session.lastValidatedAt.getTime() >= SESSION_INACTIVITY_TIMEOUT_MS) {
-		event.cookies.delete('webstek_session', { path: '/' })
-		event.locals.user = undefined
-		event.locals.session = undefined
+		cookies.delete('webstek_session', { path: '/' })
+		locals.user = undefined
+		locals.session = undefined
 		await Session.delete(sessionId)
 		return await resolve(event)
 	}
 
 	// Validate token
 	if (!await validateToken(sessionToken, session.token)) {
-		event.cookies.delete('webstek_session', { path: '/' })
-		event.locals.user = undefined
-		event.locals.session = undefined
+		cookies.delete('webstek_session', { path: '/' })
+		locals.user = undefined
+		locals.session = undefined
 		return await resolve(event)
 	}
 
@@ -53,7 +54,7 @@ export const auth: Handle = async ({ event, resolve }) => {
 		await Session.update(session)
 	}
 
-	event.locals.user = User.sanitize(session.user);
-	event.locals.session = Session.sanitize(session);
+	locals.user = User.sanitize(session.user);
+	locals.session = Session.sanitize(session);
 	return await resolve(event)
 }

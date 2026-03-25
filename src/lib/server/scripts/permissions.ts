@@ -1,100 +1,89 @@
 
 import { redirect } from '@sveltejs/kit'
-import { setToast } from '$server/scripts/toaster'
+import { showToast } from '$server/scripts/toaster'
 import { withFlow, createFlow, redirectToDestination } from '$scripts/flow'
 
 import type { RequestEvent } from '@sveltejs/kit'
+import type { 
+	StrangerLocals, 
+	StrangerEvent, 
+	UserLocals, 
+	UserEvent, 
+	AdminLocals, 
+	AdminEvent, 
+	VerifiedLocals, 
+	VerifiedUserEvent,
+	UnverifiedLocals, 
+	UnverifiedUserEvent 
+} from '$scripts/types'
 
-type StrangerEvent = RequestEvent & { 
-	locals: App.Locals & {
-		user: undefined, session: undefined
-	}
-}
-
-type UserLocals = App.Locals & {
-	user: NonNullable<App.Locals['user']>,
-	session: NonNullable<App.Locals['session']>
-}
-
-type UserEvent = RequestEvent & { 
-	locals: UserLocals
-}
-
-type AdminLocals = App.Locals & {
-	user: NonNullable<App.Locals['user'] & { role: 'admin' }>,
-	session: NonNullable<App.Locals['session']>
-}
-
-type AdminEvent = RequestEvent & { 
-	locals: AdminLocals
-}
-
-type UnverifiedUserEvent = RequestEvent & { 
-	locals: App.Locals & {
-		user: NonNullable<App.Locals['user'] & { verified: false }>,
-		session: NonNullable<App.Locals['session']>
-	}
-}
-
-type VerifiedLocals = App.Locals & {
-	user: NonNullable<App.Locals['user'] & { verified: true }>,
-	session: NonNullable<App.Locals['session']>
-}
-
-type VerifiedUserEvent = RequestEvent & { 
-	locals: VerifiedLocals
-}
 
 // ─── Checks ───────────────────────────────────────────────────────────────
 
-export function isLoggedIn(locals: App.Locals): locals is UserLocals {
+export function isStranger(locals: App.Locals) : locals is StrangerLocals {
+	return locals.user === undefined
+}
+
+export function isUser(locals: App.Locals): locals is UserLocals {
 	return locals.user !== undefined
 }
 
-export function isVerified(locals: App.Locals): locals is VerifiedLocals {
-	return isLoggedIn(locals) && locals.user.verified
+export function isAdmin(locals: App.Locals): locals is AdminLocals {
+	return isUser(locals) && locals.user.role === 'admin'
 }
 
-function isAdmin(locals: App.Locals): locals is AdminLocals {
-	return isLoggedIn(locals) && locals.user.role === 'admin'
+export function isVerified(locals: App.Locals): locals is VerifiedLocals {
+	return isUser(locals) && locals.user.verified
+}
+
+export function isUnverified(locals: App.Locals): locals is UnverifiedLocals {
+	return isUser(locals) && !locals.user.verified
 }
 
 // ─── Guards ───────────────────────────────────────────────────────────────
 
 export function requireStranger(event: RequestEvent, fallback: string = '/'): asserts event is StrangerEvent {
-	if (isLoggedIn(event.locals)) {
-		setToast(event.cookies, 'Already logged in', 'You are already logged in')
-		redirectToDestination(event.url, 303, fallback)
+	const { url, locals } = event
+	if (isUser(locals)) {
+		showToast(locals, 'Already logged in', 'You are already logged in')
+		redirectToDestination(url, 303, fallback)
 	}
 }
 
 export function requireUser(event: RequestEvent): asserts event is UserEvent {
-	if (!isLoggedIn(event.locals)) {
-		setToast(event.cookies, 'Login required', 'You must be logged in to access this page')
-		redirect(303, withFlow('/auth/login', createFlow('login', event.url.pathname)))
+	const { url, locals } = event
+	if (isStranger(locals)) {
+		showToast(locals, 'Login required', 'You must be logged in to access this page')
+		redirect(303, withFlow('/auth/login', createFlow('login', url.pathname)))
 	}
 }
 
 export function requireAdmin(event: RequestEvent, fallback: string = '/account'): asserts event is AdminEvent {
+	const { url, locals } = event
 	requireUser(event)
-	if (!isAdmin(event.locals)) {
-		setToast(event.cookies, 'Insufficient permissions', 'You do not have the correct permissions to access this page')
-		redirectToDestination(event.url, 303, fallback)
+
+	if (isStranger(locals)) {
+		showToast(locals, 'Insufficient permissions', 'You do not have the correct permissions to access this page')
+		redirectToDestination(url, 303, fallback)
 	}
 }
 
 export function requireUnverified(event: RequestEvent, fallback: string = '/account'): asserts event is UnverifiedUserEvent {
+	const { url, locals } = event
 	requireUser(event)
-	if (isVerified(event.locals)) {
-		setToast(event.cookies, 'Already verified', 'You are already verified')
-		redirect(303, redirectToDestination(event.url, 303, fallback))
+
+	if (isVerified(locals)) {
+		showToast(locals, 'Already verified', 'You are already verified')
+		redirect(303, redirectToDestination(url, 303, fallback))
 	}
 }
 
 export function requireVerified(event: RequestEvent, fallback: string = '/account'): asserts event is VerifiedUserEvent {
+	const { url, locals } = event
 	requireUser(event)
-	if (!isVerified(event.locals)) {
-		setToast(event.cookies, 'Verification required', 'Your account needs to be verified to access this page')
-		redirect(303, redirectToDestination(event.url, 303, fallback))
+	
+	if (isUnverified(locals)) {
+		showToast(locals, 'Verification required', 'Your account needs to be verified to access this page')
+		redirect(303, redirectToDestination(url, 303, fallback))
 	}
 }

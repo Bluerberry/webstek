@@ -1,11 +1,10 @@
 
-import { getToast } from '$server/scripts/toaster'
 import type { LayoutServerLoad } from './$types'
 
-export const load: LayoutServerLoad = async ({ locals, cookies }) => {
+export const load: LayoutServerLoad = async ({ locals }) => {
 	return {
 		user: locals.user,
 		session: locals.session,
-		toast: getToast(cookies)
+		toasts: locals.toasts
 	}
 }

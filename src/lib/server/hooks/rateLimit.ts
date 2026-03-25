@@ -64,15 +64,15 @@ setInterval(() => {
 }, 1000 * 60 * 5)
 
 export const rateLimit: Handle = async ({ event, resolve }) => {
-	const { url, request, getClientAddress } = event
-	if (event.request.method === 'GET') return resolve(event)
+	const { request, url, getClientAddress } = event
+	if (request.method === 'GET') return resolve(event)
 
 	const now = Date.now()
 
 	// Get rule
 	const match = getRule(url.pathname)
 	if (!match) return resolve(event)
-	const [prefix, rule] = match
+	const [ prefix, rule ] = match
 
 	// Get record
 	const ip = getClientAddress()

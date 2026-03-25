@@ -1,5 +1,6 @@
 <script lang="ts">
 
+	import { page } from '$app/state'
 	import { goto } from '$app/navigation'
 	
 	import NavItem from './NavItem.svelte'
@@ -8,26 +9,30 @@
 	import type { NavData } from './types'
 	import type { KeyboardEventHandler } from 'svelte/elements'
 
-	function cullTree(tree: NavData[], query: string): NavData[] {
+	function cullTree(tree: NavData[]): NavData[] {
 		return tree
-			.map(item => cullItem(item, query))
+			.map(item => cullItem(item))
 			.filter(item => item !== null) 
 	}
 
-	function cullItem(item: NavData, query: string): NavData | null {
-		if (query === '') return item 
+	function cullItem(item: NavData): NavData | null {
 
-		// Cull paths whose label doesnt match query
-		if (item.path) {
+		// Cull items with missing permissions
+		if (item.adminOnly && page.data.user?.role !== 'admin') {
+			return null
+		}
+
+		// Cull links whose label doesnt match query
+		else if (item.path) {
 			const formattedLabel = item.label.toLowerCase().trim() 
-			if (formattedLabel.includes(query)) {
+			if (formattedLabel.includes(formattedQuery)) {
 				return item 
 			}
 		}
 
 		// Cull folders whose children were culled
 		else if (item.children) {
-			const children = cullTree(item.children, query)
+			const children = cullTree(item.children)
 			if (children.length > 0) {
 				return { ...item, children } 
 			}
@@ -41,6 +46,8 @@
 	}
 
 	function countItem(item: NavData): number {
+		if (item.adminOnly && page.data.user?.role !== 'admin')
+			return 0
 		return item.children ? countTree(item.children) : 1
 	}
 
@@ -50,7 +57,7 @@
 	let query = $state('')	
 	
 	const formattedQuery = $derived(query.toLowerCase().trim())
-	const culledTree = $derived(cullTree(navtree, formattedQuery))
+	const culledTree = $derived(cullTree(navtree))
 	const culledSize = $derived(countTree(culledTree))
 	const treeSize = $derived(countTree(navtree))
 
