@@ -28,6 +28,10 @@ export class User {
 		})
 	}
 
+	static async getAll(dbOrTx: DbOrTx = db) {
+		return await dbOrTx.query.users.findMany()
+	}
+
 	static async update(data: Partial<TUser> & { id: number }, dbOrTx: DbOrTx = db) {
 		await dbOrTx.update(users)
 			.set(data)

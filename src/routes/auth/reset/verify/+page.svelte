@@ -23,16 +23,16 @@
 	const cooldownLabel = $derived(
 		`Wait ${Math.floor(cooldownSeconds / 60)}:${String(cooldownSeconds % 60).padStart(2, '0')} to resend`
 	)
+	
+	async function handleCodeRequest() {
+		const cooldown = await requestCode()
+		if (cooldown) cooldownUntil = cooldown
+	}
 
 	$effect(() => {
 		const interval = setInterval(() => now = Date.now(), 1000)
 		return () => clearInterval(interval)
 	})
-
-	async function handleCodeRequest() {
-		const cooldown = await requestCode()
-		if (cooldown) cooldownUntil = cooldown
-	}
 
 	onMount(() => {
 		handleCodeRequest()

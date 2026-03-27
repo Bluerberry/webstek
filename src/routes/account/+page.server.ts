@@ -1,7 +1,7 @@
 
 import { redirect } from '@sveltejs/kit'
 import { Session, User } from '$server/services'
-import { showToast } from '$server/scripts/toaster'
+import { flashToast } from '$server/scripts/flash'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { createFlow, withFlow } from '$scripts/flow'
 import { message, superValidate } from 'sveltekit-superforms'
@@ -13,14 +13,13 @@ import { sendEmail, emailChangeNotificationTemplate, passwordChangeNotificationT
 import type { PageServerLoad, Actions } from './$types'
 
 export const load: PageServerLoad = async event => {
-	const { locals } = event
 	
 	// Check permissions
 	requireUser(event)
 
 	return {
-		user: locals.user,
-		session: locals.session,
+		user: event.locals.user,
+		session: event.locals.session,
 		changeUsernameForm: await superValidate(zod4(changeUsernameSchema)),
 		changeEmailForm: await superValidate(zod4(changeEmailSchema)),
 		changePasswordForm: await superValidate(zod4(changePasswordSchema))
@@ -41,7 +40,7 @@ export const actions: Actions = {
 
 		// Update username
 		await User.update({ id: locals.user.id, username: form.data.newUsername })
-		showToast(locals, 'Successfully changed username')
+		flashToast(cookies, 'Successfully changed username')
 	},
 
 	'change-email': async ({ request, locals, cookies }) => {
@@ -87,7 +86,7 @@ export const actions: Actions = {
 		)
 
 		// Redirect to email verification
-		showToast(locals, 'Sucessfully changed email', 'Make sure to verify to regain access to all of Webstek')
+		flashToast(cookies, 'Sucessfully changed email', 'Make sure to verify to regain access to all of Webstek')
 		redirect(303, withFlow('/auth/verify', createFlow('verify', '/account')))
 	},
 
@@ -126,6 +125,6 @@ export const actions: Actions = {
 			passwordChangeNotificationTemplate(locals.user.username)
 		)
 
-		showToast(locals, 'Successfully changed password')
+		flashToast(cookies, 'Successfully changed password')
 	}
 }

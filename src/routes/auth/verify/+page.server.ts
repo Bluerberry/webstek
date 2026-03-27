@@ -1,6 +1,6 @@
 
 
-import { showToast } from '$server/scripts/toaster'
+import { flashToast } from '$server/scripts/flash'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { EmailVerification } from '$server/services'
 import { verifyCodeSchema } from '$validation/authSchemas'
@@ -62,9 +62,9 @@ export const actions: Actions = {
 
 		const { intent } = getFlow(url)
 		if (intent === 'register') {
-			showToast(locals, 'Welcome ' + locals.user.username, 'You successfully registered and verified your new account')
+			flashToast(cookies, 'Welcome ' + locals.user.username, 'You successfully registered and verified your new account')
 		} else {
-			showToast(locals, 'Successfully verified email')
+			flashToast(cookies, 'Successfully verified email')
 		}
 
 		redirectToDestination(url, 303, '/')

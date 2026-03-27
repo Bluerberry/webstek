@@ -93,7 +93,7 @@
 
 		{#if hiddenItems > 0}
 			<span class="hidden-items">
-				{hiddenItems} items hidden by search
+				{hiddenItems} item{hiddenItems > 1 ? 's' : ''} hidden by search
 			</span>
 		{/if}
 	{:else}

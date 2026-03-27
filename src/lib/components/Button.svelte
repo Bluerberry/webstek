@@ -6,7 +6,7 @@
 
 	type Props = {
 		type?: 'button' | 'submit'
-		style?: 'default' | 'outline' | 'link'
+		style?: 'default' | 'outline' | 'link' | 'icon'
 		disabled?: boolean
 		loading?: boolean
 		href?: string
@@ -104,10 +104,9 @@
 			}
 		}
 
-		&.link {
+		&.link, &.icon {
 			padding: 0;
 			border: none;
-
 			font-size: $m-font;
 			color: var(--foreground);
 

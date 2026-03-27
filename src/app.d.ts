@@ -1,5 +1,5 @@
 
-import type { SanitizedUser, SanitizedSession, Toast } from '$scripts/types'
+import type { SanitizedUser, SanitizedSession } from '$scripts/types'
 
 
 declare global {
@@ -7,7 +7,6 @@ declare global {
 		interface Locals {
 			user?: SanitizedUser,
 			session?: SanitizedSession,
-			toasts: Toast[]
 		}
 	}
 }

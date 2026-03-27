@@ -106,7 +106,14 @@
 <div class="wrapper">
 	<section>
 		<h1> Account </h1>
+
 		<div class="table">
+
+			<!-- Role -->
+			{#if data.user.role !== 'user'}
+				<span class="label"> Role </span>
+				<span class="cell" style="grid-column: span 2;"> {data.user.role} </span>
+			{/if}
 
 			<!-- USERNAME -->
 			<span class="label"> Username </span>

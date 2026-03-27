@@ -3,6 +3,7 @@
 
 	import '$styles/global.scss'
 
+    import { untrack } from 'svelte'
 	import { page } from '$app/state'
 	import { goto } from '$app/navigation'
 	import theme from '$stores/theme.svelte'
@@ -24,7 +25,10 @@
 			{ label: 'Underworld Cookbook', path: '/projects/underworld-cookbook' },
 			{ label: 'Why am I poor?', path: '/projects/why-am-i-poor' }
 		]},
-		{ label: 'Admin Panel', path: '/admin-panel', adminOnly: true },
+		{ label: 'Admin Panel', adminOnly: true, children: [
+			{ label: 'Data Analytics', path: '/admin/analytics' },
+			{ label: 'Users', path: '/admin/users'}
+		]},
 	]
 
 	const destination = $derived(
@@ -32,8 +36,10 @@
 	)
 
 	$effect(() => {
-		for (const toast in data.toasts) {
-			toaster.show(toast.title, toast.body, toast.duration)
+		for (const flash of data.flash) {
+			untrack(
+				() => toaster.show(flash.title, flash.body, flash.duration)
+			)
 		}
 	})
 

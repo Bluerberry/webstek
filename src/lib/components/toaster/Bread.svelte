@@ -25,7 +25,7 @@
 	out:fade={{ duration: 150, easing: quadOut }}
 >
 	<div class="title">
-		{title}
+		<h4> {title} </h4>	
 		<button type="button" onclick={() => toaster.dismiss(id)}>
 			<X />
 		</button>
@@ -46,7 +46,7 @@
 		flex-flow: column nowrap;
 		gap: 0.75rem;
 
-		width: 20rem;
+		min-width: 20rem;
 		padding: 0.75rem 1rem;
 		border: 2px solid var(--foreground);
 		border-radius: $border-radius;
@@ -64,6 +64,10 @@
 			white-space: nowrap;
 			font-size: $l-font;
 			font-weight: 550;
+			
+			h3 {
+				flex: 1;
+			}
 
 			button {
 				width: 1rem;

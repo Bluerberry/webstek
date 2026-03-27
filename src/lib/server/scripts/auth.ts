@@ -46,7 +46,7 @@ export async function hashPassword(password: string): Promise<string> {
 
 export function validatePassword(password: string, reference: string): Promise<boolean> {
 	return new Promise((resolve, reject) => {
-		const [salt, hash] = reference.split(':')
+		const [ salt, hash ] = reference.split(':')
 		const a = Buffer.from(hash, 'hex')
 
 		crypto.scrypt(password, salt, 64, (error, b) => {

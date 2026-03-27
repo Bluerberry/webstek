@@ -35,6 +35,7 @@
 		width: 100%;
 
 		input {
+			width: 100%;
 			padding: $thin-btn-padding 0;
 			padding-right: $icon-padding + $icon-size;
 

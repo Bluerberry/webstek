@@ -2,7 +2,7 @@
 import { UAParser } from 'ua-parser-js'
 import { env } from '$env/dynamic/private'
 import { User, Session } from '$server/services'
-import { showToast } from '$server/scripts/toaster'
+import { flashToast } from '$server/scripts/flash'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { loginSchema } from '$validation/authSchemas'
 import { redirectToDestination } from '$scripts/flow'
@@ -37,7 +37,7 @@ export const actions: Actions = {
 		// Get user
 		const user = await User.getByEmail(form.data.email)
 		if (user === undefined) {
-			await validatePassword(form.data.password, 'qwerty') // Validate bogus password to fight timing attacks
+			await validatePassword(form.data.password, 'salt:hash') // Validate bogus password to fight timing attacks
 			return message(form, { type: 'error', text: 'Invalid credentials' }, { status: 401 })
 		}
 
@@ -82,7 +82,7 @@ export const actions: Actions = {
 		})
 
 		// Redirect
-		showToast(locals, 'Successfully logged in')
+		flashToast(cookies, 'Successfully logged in')
 		redirectToDestination(url, 303, '/')
 	}
 }

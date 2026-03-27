@@ -1,5 +1,5 @@
 
-import { showToast } from '$server/scripts/toaster'
+import { flashToast } from '$server/scripts/flash'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { resetPasswordSchema } from '$validation/authSchemas'
 import { message, superValidate } from 'sveltekit-superforms'
@@ -73,7 +73,7 @@ export const actions: Actions = {
 			passwordChangeNotificationTemplate(user.username)
 		)
 
-		showToast(locals, 'Successfully reset password')
+		flashToast(cookies, 'Successfully reset password')
 
 		if (locals.session) {
 			redirectToDestination(url, 303, '/')

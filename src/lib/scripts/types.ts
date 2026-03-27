@@ -1,4 +1,5 @@
-import type { RequestEvent } from "@sveltejs/kit"
+
+import type { RequestEvent } from '@sveltejs/kit'
 
 // ─── Locals ─────────────────────────────────────────────────────────────
 
@@ -18,12 +19,6 @@ export type SanitizedSession = {
 	browserVersion?: string,
 	lastValidatedAt: Date,
 	createdAt: Date
-}
-
-export type Toast = {
-	title: string
-	body?: string
-	duration?: 'default' | 'dismiss'
 }
 
 // ─── Permissions ─────────────────────────────────────────────────────────
