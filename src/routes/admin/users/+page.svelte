@@ -209,7 +209,7 @@
 	<span class="justify-center"> Verified </span>
 	<span></span> <!-- Fill settings column -->
 
-	{#each pageUsers as user}
+	{#each pageUsers as user (user.id)}
 		<span class="cell"> {user.id} </span>
 		<span class="cell"> {user.role} </span>
 		<span class="cell"> {user.username} </span>
@@ -324,10 +324,10 @@
 				{/if}
 			</p>
 
-			{#each data as { title, collateral }}
+			{#each data as { title, collateral }, i (i)}
 				<h3> {title} </h3>
 				<ul>
-					{#each collateral as item}
+					{#each collateral as item, i (i)}
 						<li> {item} </li>
 					{/each}
 				</ul>

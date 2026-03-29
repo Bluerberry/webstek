@@ -1,6 +1,7 @@
 
 <script lang="ts">
 
+	import { resolve } from '$app/paths'
 	import { goto } from '$app/navigation'
 	import toaster from '$stores/toaster.svelte'
 	import { createFlow, withFlow } from '$scripts/flow.js'
@@ -82,7 +83,7 @@
 				toaster.show('Disabled metadata collection', 'All known metadata has been deleted')
 			}
 
-		} catch (error: any) {
+		} catch {
 			if (data.user.collectMetadata) {
 				toaster.show('Failed to enable metadata collection')
 			} else {
@@ -95,7 +96,7 @@
 		try {
 			await deleteAccount()
 			toaster.show('Account successfully deleted')
-			goto('/', { replaceState: true, invalidateAll: true });
+			goto(resolve('/'), { replaceState: true, invalidateAll: true });
 		} catch (error: any) {
 			toaster.show('Failed to delete account', error)
 		}
@@ -165,7 +166,7 @@
 			<span class="label"> Metadata </span>
 			<span class="label" style="grid-column: span 2"> Last Activity </span>
 
-			{#each await getSessions() as session}
+			{#each await getSessions() as session (session.id)}
 				{@const metadata = formatMetadata(session.country, session.browserName, session.browserVersion)}
 				<span class="cell" class:muted={metadata === 'No data'}>
 					{metadata}
@@ -294,10 +295,10 @@
 				{/if}
 			</p>
 
-			{#each data as { title, collateral }}
+			{#each data as { title, collateral }, i (i)}
 				<h3> {title} </h3>
 				<ul>
-					{#each collateral as item}
+					{#each collateral as item, i (i)}
 						<li> {item} </li>
 					{/each}
 				</ul>

@@ -1,8 +1,9 @@
  
 <script lang="ts">
 
-	import nav from '$stores/nav.svelte'
 	import { page } from '$app/state'
+	import nav from '$stores/nav.svelte'
+	import { resolve } from '$app/paths'
 	import { quadOut } from 'svelte/easing'
 	import { slide } from 'svelte/transition'
 
@@ -58,7 +59,7 @@
 {#if data.path}
 	<a
 		class='navitem' class:found
-		href={data.path}
+		href={resolve(data.path as any)}
 	>
 		{#if current} <Asterisk /> {/if}
 		{data.label}
@@ -74,7 +75,7 @@
 
 	{#if open}
 		<div class='children' transition:slide={{ duration: transitionDuration, easing: quadOut }}>
-			{#each data.children as child}
+			{#each data.children as child, i (i)}
 				<NavItem data={child} {found} {searching} />
 			{/each}
 		</div>

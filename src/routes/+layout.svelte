@@ -5,6 +5,7 @@
 
     import { untrack } from 'svelte'
 	import { page } from '$app/state'
+	import { resolve } from '$app/paths'
 	import { goto } from '$app/navigation'
 	import theme from '$stores/theme.svelte'
 	import toaster from '$stores/toaster.svelte.js'
@@ -57,7 +58,7 @@
 					style="outline" 
 					onclick={async () => {
 						await logout();
-						goto('/', { invalidateAll: true })
+						goto(resolve('/'), { invalidateAll: true })
 					}}
 				>
 					Logout

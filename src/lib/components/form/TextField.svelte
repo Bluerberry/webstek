@@ -22,12 +22,13 @@
 		type = 'text'
 	}: Props = $props()
 
-	let show = $state(type === 'text')
+	let show = $derived(type === 'text')
 
 	const superform: SuperForm<T> = getContext('superform')
 	const fieldId = crypto.randomUUID()
 	const formId = superform.formId
 
+	// svelte-ignore state_referenced_locally
 	const { value, errors } = formFieldProxy(superform, field)
 
 </script>

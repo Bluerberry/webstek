@@ -13,6 +13,7 @@
 	const fieldId = crypto.randomUUID()
 	const formId = superform.formId
 
+	// svelte-ignore state_referenced_locally
 	const { value } = formFieldProxy(superform, field)
 
 	$effect(() => {

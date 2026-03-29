@@ -1,6 +1,7 @@
 <script lang="ts">
 
 	import { page } from '$app/state'
+	import { resolve } from '$app/paths'
 	import { goto } from '$app/navigation'
 	
 	import NavItem from './NavItem.svelte'
@@ -74,7 +75,7 @@
 
 		// Goto result
 		if (data.path) {
-			goto(data.path)
+			goto(resolve(data.path as any))
 			query = ''
 		}
 	}
@@ -86,7 +87,7 @@
 
 	{#if culledSize > 0}
 		<nav>
-			{#each culledTree as data}
+			{#each culledTree as data, i (i)}
 				<NavItem {data} {searching} {found} />
 			{/each}
 		</nav>

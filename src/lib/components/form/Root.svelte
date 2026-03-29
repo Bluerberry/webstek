@@ -40,6 +40,8 @@
 	}: Props = $props()
 
 	const formId = crypto.randomUUID()
+
+	// svelte-ignore state_referenced_locally
 	const superform = superForm(form, {
 		validators: zod4(schema),
 		id: formId,

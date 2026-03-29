@@ -12,6 +12,7 @@
 	const fieldId = crypto.randomUUID()
 	const formId = superform.formId
 
+	// svelte-ignore state_referenced_locally
 	const { value } = formFieldProxy(superform, field)
 
 	let digits = $state(['', '', '', '', '', ''])
@@ -71,20 +72,22 @@
 		value={digits.join('')} 
 	/>
 
-	{#each digits as digit, i}
-		<input
-			type="text"
-			value={digit}
-			maxlength="1"
-			inputmode="numeric"
-			autocomplete="off"
-			onbeforeinput={event => onBeforeInput(i, event)}
-			onkeydown={event => onKeydown(i, event)}
-			oninput={event => onInput(i, event)}
-			onpaste={event => onPaste(event)}
-			bind:this={inputs[i]}
-		/>
-	{/each}
+	<fieldset>
+		{#each digits as digit, i (i)}
+			<input
+				type="text"
+				value={digit}
+				maxlength="1"
+				inputmode="numeric"
+				autocomplete="off"
+				onbeforeinput={event => onBeforeInput(i, event)}
+				onkeydown={event => onKeydown(i, event)}
+				oninput={event => onInput(i, event)}
+				onpaste={event => onPaste(event)}
+				bind:this={inputs[i]}
+			/>
+		{/each}
+	</fieldset>
 </div>
 
 <style lang="scss">

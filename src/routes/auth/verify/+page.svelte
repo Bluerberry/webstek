@@ -2,10 +2,9 @@
 
 	import { onMount } from 'svelte'
 	import { page } from '$app/state'
-    import toaster from '$stores/toaster.svelte'
+    import { flowAction } from '$scripts/flow'
 	import { requestCode } from './verify.remote'
 	import { verifyCodeSchema } from '$validation/authSchemas'
-    import { flowAction, getFlow, gotoDestination } from '$scripts/flow'
 
 	import * as Form from '$components/form'
 	import Button from '$components/Button.svelte'

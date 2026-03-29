@@ -1,6 +1,8 @@
 
 <script lang="ts">
 
+	import { resolve } from '$app/paths'
+
 	import type { Snippet } from 'svelte'
     import type { MouseEventHandler } from 'svelte/elements'
 
@@ -48,7 +50,7 @@
 		</span>
 	{:else}
 		<a
-			{href}
+			href={resolve(href as any)}
 			{onclick}
 			aria-label={label}
 			class="button {style}"

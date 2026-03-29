@@ -19,9 +19,9 @@
 		open = $bindable(false)
 	}: Props = $props()
 
-	let wrapperElement: HTMLDivElement
-	let iconElement: HTMLButtonElement
-	let popupElement: HTMLDivElement
+	let wrapperElement = $state<HTMLDivElement>()
+	let iconElement = $state<HTMLButtonElement>()
+	let popupElement = $state<HTMLDivElement>()
 
 	let iconWidth = $state(0)
 	let popDirection = $state<'right' | 'left'>('right')
@@ -54,7 +54,7 @@
 	$effect(() => {
 		if (iconElement) {
 			const resize = new ResizeObserver(() => {
-				iconWidth = iconElement.offsetWidth
+				iconWidth = iconElement!.offsetWidth
 			})
 
 			resize.observe(iconElement)

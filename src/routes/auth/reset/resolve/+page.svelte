@@ -1,10 +1,9 @@
 <script lang="ts">
 
 	import { page } from '$app/state'
-	import toaster from '$stores/toaster.svelte'
     import Button from '$components/Button.svelte'
 	import { resetPasswordSchema } from '$validation/authSchemas'
-	import { flowAction, getFlow, gotoWithFlow, withFlow } from '$scripts/flow'
+	import { flowAction, getFlow, withFlow } from '$scripts/flow'
 
 	import * as Form from '$components/form'
 

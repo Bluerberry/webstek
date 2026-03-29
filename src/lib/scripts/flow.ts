@@ -1,4 +1,5 @@
 
+import { resolve } from '$app/paths'
 import { goto } from '$app/navigation'
 import { redirect } from '@sveltejs/kit'
 
@@ -58,9 +59,9 @@ export function redirectToDestination(url: URL, status: Parameters<typeof redire
 
 export function gotoWithFlow(url: URL, path: string) {
 	const { intent, destination } = getFlow(url)
-	goto(withFlow(path, { intent, destination }))
+	goto(resolve(withFlow(path, { intent, destination }) as any))
 }
 
 export function gotoDestination(url: URL, fallback: string = '/') {
-	goto(getFlow(url).destination ?? fallback)
+	goto(resolve(getFlow(url).destination ?? fallback as any))
 }
