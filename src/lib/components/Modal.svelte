@@ -1,8 +1,7 @@
 
 <script lang="ts">
+
     import { X } from '@lucide/svelte';
-
-
 	import type { Snippet } from 'svelte'
 
 	type Props = {
@@ -19,9 +18,10 @@
 
 	$effect(() => {
 		if (!dialog) return
+
 		if (open) {
 			dialog.showModal();
-		} if (!open && dialog.open) {
+		} else if (dialog.open) {
 			dialog.close();
 		}
 	})
@@ -29,12 +29,20 @@
 </script>
 
 {#if open}
-	<dialog class="modal" bind:this={dialog} onclose={() => open = false}>
-		<button type="button" onclick={() => open = false}>
+	<dialog
+		class="modal"
+		bind:this={dialog}
+		onclose={() => open = false}
+	>
+		{@render children()}
+
+		<button 
+			type="button" 
+			aria-label="Close modal"
+			onclick={() => open = false}
+		>
 			<X />
 		</button>
-
-		{@render children()}
 	</dialog>
 {/if}
 

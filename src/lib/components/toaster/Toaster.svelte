@@ -20,7 +20,7 @@
 
 	.toaster {
 		position: fixed;
-		z-index: 1;
+		z-index: 999;
 		right: 1rem;
 		top: 1rem;
 

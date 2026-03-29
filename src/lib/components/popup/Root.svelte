@@ -6,13 +6,15 @@
 	import type { Snippet } from 'svelte'
 
 	type Props = {
-		open?: boolean
 		icon: Snippet
+		title?: string
 		children: Snippet<[{ closeMenu: () => void }]>
+		open?: boolean
 	}
 
 	let {
 		icon,
+		title,
 		children,
 		open = $bindable(false)
 	}: Props = $props()
@@ -66,9 +68,10 @@
 <svelte:document onpointerdown={onDocPointerDown} />
 
 <div 
+	class:open
 	class="popup-menu theme-{open ? theme.invert() : theme.value}"
+	style="--icon-width: {iconWidth}px"
 	bind:this={wrapperElement} 
-	style="--gutter-width: {iconWidth}px"
 >
 	<button
 		class="trigger"
@@ -82,10 +85,11 @@
 
 	{#if open}
 		<div
+			role="dialog"
 			class="popup {popDirection}"
 			bind:this={popupElement}
-			role="dialog"
 		>
+			{#if title} <h3> {title} </h3> {/if}
 			{@render children({ closeMenu })}
 		</div>
 	{/if}
@@ -95,11 +99,9 @@
 
 	@use '$styles/variables' as *;
 	@use '$styles/themes' as *;
-	@use 'sass:color';
-
 	@include themed();
 
-	$popup-padding: 0.5rem;
+	$popup-padding: 0.75rem;
 
 	.popup-menu {
 		position: relative;
@@ -107,7 +109,6 @@
 
 		.trigger {
 			position: relative;
-			z-index: 2;
 
 			display: flex;
 			align-items: center;
@@ -123,17 +124,37 @@
 			left: -$popup-padding;
 			z-index: 1;
 
+			display: flex;
+			flex-flow: column nowrap;
+			gap: 0.5rem;
+
 			width: max-content;
-			padding: $popup-padding calc(var(--gutter-width) + 2*$popup-padding);
+			padding: $popup-padding;
 
 			color: var(--foreground);
 			background: var(--background);
 			box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.5);
 			border-radius: $border-radius;
 
+			h3 {
+				padding-left: calc(var(--icon-width) + $popup-padding);
+			}
+
 			&.left {
 				left: auto;
 				right: -$popup-padding;
+
+				h3 {
+					padding-left: 0;
+					padding-right: calc(var(--icon-width) + $popup-padding);
+				}
+			}
+		}
+
+		&.open {
+			.trigger {
+				z-index: 2;
+				outline: none;
 			}
 		}
 	}

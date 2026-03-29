@@ -14,13 +14,17 @@ html, body {
 	margin: 0;
 	padding: 0;
 	border: 0;
-	outline: 0;
 
 	background: none;
 	text-decoration: none;
 	font-family: 'Newsreader', serif;
 	font-weight: 450;
 
+	&:focus {
+		border-radius: $border-radius;
+		outline: 2px solid var(--foreground);
+		outline-offset: 2px;
+	}
 }
 
 h1 {

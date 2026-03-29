@@ -11,6 +11,7 @@
 		loading?: boolean
 		href?: string
 		form?: string
+		aria?: string
 		onclick?: MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>
 		children: Snippet
 	}
@@ -22,6 +23,7 @@
 		loading = false,
 		href,
 		form,
+		aria: label,
 		onclick,
 		children
 	}: Props = $props()
@@ -29,21 +31,33 @@
 </script>
 
 {#if href}
-	<a
-		{href}
-		{onclick}
-		class="button {style}"
-		class:disabled={ disabled || loading }
-		aria-disabled={ disabled || loading }
-	>
-		<div class="children" class:hide={ loading }>
-			{@render children()}
-		</div>
+	{#if disabled || loading}
+		<span
+			role="link"
+			class="button {style} disabled"
+			aria-disabled="true"
+			aria-label={label}
+		>
+			<div class="children" class:hide={ loading }>
+				{@render children()}
+			</div>
 
-		{#if loading}
-			<div class="spinner"></div>
-		{/if}
-	</a>
+			{#if loading}
+				<div class="spinner"></div>
+			{/if}
+		</span>
+	{:else}
+		<a
+			{href}
+			{onclick}
+			aria-label={label}
+			class="button {style}"
+		>
+			<div class="children">
+				{@render children()}
+			</div>
+		</a>
+	{/if}
 {:else}
 	<button
 		{type}
@@ -51,7 +65,9 @@
 		{onclick}
 		class="button {style}"
 		class:disabled={ disabled || loading }
+		disabled={ disabled || loading }
 		aria-disabled={ disabled || loading }
+		aria-label={label}
 	>
 		<div class="children" class:hide={ loading }>
 			{@render children()}
@@ -116,13 +132,17 @@
 			}
 		}
 
+		&:not(.icon) {
+			outline: none;
+
+			&:hover, &:focus {
+				text-decoration: underline;
+			}
+		}
+
 		&:not(.disabled) {
 			pointer-events: all;
 			opacity: 100%;
-
-			&:hover, &:focus-visible {
-				text-decoration: underline;
-			}
 		}
 
 		.children {

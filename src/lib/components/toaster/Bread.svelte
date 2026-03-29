@@ -26,7 +26,11 @@
 >
 	<div class="title">
 		<h4> {title} </h4>	
-		<button type="button" onclick={() => toaster.dismiss(id)}>
+		<button 
+			type="button"
+			aria-label="Dismiss toast"
+			onclick={() => toaster.dismiss(id)}
+		>
 			<X />
 		</button>
 	</div>
@@ -64,14 +68,11 @@
 			white-space: nowrap;
 			font-size: $l-font;
 			font-weight: 550;
-			
-			h3 {
-				flex: 1;
-			}
 
 			button {
 				width: 1rem;
 				height: 1rem;
+				margin-left: auto;
 				cursor: pointer;
 
 				:global(.lucide) {

@@ -49,7 +49,7 @@
 	<div class="gutter">
 		<div class="account">
 			{#if data.user}
-				<h3>Welcome, {data.user.username}</h3>
+				<h3> Welcome, {data.user.username} </h3>
 				<Button href="/account">
 					Account
 				</Button>

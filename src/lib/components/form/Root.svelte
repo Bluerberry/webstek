@@ -15,9 +15,6 @@
 		action?: string
 		style?: 'grid' | 'centered'
 		children: Snippet
-		header?: Snippet
-		paragraph?: Snippet
-		footer?: Snippet
 		above?: Snippet
 		below?: Snippet
 		onError?: Events['onError']

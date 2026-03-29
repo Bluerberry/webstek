@@ -97,6 +97,7 @@
 		position: relative;
 		padding: $thin-btn-padding 0;
 		padding-left: 2 * $icon-padding + $icon-size;
+		outline: none;
 
 		cursor: pointer;
 		font-size: $l-font;

@@ -18,7 +18,13 @@
 </script>
 
 <div class="searchbar">
-	<input type="text" {placeholder} {onkeydown} bind:value={query} />
+	<input 
+		type="text"
+		bind:value={query} 
+		{placeholder} 
+		{onkeydown} 
+	/>
+
 	<Search />
 </div>
 
@@ -38,6 +44,7 @@
 			width: 100%;
 			padding: $thin-btn-padding 0;
 			padding-right: $icon-padding + $icon-size;
+			outline: none;
 
 			font-size: $l-font;
 			color: var(--foreground);

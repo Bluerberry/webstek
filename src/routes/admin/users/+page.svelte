@@ -1,25 +1,37 @@
 
 <script lang="ts">
 
-	import { getUsers } from '../admin.remote'
+	import toaster from '$stores/toaster.svelte'
+	import { deleteAccount, demoteAccount, getCollateralDamage, getUsers, promoteAccount } from '../admin.remote'
 
-	import Searchbar from '$components/Searchbar.svelte'
+    import * as popup from '$components/popup'
+    import Modal from '$components/Modal.svelte'
 	import Button from '$components/Button.svelte'
+    import Checkbox from '$components/Checkbox.svelte'
+	import Searchbar from '$components/Searchbar.svelte'
+	
+	import { 
+		Check, 
+		ChevronLeft, 
+		ChevronRight, 
+		Ellipsis, 
+		Funnel, 
+		FunnelX, 
+		X
+	} from '@lucide/svelte'
 
-	import { Check, ChevronLeft, ChevronRight, Ellipsis, Funnel, FunnelX, X } from '@lucide/svelte'
-    import PopupMenu from '$components/PopupMenu.svelte';
-    import Checkbox from '$components/Checkbox.svelte';
-
+	import type { SanitizedUser } from '$scripts/types'
+	
 	const USERS_PER_PAGE = 25
 
 	let users = $derived(await getUsers())
 
+	let query = $state('')
 	let showAdmins = $state(true)
 	let showUsers = $state(true)
 	let showVerified = $state(true)
 	let showUnverified = $state(true)
-	let query = $state('')
-	let page = $state(0)
+	let activeFilters = $derived(!showAdmins || !showUsers || !showVerified || !showUnverified)
 
 	let filteredUsers = $derived(users.filter(user => {
 		let formattedQuery = query.trim().toLowerCase()
@@ -39,19 +51,103 @@
 	}))
 
 	let hiddenUsers = $derived(users.length - filteredUsers.length)
-	let pageCount = $derived(Math.ceil(filteredUsers.length / USERS_PER_PAGE))
-	let pageUsers = $derived(filteredUsers.slice(page * USERS_PER_PAGE, (page + 1) * USERS_PER_PAGE))
-	let preventPrevPage = $derived(page <= 0)
-	let preventNextPage = $derived(page >= pageCount - 1)
-	let activeFilters = $derived(!showAdmins || !showUsers || !showVerified || !showUnverified)
 
+	let pageIndex = $state(0)
+	let pageCount = $derived(Math.ceil(filteredUsers.length / USERS_PER_PAGE))
+	let pageUsers = $derived(filteredUsers.slice(pageIndex * USERS_PER_PAGE, (pageIndex + 1) * USERS_PER_PAGE))
+
+	let preventPrevPage = $derived(pageIndex <= 0)
+	let preventNextPage = $derived(pageIndex >= pageCount - 1)
+
+	let promoteAccountModal: {
+		open: boolean,
+		user?: SanitizedUser
+	} = $state({ open: false })
+
+	let demoteAccountModal: {
+		open: boolean,
+		user?: SanitizedUser
+	} = $state({ open: false })
+
+	let deleteAccountModal: {
+		open: boolean,
+		user?: SanitizedUser
+	} = $state({ open: false })
+
+	$effect(() => {
+		if (pageCount > 0) {
+			pageIndex = 0
+		} else {
+			pageIndex = -1
+		}
+	})
+
+	async function handlePromoteAccount(userId: number) {
+		try {
+			await promoteAccount(userId).updates(
+				getUsers().withOverride(
+					current => {
+						const target = current.find(user => user.id === userId)
+						if (target) target.role = 'admin'
+						return current
+					}
+				)
+			)
+
+			toaster.show('Account successfully promoted')
+		} catch (error: any) {
+			toaster.show('Failed to promote account', error)
+		}
+
+		promoteAccountModal.open = false
+	}
+
+		async function handleDemoteAccount(userId: number) {
+		try {
+			await demoteAccount(userId).updates(
+				getUsers().withOverride(
+					current => {
+						const target = current.find(user => user.id === userId)
+						if (target) target.role = 'user'
+						return current
+					}
+				)
+			)
+
+			toaster.show('Account successfully demoted')
+		} catch (error: any) {
+			toaster.show('Failed to demote account', error)
+		}
+
+		demoteAccountModal.open = false
+	}
+
+	async function handleDeleteAccount(userId: number) {
+		try {
+			await deleteAccount(userId).updates(
+				getUsers().withOverride(
+					current => {
+						return current.filter(
+							user => user.id !== userId
+						)
+					}
+				)
+			)
+
+			toaster.show('Account successfully deleted')
+		} catch (error: any) {
+			toaster.show('Failed to delete account', error)
+		}
+
+		deleteAccountModal.open = false
+	}
 
 </script>
 
 <div class="table">
 	<div class="controls">
 		<Searchbar placeholder="Search users..." bind:query />
-		<PopupMenu>
+		<popup.Root title="Filter users">
 			{#snippet icon()}
 				{#if activeFilters}
 					<FunnelX />
@@ -60,33 +156,45 @@
 				{/if}
 			{/snippet}
 
-			<h3> Filter options </h3>
-			<section class="menu-section">
-				<h4> Role </h4>
-				<div class="option"> <Checkbox bind:checked={showAdmins} /> Admin </div>
-				<div class="option"> <Checkbox bind:checked={showUsers} /> User </div>
-			</section>
-			<section class="menu-section">
-				<h4> Email </h4>
-				<div class="option"> <Checkbox bind:checked={showVerified} /> Verified </div>
-				<div class="option"> <Checkbox bind:checked={showUnverified} /> Unverified </div>
-			</section>
-		</PopupMenu>
+			<popup.Section title="Role">
+				<div class="filter-option">
+					Admin 
+					<Checkbox aria="Toggle show admins" bind:checked={showAdmins} /> 
+				</div>
+				<div class="filter-option">
+					User 
+					<Checkbox aria="Toggle show users" bind:checked={showUsers} /> 
+				</div>
+			</popup.Section>
+
+			<popup.Section title="Email">
+				<div class="filter-option">
+					Verified 
+					<Checkbox aria="Toggle show verified" bind:checked={showVerified} /> 
+				</div>
+				<div class="filter-option">
+					Unverified 
+					<Checkbox aria="Toggle show unverified" bind:checked={showUnverified} /> 
+				</div>
+			</popup.Section>
+		</popup.Root>
 
 		<div class="page-controls">
 			<Button 
 				style="icon"
-				onclick={() => page -= 1}
+				aria="Previous page"
 				disabled={preventPrevPage}
+				onclick={() => pageIndex -= 1}
 			>
 				<ChevronLeft />
 			</Button>
 
-			<span> page {page + 1}/{pageCount} </span>
+			<span> page {pageIndex + 1}/{pageCount} </span>
 			
 			<Button 
-				style="icon" 
-				onclick={() => page += 1}
+				style="icon"
+				aria="Next page"
+				onclick={() => pageIndex += 1}
 				disabled={preventNextPage}
 			>
 				<ChevronRight />
@@ -99,7 +207,7 @@
 	<span> Username </span>
 	<span> Email </span>
 	<span class="justify-center"> Verified </span>
-	<span></span>
+	<span></span> <!-- Fill settings column -->
 
 	{#each pageUsers as user}
 		<span class="cell"> {user.id} </span>
@@ -115,14 +223,36 @@
 		</span>
 
 		<span class="cell justify-end">
-			<PopupMenu>
+			<popup.Root title="User options">
 				{#snippet icon()}
 					<Ellipsis />
 				{/snippet}
+
+				<popup.Divider />
+
+				{#if user.role === 'user'}
+					<Button style="link" onclick={() => {
+					promoteAccountModal.open = true
+					promoteAccountModal.user = user
+				}}>
+						Promote to Admin
+					</Button>
+				{:else}
+					<Button style="link" onclick={() => {
+					demoteAccountModal.open = true
+					demoteAccountModal.user = user
+				}}>
+						Demote to User
+					</Button>
+				{/if}
 				
-				<h4> User options </h4>
-				hello world
-			</PopupMenu>
+				<Button style="link" onclick={() => {
+					deleteAccountModal.open = true
+					deleteAccountModal.user = user
+				}}>
+					Delete account
+				</Button>
+			</popup.Root>
 		</span>
 	{/each}
 
@@ -135,6 +265,88 @@
 		{/if}
 	</span>
 </div>
+
+<Modal bind:open={promoteAccountModal.open}>
+	<div id="delete-account">
+		<h2> Promoting account </h2>
+		<p>
+			You are about to promote the account of <b> {promoteAccountModal.user?.username} </b>.
+			This will give them the same rights as you.
+		</p>
+
+		<div class="row">
+			<Button 
+				style="outline"
+				onclick={() => promoteAccountModal.open = false}
+			> Cancel </Button>
+
+			<Button 
+				type="submit" 
+				onclick={() => handlePromoteAccount(promoteAccountModal.user!.id)}
+			> Promote </Button>
+		</div>
+	</div>
+</Modal>
+
+<Modal bind:open={demoteAccountModal.open}>
+	<div id="delete-account">
+		<h2> Demoting account </h2>
+		<p>
+			You are about to demote the account of <b> {demoteAccountModal.user?.username} </b>.
+		</p>
+
+		<div class="row">
+			<Button 
+				style="outline"
+				onclick={() => demoteAccountModal.open = false}
+			> Cancel </Button>
+
+			<Button 
+				type="submit" 
+				onclick={() => handleDemoteAccount(demoteAccountModal.user!.id)}
+			> Demote </Button>
+		</div>
+	</div>
+</Modal>
+
+<Modal bind:open={deleteAccountModal.open}>
+	<div id="delete-account">
+		{#await getCollateralDamage(deleteAccountModal.user!.id)}
+			<span> loading... </span>
+		{:then data}
+			<h2> Deleting account </h2>
+			<p> 
+				You are about to delete the account of {deleteAccountModal.user?.username}. 
+				This action cannot be undone.
+
+				{#if data.length > 0}
+					Along with their personal data, the following will also be deleted:
+				{/if}
+			</p>
+
+			{#each data as { title, collateral }}
+				<h3> {title} </h3>
+				<ul>
+					{#each collateral as item}
+						<li> {item} </li>
+					{/each}
+				</ul>
+			{/each}
+
+			<div class="row">
+				<Button 
+					style="outline"
+					onclick={() => deleteAccountModal.open = false}
+				> Cancel </Button>
+
+				<Button 
+					type="submit" 
+					onclick={() => handleDeleteAccount(deleteAccountModal.user!.id)}
+				> Delete Everything </Button>
+			</div>
+		{/await}
+	</div>
+</Modal>
 
 <style lang="scss">
 
@@ -181,39 +393,18 @@
 				margin-left: auto;
 			}
 
-			.menu-section {
+			.filter-option {
 				display: flex;
-				flex-flow: column nowrap;
-				gap: 0.25rem;
+				flex-flow: row nowrap;
+				align-items: center;
+				gap: 0.5rem;
 
-				margin-top: 0.75rem;
-				
-				h4 {
-					display: flex;
-					align-items: baseline;
-
-					&::after {
-						content: '';
-
-						flex: 1;
-						margin-left: 0.25rem;
-						border-bottom: 1px solid var(--foreground);
-					}
-				}
-
-				.option {
-					display: flex;
-					flex-flow: row nowrap;
-					align-items: center;
-					gap: 0.5rem;
-
-					margin-left: 0.75rem;
-
-					:global(.checkbox) {
-						scale: 0.75;
-					}
+				:global(.checkbox) {
+					margin-left: auto;
+					scale: 0.75;
 				}
 			}
+
 		}
 
 		:global(.lucide) {
@@ -241,6 +432,28 @@
 
 			color: var(--muted);
 			text-align: center;
+		}
+	}
+
+	#delete-account {
+		color: var(--foreground);
+
+		h2 {
+			margin-bottom: 0.5rem;
+		}
+
+		h3, .row {
+			margin-top: 1.5rem;
+		}
+
+		ul {
+			padding-left: 2rem;
+		}
+
+		.row {
+			display: flex;
+			justify-content: end;
+			gap: 0.5rem;
 		}
 	}
 

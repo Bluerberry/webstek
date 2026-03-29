@@ -5,7 +5,7 @@ type Toast = {
 	id: string
 	title: string
 	body?: string
-	timeoutId?: number
+	timeoutId?: NodeJS.Timeout
 }
 
 const toaster = $state({
@@ -18,7 +18,7 @@ const toaster = $state({
 		if (duration !== 'dismiss') {
 			toast.timeoutId = setTimeout(() => {
 				toaster.dismiss(id)
-			}, 10000) as unknown as number
+			}, 10000)
 		}
 
 		toaster.queue.push(toast)

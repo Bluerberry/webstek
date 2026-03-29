@@ -190,7 +190,11 @@
 		<div class="setting">
 			<h3> Collect session metadata </h3>
 			<p class="muted"> Webstek collects session metadata with the sole purpose of displaying it above. Disabling this will automatically delete all previously known metadata. </p>
-			<Checkbox bind:checked={data.user.collectMetadata} onchange={handleSetCollectMetadata} />
+			<Checkbox 
+				aria="Collect metadata toggle"
+				onchange={handleSetCollectMetadata} 
+				bind:checked={data.user.collectMetadata} 
+			/>
 		</div>
 
 		<div class="setting">

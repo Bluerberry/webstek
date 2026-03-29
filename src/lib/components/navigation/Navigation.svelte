@@ -114,7 +114,9 @@
 		gap: 0.5rem;
 
 		:global(.searchbar input) {
-			padding-left: 2*$icon-padding + $icon-size;
+			margin-left: 2*$icon-padding + $icon-size;
+			width: unset;
+			flex: 1;
 		}
 
 		nav {
