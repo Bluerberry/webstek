@@ -4,13 +4,11 @@
     import type { ChangeEventHandler } from 'svelte/elements'
 
 	type Props = {
-		aria?: string
 		onchange?: ChangeEventHandler<HTMLInputElement>
 		checked?: boolean
 	}
 
 	let {
-		aria,
 		onchange,
 		checked = $bindable(false)
 	}: Props = $props()
@@ -18,12 +16,7 @@
 </script>
 
 <label class="checkbox">
-	<input
-		type="checkbox"
-		aria-label={aria}
-		bind:checked
-		{onchange}
-	>
+	<input type="checkbox" bind:checked {onchange} >
 </label>
 
 <style lang="scss">

@@ -13,7 +13,6 @@
 		loading?: boolean
 		href?: string
 		form?: string
-		aria?: string
 		onclick?: MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>
 		children: Snippet
 	}
@@ -25,7 +24,6 @@
 		loading = false,
 		href,
 		form,
-		aria: label,
 		onclick,
 		children
 	}: Props = $props()
@@ -34,12 +32,7 @@
 
 {#if href}
 	{#if disabled || loading}
-		<span
-			role="link"
-			class="button {style} disabled"
-			aria-disabled="true"
-			aria-label={label}
-		>
+		<span role="link" class="button {style} disabled">
 			<div class="children" class:hide={ loading }>
 				{@render children()}
 			</div>
@@ -52,7 +45,6 @@
 		<a
 			href={resolve(href as any)}
 			{onclick}
-			aria-label={label}
 			class="button {style}"
 		>
 			<div class="children">
@@ -68,8 +60,6 @@
 		class="button {style}"
 		class:disabled={ disabled || loading }
 		disabled={ disabled || loading }
-		aria-disabled={ disabled || loading }
-		aria-label={label}
 	>
 		<div class="children" class:hide={ loading }>
 			{@render children()}

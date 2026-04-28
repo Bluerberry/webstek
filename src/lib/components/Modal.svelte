@@ -14,15 +14,15 @@
 		children
 	}: Props = $props()
 
-	let dialog: HTMLDialogElement | undefined = $state();
+	let dialogElement: HTMLDialogElement | undefined = $state();
 
 	$effect(() => {
-		if (!dialog) return
+		if (!dialogElement) return
 
 		if (open) {
-			dialog.showModal();
-		} else if (dialog.open) {
-			dialog.close();
+			dialogElement.showModal();
+		} else if (dialogElement.open) {
+			dialogElement.close();
 		}
 	})
 
@@ -31,14 +31,13 @@
 {#if open}
 	<dialog
 		class="modal"
-		bind:this={dialog}
+		bind:this={dialogElement}
 		onclose={() => open = false}
 	>
 		{@render children()}
 
 		<button 
 			type="button" 
-			aria-label="Close modal"
 			onclick={() => open = false}
 		>
 			<X />

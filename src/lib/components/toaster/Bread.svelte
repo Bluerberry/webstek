@@ -28,7 +28,6 @@
 		<h4> {title} </h4>	
 		<button 
 			type="button"
-			aria-label="Dismiss toast"
 			onclick={() => toaster.dismiss(id)}
 		>
 			<X />

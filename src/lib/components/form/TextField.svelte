@@ -45,7 +45,6 @@
 		form={$formId}
 		autocomplete="off"
 		class:password={type === 'password'}
-		aria-invalid={$errors ? 'true' : undefined}
 		bind:value={$value}
 	/>
 

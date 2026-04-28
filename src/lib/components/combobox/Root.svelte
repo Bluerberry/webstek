@@ -21,7 +21,7 @@
 
 	let wrapperElement = $state<HTMLDivElement>()
 	let iconElement = $state<HTMLButtonElement>()
-	let popupElement = $state<HTMLDivElement>()
+	let comboboxElement = $state<HTMLDivElement>()
 
 	let iconWidth = $state(0)
 	let popDirection = $state<'right' | 'left'>('right')
@@ -39,10 +39,10 @@
 	}
 
 	function resolveDirection() {
-		if (!popupElement || !wrapperElement) return
+		if (!comboboxElement || !wrapperElement) return
 		const { left } = wrapperElement.getBoundingClientRect()
-		const popupWidth = popupElement.offsetWidth
-		popDirection = left + popupWidth <= window.innerWidth ? 'right' : 'left'
+		const comboboxWidth = comboboxElement.offsetWidth
+		popDirection = left + comboboxWidth <= window.innerWidth ? 'right' : 'left'
 	}
 
 	function onDocPointerDown(event: PointerEvent) {
@@ -69,7 +69,7 @@
 
 <div 
 	class:open
-	class="popup-menu theme-{open ? theme.invert() : theme.value}"
+	class="combobox-menu theme-{open ? theme.invert() : theme.value}"
 	style="--icon-width: {iconWidth}px"
 	bind:this={wrapperElement} 
 >
@@ -77,8 +77,6 @@
 		class="trigger"
 		bind:this={iconElement}
 		onclick={toggleMenu}
-		aria-haspopup="true"
-		aria-expanded={open}
 	>
 		{@render icon()}
 	</button>
@@ -86,8 +84,8 @@
 	{#if open}
 		<div
 			role="dialog"
-			class="popup {popDirection}"
-			bind:this={popupElement}
+			class="combobox {popDirection}"
+			bind:this={comboboxElement}
 		>
 			{#if title} <h3> {title} </h3> {/if}
 			{@render children({ closeMenu })}
@@ -101,9 +99,9 @@
 	@use '$styles/themes' as *;
 	@include themed();
 
-	$popup-padding: 0.75rem;
+	$combobox-padding: 0.75rem;
 
-	.popup-menu {
+	.combobox-menu {
 		position: relative;
 		display: inline-block;
 
@@ -118,10 +116,10 @@
 			cursor: pointer;
 		}
 
-		.popup {
+		.combobox {
 			position: absolute;
-			top: -$popup-padding;
-			left: -$popup-padding;
+			top: -$combobox-padding;
+			left: -$combobox-padding;
 			z-index: 1;
 
 			display: flex;
@@ -129,7 +127,7 @@
 			gap: 0.5rem;
 
 			width: max-content;
-			padding: $popup-padding;
+			padding: $combobox-padding;
 
 			color: var(--foreground);
 			background: var(--background);
@@ -137,16 +135,16 @@
 			border-radius: $border-radius;
 
 			h3 {
-				padding-left: calc(var(--icon-width) + $popup-padding);
+				padding-left: calc(var(--icon-width) + $combobox-padding);
 			}
 
 			&.left {
 				left: auto;
-				right: -$popup-padding;
+				right: -$combobox-padding;
 
 				h3 {
 					padding-left: 0;
-					padding-right: calc(var(--icon-width) + $popup-padding);
+					padding-right: calc(var(--icon-width) + $combobox-padding);
 				}
 			}
 		}

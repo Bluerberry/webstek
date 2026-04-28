@@ -4,7 +4,7 @@
 	import toaster from '$stores/toaster.svelte'
 	import { deleteAccount, demoteAccount, getCollateralDamage, getUsers, promoteAccount } from '../admin.remote'
 
-    import * as popup from '$components/popup'
+    import * as combobox from '$components/combobox'
     import Modal from '$components/Modal.svelte'
 	import Button from '$components/Button.svelte'
     import Checkbox from '$components/Checkbox.svelte'
@@ -147,7 +147,7 @@
 <div class="table">
 	<div class="controls">
 		<Searchbar placeholder="Search users..." bind:query />
-		<popup.Root title="Filter users">
+		<combobox.Root title="Filter users">
 			{#snippet icon()}
 				{#if activeFilters}
 					<FunnelX />
@@ -156,33 +156,32 @@
 				{/if}
 			{/snippet}
 
-			<popup.Section title="Role">
+			<combobox.Section title="Role">
 				<div class="filter-option">
 					Admin 
-					<Checkbox aria="Toggle show admins" bind:checked={showAdmins} /> 
+					<Checkbox bind:checked={showAdmins} /> 
 				</div>
 				<div class="filter-option">
 					User 
-					<Checkbox aria="Toggle show users" bind:checked={showUsers} /> 
+					<Checkbox bind:checked={showUsers} /> 
 				</div>
-			</popup.Section>
+			</combobox.Section>
 
-			<popup.Section title="Email">
+			<combobox.Section title="Email">
 				<div class="filter-option">
 					Verified 
-					<Checkbox aria="Toggle show verified" bind:checked={showVerified} /> 
+					<Checkbox bind:checked={showVerified} /> 
 				</div>
 				<div class="filter-option">
 					Unverified 
-					<Checkbox aria="Toggle show unverified" bind:checked={showUnverified} /> 
+					<Checkbox bind:checked={showUnverified} /> 
 				</div>
-			</popup.Section>
-		</popup.Root>
+			</combobox.Section>
+		</combobox.Root>
 
 		<div class="page-controls">
 			<Button 
 				style="icon"
-				aria="Previous page"
 				disabled={preventPrevPage}
 				onclick={() => pageIndex -= 1}
 			>
@@ -193,7 +192,6 @@
 			
 			<Button 
 				style="icon"
-				aria="Next page"
 				onclick={() => pageIndex += 1}
 				disabled={preventNextPage}
 			>
@@ -223,12 +221,12 @@
 		</span>
 
 		<span class="cell justify-end">
-			<popup.Root title="User options">
+			<combobox.Root title="User options">
 				{#snippet icon()}
 					<Ellipsis />
 				{/snippet}
 
-				<popup.Divider />
+				<combobox.Divider />
 
 				{#if user.role === 'user'}
 					<Button style="link" onclick={() => {
@@ -252,7 +250,7 @@
 				}}>
 					Delete account
 				</Button>
-			</popup.Root>
+			</combobox.Root>
 		</span>
 	{/each}
 
