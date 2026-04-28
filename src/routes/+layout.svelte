@@ -22,9 +22,7 @@
 		{ label: 'Home', path: '/' },
 		{ label: 'About', path: '/about' },
 		{ label: 'Projects', children: [
-			{ label: 'Fuck Spotify', path: '/projects/fuck-spotify' },
-			{ label: 'Underworld Cookbook', path: '/projects/underworld-cookbook' },
-			{ label: 'Why am I poor?', path: '/projects/why-am-i-poor' }
+			{ label: 'WebGL', path: '/projects/webgl' }
 		]},
 		{ label: 'Admin Panel', adminOnly: true, children: [
 			{ label: 'Data Analytics', path: '/admin/analytics' },
