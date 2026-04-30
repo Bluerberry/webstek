@@ -125,6 +125,9 @@
 			width: 75%;
 			padding: $layout-padding;
 			background: var(--background);
+
+			overflow-x: hidden;
+			overflow-y: scroll;
 		}
 	}
 
