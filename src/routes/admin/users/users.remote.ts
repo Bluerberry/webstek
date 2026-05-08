@@ -24,6 +24,7 @@ export const getUsers = query(async () => {
 	return users.map(User.sanitize)
 })
 
+
 export const getCollateralDamage = query(z.number(), async userId => {
 	const { locals } = getRequestEvent()
 	

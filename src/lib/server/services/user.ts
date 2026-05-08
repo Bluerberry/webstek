@@ -1,5 +1,5 @@
 
-import { eq } from 'drizzle-orm'
+import { count, eq, gte, lt } from 'drizzle-orm'
 import { db, users } from '$server/database'
 
 import type { DbOrTx } from '$server/database'
@@ -32,6 +32,22 @@ export class User {
 		return await dbOrTx.query.users.findMany()
 	}
 
+	static async getAllSince(date: Date, dbOrTx: DbOrTx = db) {
+	    return await dbOrTx.query.users.findMany({
+	        where: gte(users.createdAt, date),
+	        orderBy: users.createdAt
+	    })
+	}
+
+	static async countBefore(date: Date, dbOrTx: DbOrTx = db) {
+	    const [result] = await dbOrTx
+	        .select({ count: count() })
+	        .from(users)
+	        .where(lt(users.createdAt, date))
+		
+	    return result.count
+	}
+
 	static async update(data: Partial<TUser> & { id: number }, dbOrTx: DbOrTx = db) {
 		await dbOrTx.update(users)
 			.set(data)
@@ -53,7 +69,8 @@ export class User {
 			verified: user.verified,
 			username: user.username,
 			role: user.role,
-			collectMetadata: user.collectMetadata
+			collectMetadata: user.collectMetadata,
+			createdAt: user.createdAt
 		}
 	}
 }

@@ -1,7 +1,7 @@
 
 class Matrix {
 	data: number[];
-	
+
 	constructor(data: number[]) {
 		this.data = data;
 	}
@@ -15,38 +15,25 @@ class Matrix {
 		]);
 	}
 
-	static orthographic(left: number, right: number, bottom: number, top: number, near: number, far: number) {
-		return new Matrix([
-			2 / (right - left), 0, 0, 0,
-			0, 2 / (top - bottom), 0, 0,
-			0, 0, 2 / (near - far), 0,
- 
-			(left + right) / (left - right),
-			(bottom + top) / (bottom - top),
-			(near + far) / (near - far),
-			1
-  		])	
-	}
-
 	static perspective(fov: number, aspect: number, near: number, far: number) {
-	    let f = 1 / Math.tan(fov / 2);
-    	let nf = 1 / (near - far);
+	    const f = 1.0 / Math.tan(fov / 2);
+	    const r = -1.0 / (far - near);
 
-    	return new Matrix([
-    	    f / aspect, 0, 0, 0,
-    	    0, f, 0, 0,
-    	    0, 0, (far + near) * nf, (2 * far * near) * nf,
-    	    0, 0, -1, 0
-    	]);
+	    return new Matrix([
+	        f / aspect,  0,  0,                 0,
+	        0,           f,  0,                 0,
+	        0,           0,  (near + far) * r,  2 * near * far * r,
+	        0,           0,  -1,                0
+	    ]);
 	}
 
 	static translate(dx: number, dy: number, dz: number) {
-	    return new Matrix([
-	        1, 0, 0, dx,
-	        0, 1, 0, dy,
-	        0, 0, 1, dz,
-	        0, 0, 0, 1
-	    ]);
+		return new Matrix([
+			1, 0, 0, dx,
+			0, 1, 0, dy,
+			0, 0, 1, dz,
+			0, 0, 0, 1
+		]);
 	}
 
 	static scale(sx: number, sy: number, sz: number) {
@@ -61,11 +48,11 @@ class Matrix {
 	static rotateX(radians: number) {
 		let c = Math.cos(radians);
 		let s = Math.sin(radians);
-	
+
 		return new Matrix([
 			1,  0,  0,  0,
-			0,  c,  s,  0,
-			0, -s,  c,  0,
+			0,  c, -s,  0,
+			0,  s,  c,  0,
 			0,  0,  0,  1
 		])
 	}
@@ -73,11 +60,11 @@ class Matrix {
 	static rotateY(radians: number) {
 		let c = Math.cos(radians);
 		let s = Math.sin(radians);
-	
+
 		return new Matrix([
-			c,  0, -s,  0,
+			c,  0,  s,  0,
 			0,  1,  0,  0,
-			s,  0,  c,  0,
+		   -s,  0,  c,  0,
 			0,  0,  0,  1
 		])
 	}
@@ -85,16 +72,32 @@ class Matrix {
 	static rotateZ(radians: number) {
 		let c = Math.cos(radians);
 		let s = Math.sin(radians);
-	
+
 		return new Matrix([
-			c,  s,  0,  0,
-		   -s,  c,  0,  0,
+			c, -s,  0,  0,
+		    s,  c,  0,  0,
 			0,  0,  1,  0,
 			0,  0,  0,  1
 		])
 	}
 
+	transpose() {
+		this.data = [
+			this.data[0], this.data[4], this.data[8],  this.data[12],
+			this.data[1], this.data[5], this.data[9],  this.data[13],
+			this.data[2], this.data[6], this.data[10], this.data[14],
+			this.data[3], this.data[7], this.data[11], this.data[15]
+		]
+
+		return this // For chaining purposes
+	}
+
 	apply(other: Matrix) {
+
+		// A ⋅ B = C
+		// Where A is this, B is other, and A gets set to C
+		// Variables are labled [matrix][x][y]
+
 		let a11 = this.data[0];
 		let a21 = this.data[1];
 		let a31 = this.data[2];
@@ -166,7 +169,7 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string) {
 export function createProgram(canvas: HTMLCanvasElement, vertexShaderSource: string, fragmentShaderSource: string) {
 	let gl = canvas.getContext("webgl");
 	if (!gl) throw new Error("Failed to get WebGL context");
-	
+
 	let program = gl.createProgram();
 	let vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
 	let fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
@@ -197,13 +200,14 @@ export function createProgram(canvas: HTMLCanvasElement, vertexShaderSource: str
 export function prepareVertices(gl: WebGLRenderingContext, program: WebGLProgram) {
 	let positionAttributeLocation = gl.getAttribLocation(program, "a_position");
 	let positionBuffer = gl.createBuffer();
+
 	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 	gl.bufferData(
 		gl.ARRAY_BUFFER,
 		new Float32Array([
-			0,    100, 0,
-		   -100, -100, 0,
-			100, -100, 0
+			0,   10, 0,
+		   -10, -10, 0,
+			10, -10, 0
 		]),
 		gl.STATIC_DRAW
 	);
@@ -214,12 +218,10 @@ export function prepareVertices(gl: WebGLRenderingContext, program: WebGLProgram
 
 export function prepareTransform(gl: WebGLRenderingContext, program: WebGLProgram, rx: number, ry: number, rz: number) {
 	let transformUniformLocation = gl.getUniformLocation(program, "u_transform");
-	let matrix = Matrix.perspective(1, gl.canvas.width / gl.canvas.height, 1, 1000)
-		.apply(Matrix.translate(gl.canvas.width / 2, gl.canvas.height / 2, -200))
-		.apply(Matrix.rotateX(rx))
+	let matrix = Matrix.perspective(Math.PI / 2, gl.canvas.width / gl.canvas.height, 1, 1000)
+		.apply(Matrix.translate(0, 0, -100))
 		.apply(Matrix.rotateY(ry))
-		.apply(Matrix.rotateZ(rz))
-		//.apply(Matrix.orthographic(0, gl.canvas.width, 0, gl.canvas.height, 1, 1000))
+		.transpose()
 
 	gl.uniformMatrix4fv(transformUniformLocation, false, matrix.data);
 }

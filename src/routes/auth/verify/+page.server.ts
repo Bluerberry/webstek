@@ -23,7 +23,7 @@ export const load: PageServerLoad = async event => {
 
 export const actions: Actions = {
 	verify: async ({ request, url, locals, cookies }) => {
-		const now = new Date()
+		const now = Date.now()
 
 		// Validate form
 		const form = await superValidate(request, zod4(verifyCodeSchema))
@@ -45,7 +45,7 @@ export const actions: Actions = {
 		}
 
 		// Check expiry
-		if (now.getTime() - emailverification.createdAt.getTime() >= EMAIL_VERIFICATION_TIMEOUT_MS) {
+		if (now - emailverification.createdAt.getTime() >= EMAIL_VERIFICATION_TIMEOUT_MS) {
 			return message(form, { type: 'error', text: 'Email verification expired' }, { status: 400 })
 		}
 

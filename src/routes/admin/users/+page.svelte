@@ -2,7 +2,7 @@
 <script lang="ts">
 
 	import toaster from '$stores/toaster.svelte'
-	import { deleteAccount, demoteAccount, getCollateralDamage, getUsers, promoteAccount } from '../admin.remote'
+	import { deleteAccount, demoteAccount, getCollateralDamage, getUsers, promoteAccount } from './users.remote'
 
     import * as combobox from '$components/combobox'
     import Modal from '$components/Modal.svelte'

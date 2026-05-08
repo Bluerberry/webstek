@@ -1,5 +1,10 @@
 
 import { sequence } from '@sveltejs/kit/hooks'
-import { auth, rateLimit, securityHeaders } from '$server/hooks'
+import { analytics, auth, rateLimit, securityHeaders } from '$server/hooks'
 
-export const handle = sequence(rateLimit, auth, securityHeaders)
+// Always ratelimit first
+// then set security headers
+// then start response timer for analytics
+// then check auth
+
+export const handle = sequence(rateLimit, securityHeaders, analytics, auth)

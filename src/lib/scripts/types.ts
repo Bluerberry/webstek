@@ -10,6 +10,7 @@ export type SanitizedUser = {
 	username: string,
 	role: UserRole,
 	collectMetadata: boolean
+	createdAt: Date
 }
 
 export type SanitizedSession = {

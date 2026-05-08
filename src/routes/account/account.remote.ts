@@ -5,6 +5,7 @@ import { error } from '@sveltejs/kit'
 import { Session, User } from '$server/services'
 import { query, command, getRequestEvent } from '$app/server'
 import { isUser, isVerified } from '$server/scripts/permissions'
+import { DeletedUser } from '$server/services'
 
 function formatCollateral(count: number, singular: string, plural?: string) {
 	if (count === 0) return null
@@ -117,6 +118,9 @@ export const deleteAccount = command(async () => {
 	}
 
 	// Delete user
-	await User.delete(locals.user.id)
-	cookies.delete('webstek_session', { path: '/' })
+	await db.transaction(async tx => {	
+		await User.delete(locals.user.id, tx)
+		await DeletedUser.create(locals.user.createdAt, tx)
+		cookies.delete('webstek_session', { path: '/' })
+	})
 })
