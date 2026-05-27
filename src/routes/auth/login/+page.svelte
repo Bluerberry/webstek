@@ -36,7 +36,7 @@
 	{/snippet}
 </Form.Root>
 
-<div class="footer">
+<footer>
 	<Button style="link" href={withFlow('/auth/register', getFlow(page.url))}>
 		Register an account
 	</Button>
@@ -44,7 +44,7 @@
 	<Button style="link" href={withFlow('/auth/reset/request', getFlow(page.url))}>
 		Reset your password
 	</Button>
-</div>
+</footer>
 
 <style lang="scss">
 
@@ -53,7 +53,7 @@
 	
 	$dot-size: 1rem;
 
-	.footer {
+	footer {
 		position: absolute;
 		bottom: 0;
 

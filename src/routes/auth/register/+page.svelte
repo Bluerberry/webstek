@@ -35,11 +35,11 @@
 	{/snippet}
 </Form.Root>
 
-<div class="footer">
+<footer>
 	<Button style="link" href={withFlow('/auth/login', getFlow(page.url))}>
 		Login with an existing account
 	</Button>
-</div>
+</footer>
 
 <style lang="scss">
 
@@ -48,7 +48,7 @@
 	
 	$dot-size: 1rem;
 
-	.footer {
+	footer {
 		position: absolute;
 		bottom: 0;
 

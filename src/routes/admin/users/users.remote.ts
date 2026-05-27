@@ -2,8 +2,8 @@
 import z from 'zod'
 import { error } from '@sveltejs/kit'
 import { User } from '$server/services'
+import { isAdmin } from '$scripts/permissions'
 import { query, command, getRequestEvent } from '$app/server'
-import { isAdmin } from '$server/scripts/permissions'
 
 function formatCollateral(count: number, singular: string, plural?: string) {
 	if (count === 0) return null

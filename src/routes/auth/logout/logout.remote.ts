@@ -2,9 +2,9 @@
 import { error } from '@sveltejs/kit'
 import { command } from '$app/server'
 import { Session } from '$server/services'
+import { isUser } from '$scripts/permissions'
 import { getRequestEvent } from '$app/server'
 import { flashToast } from '$server/scripts/flash'
-import { isUser } from '$server/scripts/permissions'
 
 export const logout = command(async () => {
 	const { locals, cookies } = getRequestEvent()

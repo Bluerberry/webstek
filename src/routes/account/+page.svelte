@@ -331,14 +331,14 @@
 		flex-flow: column nowrap;
 		gap: 4.5rem;
 
+		width: 100%;
 		height: 100%;
+		max-width: 650px;
 
 		section {
 			display: flex;
 			flex-flow: column nowrap;
 			gap: 2rem;
-
-			width: 100%;
 
 			h2 {
 				display: flex;

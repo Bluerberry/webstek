@@ -3,10 +3,12 @@ import * as crypto from 'crypto'
 
 export const SESSION_INACTIVITY_TIMEOUT_MS = 1000 * 60 * 60 * 24 * 14	// 14 days
 export const SESSION_VALIDATION_INTERVAL_MS = 1000 * 60 * 60			// 1 hour
+
 export const EMAIL_VERIFICATION_TIMEOUT_MS = 1000 * 60 * 15				// 15 minutes
 export const EMAIL_VERIFICATION_COOLDOWN_MS = 1000 * 60					// 1 minute
-export const PASSWORD_RESET_TIMEOUT_MS = 1000 * 60 * 15				// 15 minutes
-export const PASSWORD_RESET_COOLDOWN_MS = 1000 * 60					// 1 minute
+
+export const PASSWORD_RESET_TIMEOUT_MS = 1000 * 60 * 15					// 15 minutes
+export const PASSWORD_RESET_COOLDOWN_MS = 1000 * 60						// 1 minute
 
 export function generateToken() {
 	return crypto

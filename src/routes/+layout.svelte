@@ -20,12 +20,12 @@
 
 	const navtree = [
 		{ label: 'Home', path: '/' },
-		{ label: 'About', path: '/about' },
+		{ label: 'Portfolio', path: '/portfolio' },
+		{ label: 'About Webstek', path: '/about' },
 		{ label: 'Projects', children: [
 			{ label: 'WebGL', path: '/projects/webgl' }
 		]},
 		{ label: 'Admin Panel', adminOnly: true, children: [
-			{ label: 'Data Analytics', path: '/admin/analytics' },
 			{ label: 'Users', path: '/admin/users'}
 		]},
 	]
@@ -98,7 +98,7 @@
 		background: var(--background);
 
 		.gutter {
-			padding: $layout-padding;
+			padding: $layout-v-padding 4rem;
 
 			.account {
 				display: grid;
@@ -123,7 +123,7 @@
 			align-items: center;
 
 			width: 75%;
-			padding: $layout-padding;
+			padding: $layout-v-padding 8rem;
 			background: var(--background);
 
 			overflow-x: hidden;

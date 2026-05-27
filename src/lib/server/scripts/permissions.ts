@@ -2,43 +2,16 @@
 import { redirect } from '@sveltejs/kit'
 import { flashToast } from '$server/scripts/flash'
 import { withFlow, createFlow, redirectToDestination } from '$scripts/flow'
+import { isUser, isStranger, isVerified, isUnverified } from '$scripts/permissions'
 
 import type { RequestEvent } from '@sveltejs/kit'
 import type { 
-	StrangerLocals, 
 	StrangerEvent, 
-	UserLocals, 
 	UserEvent, 
-	AdminLocals, 
 	AdminEvent, 
-	VerifiedLocals, 
 	VerifiedUserEvent,
-	UnverifiedLocals, 
 	UnverifiedUserEvent 
 } from '$scripts/types'
-
-
-// ─── Checks ───────────────────────────────────────────────────────────────
-
-export function isStranger(locals: App.Locals) : locals is StrangerLocals {
-	return locals.user === undefined
-}
-
-export function isUser(locals: App.Locals): locals is UserLocals {
-	return locals.user !== undefined
-}
-
-export function isAdmin(locals: App.Locals): locals is AdminLocals {
-	return isUser(locals) && locals.user.role === 'admin'
-}
-
-export function isVerified(locals: App.Locals): locals is VerifiedLocals {
-	return isUser(locals) && locals.user.verified
-}
-
-export function isUnverified(locals: App.Locals): locals is UnverifiedLocals {
-	return isUser(locals) && !locals.user.verified
-}
 
 // ─── Guards ───────────────────────────────────────────────────────────────
 

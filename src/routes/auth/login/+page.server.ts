@@ -2,11 +2,12 @@
 import { UAParser } from 'ua-parser-js'
 import { env } from '$env/dynamic/private'
 import { User, Session } from '$server/services'
+import { isStranger } from '$scripts/permissions'
 import { flashToast } from '$server/scripts/flash'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { loginSchema } from '$validation/authSchemas'
 import { redirectToDestination } from '$scripts/flow'
-import { isStranger, requireStranger } from '$server/scripts/permissions'
+import { requireStranger } from '$server/scripts/permissions'
 import { superValidate, message } from 'sveltekit-superforms'
 import { generateToken, hashToken, SESSION_INACTIVITY_TIMEOUT_MS, validatePassword } from '$server/scripts/auth'
 

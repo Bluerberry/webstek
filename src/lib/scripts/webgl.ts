@@ -1,5 +1,5 @@
 
-class Matrix {
+export class Matrix {
 	data: number[];
 
 	constructor(data: number[]) {
@@ -15,24 +15,12 @@ class Matrix {
 		]);
 	}
 
-	static perspective(fov: number, aspect: number, near: number, far: number) {
-	    const f = 1.0 / Math.tan(fov / 2);
-	    const r = -1.0 / (far - near);
-
-	    return new Matrix([
-	        f / aspect,  0,  0,                 0,
-	        0,           f,  0,                 0,
-	        0,           0,  (near + far) * r,  2 * near * far * r,
-	        0,           0,  -1,                0
-	    ]);
-	}
-
 	static translate(dx: number, dy: number, dz: number) {
 		return new Matrix([
-			1, 0, 0, dx,
-			0, 1, 0, dy,
-			0, 0, 1, dz,
-			0, 0, 0, 1
+			1,  0,  0,  0,
+			0,  1,  0,  0,
+			0,  0,  1,  0,
+			dx, dy, dz, 1
 		]);
 	}
 
@@ -51,8 +39,8 @@ class Matrix {
 
 		return new Matrix([
 			1,  0,  0,  0,
-			0,  c, -s,  0,
-			0,  s,  c,  0,
+			0,  c,  s,  0,
+			0, -s,  c,  0,
 			0,  0,  0,  1
 		])
 	}
@@ -62,9 +50,9 @@ class Matrix {
 		let s = Math.sin(radians);
 
 		return new Matrix([
-			c,  0,  s,  0,
+			c,  0, -s,  0,
 			0,  1,  0,  0,
-		   -s,  0,  c,  0,
+		    s,  0,  c,  0,
 			0,  0,  0,  1
 		])
 	}
@@ -74,22 +62,23 @@ class Matrix {
 		let s = Math.sin(radians);
 
 		return new Matrix([
-			c, -s,  0,  0,
-		    s,  c,  0,  0,
+			c,  s,  0,  0,
+		   -s,  c,  0,  0,
 			0,  0,  1,  0,
 			0,  0,  0,  1
 		])
 	}
 
-	transpose() {
-		this.data = [
-			this.data[0], this.data[4], this.data[8],  this.data[12],
-			this.data[1], this.data[5], this.data[9],  this.data[13],
-			this.data[2], this.data[6], this.data[10], this.data[14],
-			this.data[3], this.data[7], this.data[11], this.data[15]
-		]
+	static perspective(fov: number, aspect: number, near: number, far: number) {
+	    const f = 1.0 / Math.tan(fov / 2);
+	    const r = -1.0 / (far - near);
 
-		return this // For chaining purposes
+		return new Matrix([
+	        f / aspect,  0,  0,                  0,
+	        0,           f,  0,                  0,
+	        0,           0,  (near + far) * r,  -1,
+	        0,           0,  2 * near * far * r, 0
+	    ]);
 	}
 
 	apply(other: Matrix) {
@@ -184,44 +173,108 @@ export function createProgram(canvas: HTMLCanvasElement, vertexShaderSource: str
 		throw new Error("Failed to link program");
 	}
 
-	const dpr = window.devicePixelRatio || 1;
-	canvas.width = canvas.clientWidth * dpr;
-	canvas.height = canvas.clientHeight * dpr;
-
-	gl.enable(gl.DEPTH_TEST);
-	gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-	gl.clearColor(0, 0, 0, 0);
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	gl.useProgram(program);
-
 	return { gl, program };
 }
 
-export function prepareVertices(gl: WebGLRenderingContext, program: WebGLProgram) {
-	let positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-	let positionBuffer = gl.createBuffer();
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+export function setVertices(gl: WebGLRenderingContext) {
 	gl.bufferData(
 		gl.ARRAY_BUFFER,
 		new Float32Array([
-			0,   10, 0,
-		   -10, -10, 0,
-			10, -10, 0
+
+			// Bottom face
+			-1, -1, -1,
+			 1, -1, -1,
+			 1, -1,  1,
+			-1, -1,  1,
+			-1, -1, -1,
+			 1, -1,  1,
+
+			// Top face
+			 1, 1, -1,
+			-1, 1, -1,
+			 1, 1,  1,
+			-1, 1, -1,
+			-1, 1,  1,
+			 1, 1,  1,
+
+			// Right face
+			 1, -1,  1,
+			 1, -1, -1,
+			 1,  1, -1,
+			 1, -1,  1,
+			 1,  1, -1,
+			 1,  1,  1,
+
+			// Left face
+			-1, -1, -1,
+			-1, -1,  1,
+			-1,  1, -1,
+			-1,  1, -1,
+			-1, -1,  1,
+			-1,  1,  1,
+
+			// Front face
+			-1, -1, 1,
+			 1, -1, 1,
+			-1,  1, 1,
+			 1, -1, 1,
+			 1,  1, 1,
+			-1,  1, 1,
+
+			// Back face
+			 1, -1, -1,
+			-1, -1, -1,
+			-1,  1, -1,
+			 1,  1, -1,
+			 1, -1, -1,
+			-1,  1, -1,
+
 		]),
 		gl.STATIC_DRAW
 	);
-
-	gl.enableVertexAttribArray(positionAttributeLocation);
-	gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
 }
 
-export function prepareTransform(gl: WebGLRenderingContext, program: WebGLProgram, rx: number, ry: number, rz: number) {
-	let transformUniformLocation = gl.getUniformLocation(program, "u_transform");
-	let matrix = Matrix.perspective(Math.PI / 2, gl.canvas.width / gl.canvas.height, 1, 1000)
-		.apply(Matrix.translate(0, 0, -100))
-		.apply(Matrix.rotateY(ry))
-		.transpose()
-
-	gl.uniformMatrix4fv(transformUniformLocation, false, matrix.data);
+export function setColors(gl: WebGLRenderingContext) {
+	gl.bufferData(
+		gl.ARRAY_BUFFER,
+		new Uint8Array([
+			0, 0, 0,
+			0, 0, 0,
+		    0, 0, 0,
+			0, 0, 0,
+			0, 0, 0,
+		    0, 0, 0,
+			216, 71, 151,
+			216, 71, 151,
+			216, 71, 151,
+			216, 71, 151,
+			216, 71, 151,
+			216, 71, 151,
+			255, 231, 76,
+		    255, 231, 76,
+			255, 231, 76,
+			255, 231, 76,
+		    255, 231, 76,
+			255, 231, 76,
+		    58, 190, 255,
+			58, 190, 255,
+			58, 190, 255,
+			58, 190, 255,
+			58, 190, 255,
+			58, 190, 255,
+			36, 208, 76,
+			36, 208, 76,
+			36, 208, 76,
+			36, 208, 76,
+			36, 208, 76,
+			36, 208, 76,
+			236, 151, 114,
+			236, 151, 114,
+			236, 151, 114,
+			236, 151, 114,
+			236, 151, 114,
+			236, 151, 114,
+		]),
+		gl.STATIC_DRAW
+	);
 }

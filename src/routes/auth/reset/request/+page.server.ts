@@ -1,7 +1,7 @@
 
+import { isUser } from '$scripts/permissions'
 import { redirectWithFlow } from '$scripts/flow'
 import { zod4 } from 'sveltekit-superforms/adapters'
-import { isUser } from '$server/scripts/permissions'
 import { message, superValidate } from 'sveltekit-superforms'
 import { PASSWORD_RESET_TIMEOUT_MS } from '$server/scripts/auth'
 import { requestResetPasswordSchema } from '$validation/authSchemas'

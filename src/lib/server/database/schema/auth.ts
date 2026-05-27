@@ -1,38 +1,7 @@
 
 import { relations } from 'drizzle-orm'
-import { pgTable, serial, varchar, integer, timestamp, boolean, pgEnum } from 'drizzle-orm/pg-core'
-
-export const userRole = pgEnum('user_role', ['user', 'admin'])
-
-export const users = pgTable('users', {
-    id: serial('id')
-        .primaryKey(),
-    email: varchar('email', { length: 255 })
-        .notNull()
-        .unique(),
-    verified: boolean('verified')
-        .notNull()
-        .default(false),
-    username: varchar('username', { length: 255 })
-        .notNull(),
-    password: varchar('password', { length: 255 })
-        .notNull(),
-    role: userRole()
-        .notNull()
-        .default('user'),
-    collectMetadata: boolean('collect_metadata')
-        .notNull()
-        .default(true),
-    createdAt: timestamp('created_at', { withTimezone: true })
-        .notNull()
-        .defaultNow()
-})
-
-export const userRelations = relations(users, ({ one, many }) => ({
-    sessions: many(sessions),
-    emailVerification: one(emailVerifications),
-    passwordReset: one(passwordResets)
-}))
+import { pgTable, serial, varchar, integer, timestamp } from 'drizzle-orm/pg-core'
+import { users } from './user'
 
 export const sessions = pgTable('sessions', {
     id: varchar('id', { length: 64 })
@@ -42,9 +11,9 @@ export const sessions = pgTable('sessions', {
     userId: integer('user_id')
         .notNull()
         .references(() => users.id, { onDelete: 'cascade' }),
-    country:  varchar('country', { length: 255 }),
-    browserName: varchar('browser_name', { length: 255 }),
-    browserVersion: varchar('browser_version', { length: 255 }),
+    country:  varchar('country', { length: 256 }),
+    browserName: varchar('browser_name', { length: 256 }),
+    browserVersion: varchar('browser_version', { length: 256 }),
     lastValidatedAt: timestamp('last_validated_at', { withTimezone: true })
         .notNull()
         .defaultNow(),
@@ -63,7 +32,7 @@ export const sessionRelations = relations(sessions, ({ one }) => ({
 export const emailVerifications = pgTable('email_verifications', {
     id: serial('id')
         .primaryKey(),
-    code: varchar('code', { length: 255 })
+    code: varchar('code', { length: 8 })
         .notNull(),
     userId: integer('user_id')
         .notNull()
@@ -84,7 +53,7 @@ export const emailVerificationRelations = relations(emailVerifications, ({ one }
 export const passwordResets = pgTable('password_resets', {
     id: serial('id')
         .primaryKey(),
-    code: varchar('code', { length: 255 })
+    code: varchar('code', { length: 8 })
         .notNull(),
     userId: integer('user_id')
         .notNull()

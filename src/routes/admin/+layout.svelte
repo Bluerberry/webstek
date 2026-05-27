@@ -2,7 +2,6 @@
 <script lang="ts">
 
 	import Button from '$components/Button.svelte'
-    import { Dot } from '@lucide/svelte';
 
     import type { Snippet } from 'svelte'
 
@@ -17,12 +16,6 @@
 		<div class="row">
 			<Button style="link" href="/admin/users">
 				Users
-			</Button>
-
-			<Dot />
-
-			<Button style="link" href="/admin/analytics">
-				Data Analytics
 			</Button>
 		</div>
 	</header>
@@ -46,8 +39,9 @@
 		flex-flow: column nowrap;
 		gap: 4.5rem;
 
-		width: 700px;
+		width: 100%;
 		height: 100%;
+		max-width: 650px;
 
 		header {
 			display: flex;
