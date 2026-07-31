@@ -1,5 +1,5 @@
 
-import { count, eq, gte, lt } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { db, users } from '$server/database'
 
 import type { DbOrTx } from '$server/database'
@@ -7,15 +7,7 @@ import type { SanitizedUser } from '$scripts/types'
 
 type TUser = typeof users.$inferSelect
 
-export class User {
-	static async create(email: string, username: string, password: string, dbOrTx: DbOrTx = db) {
-		const [ user ] = await dbOrTx.insert(users)
-			.values({ email, username, password })
-			.returning()
-
-		return user
-	}
-
+export class UserService {
 	static async getById(id: number, dbOrTx: DbOrTx = db) {
 		return await dbOrTx.query.users.findFirst({
 			where: eq(users.id, id)
@@ -32,20 +24,12 @@ export class User {
 		return await dbOrTx.query.users.findMany()
 	}
 
-	static async getAllSince(date: Date, dbOrTx: DbOrTx = db) {
-	    return await dbOrTx.query.users.findMany({
-	        where: gte(users.createdAt, date),
-	        orderBy: users.createdAt
-	    })
-	}
+	static async create(email: string, username: string, password: string, dbOrTx: DbOrTx = db) {
+		const [ user ] = await dbOrTx.insert(users)
+			.values({ email, username, password })
+			.returning()
 
-	static async countBefore(date: Date, dbOrTx: DbOrTx = db) {
-	    const [result] = await dbOrTx
-	        .select({ count: count() })
-	        .from(users)
-	        .where(lt(users.createdAt, date))
-		
-	    return result.count
+		return user
 	}
 
 	static async update(data: Partial<TUser> & { id: number }, dbOrTx: DbOrTx = db) {

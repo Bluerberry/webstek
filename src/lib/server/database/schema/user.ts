@@ -2,7 +2,7 @@
 import { relations } from 'drizzle-orm'
 import { pgTable, serial, varchar, timestamp, boolean, pgEnum } from 'drizzle-orm/pg-core'
 import { sessions, emailVerifications, passwordResets } from './auth'
-import { recipes } from './underworld-cookbook'
+import { ucbRecipes } from './underworld-cookbook'
 
 export const userRole = pgEnum('user_role', ['user', 'admin'])
 
@@ -34,6 +34,6 @@ export const userRelations = relations(users, ({ one, many }) => ({
     sessions: many(sessions, { relationName: 'sessions' }),
     emailVerification: one(emailVerifications),
     passwordReset: one(passwordResets),
-    recipes: many(recipes, { relationName: 'recipes' }),
-    likedRecipes: many(recipes, { relationName: 'liked_recipes' })
+    recipes: many(ucbRecipes, { relationName: 'recipes' }),
+    likedRecipes: many(ucbRecipes, { relationName: 'liked_recipes' })
 }))

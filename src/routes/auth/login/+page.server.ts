@@ -1,7 +1,7 @@
 
 import { UAParser } from 'ua-parser-js'
 import { env } from '$env/dynamic/private'
-import { User, Session } from '$server/services'
+import { UserService, SessionService } from '$server/services'
 import { isStranger } from '$scripts/permissions'
 import { flashToast } from '$server/scripts/flash'
 import { zod4 } from 'sveltekit-superforms/adapters'
@@ -36,7 +36,7 @@ export const actions: Actions = {
 		}
 
 		// Get user
-		const user = await User.getByEmail(form.data.email)
+		const user = await UserService.getByEmail(form.data.email)
 		if (user === undefined) {
 			await validatePassword(form.data.password, 'salt:hash') // Validate bogus password to fight timing attacks
 			return message(form, { type: 'error', text: 'Invalid credentials' }, { status: 401 })
@@ -65,7 +65,7 @@ export const actions: Actions = {
 		const sessionId = generateToken()
 		const sessionToken = generateToken()
 
-		await Session.create(
+		await SessionService.create(
 			sessionId, 
 			await hashToken(sessionToken),
 			user.id,
@@ -78,8 +78,7 @@ export const actions: Actions = {
 			path: '/',
 			httpOnly: true,
 			sameSite: 'lax',
-			secure: true,
-			maxAge: SESSION_INACTIVITY_TIMEOUT_MS / 1000
+			secure: true
 		})
 
 		// Redirect

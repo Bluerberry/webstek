@@ -8,15 +8,7 @@ import type { SanitizedSession } from '$scripts/types'
 type TSession = typeof sessions.$inferSelect
 type TSessionWithUser = TSession & { user: typeof users.$inferSelect }
 
-export class Session {
-	static async create(id: string, token: string, userId: number, country?: string, browserName?: string, browserVersion?: string, dbOrTx: DbOrTx = db) {
-		const [ session ] = await dbOrTx.insert(sessions)
-			.values({ id, token, userId, country, browserName, browserVersion })
-			.returning()
-
-		return session
-	}
-
+export class SessionService {
 	static async getById(id: string, includeUser: true, dbOrTx?: DbOrTx): Promise<undefined | TSessionWithUser>
 	static async getById(id: string, includeUser?: false, dbOrTx?: DbOrTx): Promise<undefined | TSession>
 	static async getById(id: string, includeUser?: boolean, dbOrTx: DbOrTx = db) {
@@ -30,6 +22,14 @@ export class Session {
 		return await dbOrTx.query.sessions.findMany({
 			where: eq(sessions.userId, userId)
 		})
+	}
+
+	static async create(id: string, token: string, userId: number, country?: string, browserName?: string, browserVersion?: string, dbOrTx: DbOrTx = db) {
+		const [ session ] = await dbOrTx.insert(sessions)
+			.values({ id, token, userId, country, browserName, browserVersion })
+			.returning()
+
+		return session
 	}
 
 	static async update(data: Partial<TSession> & { id: string }, dbOrTx: DbOrTx = db) {

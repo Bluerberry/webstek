@@ -1,6 +1,6 @@
 
 import { redirect } from '@sveltejs/kit'
-import { Session, User } from '$server/services'
+import { SessionService, UserService } from '$server/services'
 import { flashToast } from '$server/scripts/flash'
 import { zod4 } from 'sveltekit-superforms/adapters'
 import { createFlow, withFlow } from '$scripts/flow'
@@ -40,7 +40,7 @@ export const actions: Actions = {
 		}
 
 		// Update username
-		await User.update({ id: locals.user.id, username: form.data.newUsername })
+		await UserService.update({ id: locals.user.id, username: form.data.newUsername })
 		flashToast(cookies, 'Successfully changed username')
 	},
 
@@ -56,7 +56,7 @@ export const actions: Actions = {
 		}
 
 		// Get user
-		const user = await User.getById(locals.user.id)
+		const user = await UserService.getById(locals.user.id)
 		if (user === undefined) {
 			return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 		}
@@ -68,7 +68,7 @@ export const actions: Actions = {
 
 		// Update email
 		try {
-			await User.update({ id: locals.user.id, email: form.data.newEmail, verified: false })
+			await UserService.update({ id: locals.user.id, email: form.data.newEmail, verified: false })
 		} catch (error: any) {
 			if (error.code === '23505') { // Postgres unique violation
 				return message(form, { type: 'error', text: 'Email already exists' }, { status: 400 })
@@ -77,7 +77,7 @@ export const actions: Actions = {
 			throw error
 		}
 
-		await Session.deleteAllExceptCurrent(user.id, locals.session.id)
+		await SessionService.deleteAllExceptCurrent(user.id, locals.session.id)
 
 		// Send notification
 		sendEmail(
@@ -103,7 +103,7 @@ export const actions: Actions = {
 		}
 
 		// Get user
-		const user = await User.getById(locals.user.id)
+		const user = await UserService.getById(locals.user.id)
 		if (user === undefined) {
 			return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 		}
@@ -114,7 +114,7 @@ export const actions: Actions = {
 		}
 
 		// Update password
-		await User.update({
+		await UserService.update({
 			id: locals.user.id,
 			password: await hashPassword(form.data.newPassword)
 		})

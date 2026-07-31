@@ -1,7 +1,7 @@
 
 import z from 'zod'
 import { error } from '@sveltejs/kit'
-import { User } from '$server/services'
+import { UserService } from '$server/services'
 import { isAdmin } from '$scripts/permissions'
 import { query, command, getRequestEvent } from '$app/server'
 
@@ -20,8 +20,8 @@ export const getUsers = query(async () => {
 	}
 
 	// Get data
-	const users = await User.getAll()
-	return users.map(User.sanitize)
+	const users = await UserService.getAll()
+	return users.map(UserService.sanitize)
 })
 
 
@@ -74,7 +74,7 @@ export const promoteAccount = command(z.number(), async userId => {
 	}
 
 	// Promote user
-	await User.update({
+	await UserService.update({
 		id: userId,
 		role: 'admin'
 	})
@@ -89,7 +89,7 @@ export const demoteAccount = command(z.number(), async userId => {
 	}
 
 	// Demote user
-	await User.update({
+	await UserService.update({
 		id: userId,
 		role: 'user'
 	})
@@ -104,5 +104,5 @@ export const deleteAccount = command(z.number(), async userId => {
 	}
 
 	// Delete user
-	await User.delete(userId)
+	await UserService.delete(userId)
 })

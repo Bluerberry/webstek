@@ -23,6 +23,7 @@
 		{ label: 'Portfolio', path: '/portfolio' },
 		{ label: 'About Webstek', path: '/about' },
 		{ label: 'Projects', children: [
+			{ label: 'Underworld Cookbook', path: '/projects/underworld-cookbook' },
 			{ label: 'WebGL', path: '/projects/webgl' }
 		]},
 		{ label: 'Admin Panel', adminOnly: true, children: [

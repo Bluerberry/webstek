@@ -1,5 +1,5 @@
 
-import { User, Session } from '$server/services'
+import { UserService, SessionService } from '$server/services'
 
 import {
 	validateToken,
@@ -23,7 +23,7 @@ export const auth: Handle = async ({ event, resolve }) => {
 
 	// Get session
 	const [ sessionId, sessionToken ] = sessionCookie.split(':')
-	const session = await Session.getById(sessionId, true)
+	const session = await SessionService.getById(sessionId, true)
 	if (session === undefined) {
 		cookies.delete('webstek_session', { path: '/' })
 		locals.user = undefined
@@ -36,7 +36,7 @@ export const auth: Handle = async ({ event, resolve }) => {
 		cookies.delete('webstek_session', { path: '/' })
 		locals.user = undefined
 		locals.session = undefined
-		await Session.delete(sessionId)
+		await SessionService.delete(sessionId)
 		return await resolve(event)
 	}
 
@@ -51,10 +51,10 @@ export const auth: Handle = async ({ event, resolve }) => {
 	// Success! Update lastValidatedAt
 	if (now.getTime() - session.lastValidatedAt.getTime() >= SESSION_VALIDATION_INTERVAL_MS) {
 		session.lastValidatedAt = now
-		await Session.update(session)
+		await SessionService.update(session)
 	}
 
-	locals.user = User.sanitize(session.user);
-	locals.session = Session.sanitize(session);
+	locals.user = UserService.sanitize(session.user);
+	locals.session = SessionService.sanitize(session);
 	return await resolve(event)
 }

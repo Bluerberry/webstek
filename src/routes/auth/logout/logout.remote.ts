@@ -1,7 +1,7 @@
 
 import { error } from '@sveltejs/kit'
 import { command } from '$app/server'
-import { Session } from '$server/services'
+import { SessionService } from '$server/services'
 import { isUser } from '$scripts/permissions'
 import { getRequestEvent } from '$app/server'
 import { flashToast } from '$server/scripts/flash'
@@ -23,7 +23,7 @@ export const logout = command(async () => {
 	// Logout
 	const [sessionId] = sessionCookie.split(':')
 	cookies.delete('webstek_session', { path: '/' })
-	await Session.delete(sessionId)
+	await SessionService.delete(sessionId)
 
 	flashToast(cookies, 'Successfully logged out')
 })

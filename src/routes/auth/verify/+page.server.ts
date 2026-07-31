@@ -2,7 +2,7 @@
 
 import { flashToast } from '$server/scripts/flash'
 import { zod4 } from 'sveltekit-superforms/adapters'
-import { EmailVerification } from '$server/services'
+import { EmailVerificationService } from '$server/services'
 import { verifyCodeSchema } from '$validation/authSchemas'
 import { isUnverified, isUser } from '$scripts/permissions'
 import { message, superValidate } from 'sveltekit-superforms'
@@ -40,7 +40,7 @@ export const actions: Actions = {
 		}
 
 		// Get email verification
-		const emailverification = await EmailVerification.getByUserId(locals.user.id)
+		const emailverification = await EmailVerificationService.getByUserId(locals.user.id)
 		if (!emailverification) {
 			return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 		}
@@ -56,7 +56,7 @@ export const actions: Actions = {
 		}
 
 		// Resolve
-		const resolved = await EmailVerification.resolve(emailverification.id)
+		const resolved = await EmailVerificationService.resolve(emailverification.id)
 		if (!resolved) {
 			return message(form, { type: 'error', text: 'Email verification expired' }, { status: 400 })
 		}

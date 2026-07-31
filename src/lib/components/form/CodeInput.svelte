@@ -96,9 +96,11 @@
 	@use '$styles/themes' as *;
 
 	.code-input {
-		display: flex;
-		flex-flow: row nowrap;
-		gap: 0.5rem;
+		fieldset {
+			display: flex;
+			flex-flow: row nowrap;
+			gap: 0.5rem;
+		}
 
 		input {
 			width: 3rem;

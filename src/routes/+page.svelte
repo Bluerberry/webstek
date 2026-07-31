@@ -36,7 +36,7 @@
         <div class="tile">
             <h2> Portfolio </h2>
             <p> My name is Bram Kreulen. I am a {age} year old developer, and a student of Computer Science & Engineering at the <i>Technical University of Delft</i>. </p>
-            <p> &emsp; I love the flexibility and creativity of web development, and UI/UX design. I also enjoy forays into rendering and computer graphics </p>
+            <p> &emsp; I love the flexibility and creativity of web development, and UI/UX design. I also enjoy forays into rendering and computer graphics... </p>
             <Button href="/portfolio"> View portfolio </Button>
         </div>
     </section>
@@ -44,17 +44,7 @@
     <section id="tools">
         <h2> Your Tools </h2>
 
-        {#if data.user === undefined}
-            <p> Webstek offers several tools and apps. If you create an account, you can add interactive widgets here! </p>
-        {:else}
-
-            <div class="widget-grid">
-                <button class="widget" style="--col-span: 2; --row-span: 1"> ... </button>
-                <button class="widget" style="--col-span: 2; --row-span: 2"> ... </button>
-                <button class="widget" style="--col-span: 1; --row-span: 1"> ... </button>
-            </div>
-
-        {/if}
+        <p> Webstek offers several tools and apps. If you create an account, you can add interactive widgets here! </p>
     </section>
 </div>
 
@@ -68,7 +58,7 @@
     .wrapper {
 		display: flex;
 		flex-flow: column nowrap;
-		gap: 4.5rem;
+		gap: 5rem;
 
         width: 100%;
 		height: 100%;
@@ -126,7 +116,7 @@
                 flex-flow: column nowrap;
 
                 :global(.button) {
-                    margin: 1.5rem auto 0;
+                    margin: 2rem auto 0;
                 }
             }
         }
@@ -138,25 +128,6 @@
 
                 color: var(--muted); 
                 text-align: center;
-            }
-
-            .widget-grid {
-                display: grid;
-                grid-template-columns: repeat(3, $widget-size);
-                grid-auto-rows: $widget-size;
-                grid-auto-flow: dense;
-                align-items: stretch;
-                gap: 1rem;
-
-                margin: auto;
-
-                .widget {
-                    display: block;
-                    grid-column: span var(--col-span, 1);
-                    grid-row: span var(--row-span, 1);
-                    border: 2px solid var(--foreground);
-                    border-radius: $border-radius;
-                }
             }
         }
     }

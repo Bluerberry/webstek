@@ -1,7 +1,7 @@
 
 import { UAParser } from 'ua-parser-js'
 import { env } from '$env/dynamic/private'
-import { User, Session } from '$server/services'
+import { UserService, SessionService } from '$server/services'
 import { redirectWithFlow } from '$scripts/flow'
 import { isStranger } from '$scripts/permissions'
 import { zod4 } from 'sveltekit-superforms/adapters'
@@ -36,7 +36,7 @@ export const actions: Actions = {
 
 		// Register
 		try {
-			var user = await User.create(
+			var user = await UserService.create(
 				form.data.email,
 				form.data.username,
 				await hashPassword(form.data.password)
@@ -67,7 +67,7 @@ export const actions: Actions = {
 		const sessionId = generateToken()
 		const sessionToken = generateToken()
 
-		await Session.create(
+		await SessionService.create(
 			sessionId,
 			await hashToken(sessionToken),
 			user.id,
@@ -80,8 +80,7 @@ export const actions: Actions = {
 			path: '/',
 			httpOnly: true,
 			sameSite: 'lax',
-			secure: true,
-			maxAge: SESSION_INACTIVITY_TIMEOUT_MS / 1000
+			secure: true
 		})
 
 		// Redirect

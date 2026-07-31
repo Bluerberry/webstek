@@ -8,76 +8,42 @@ import {
     numeric, check 
 } from 'drizzle-orm/pg-core'
 
-export const recipeIngredientUnitType = pgEnum('recipe_ingredient_unit_type', ['volume', 'weight', 'custom'])
+export const ucbIngredientUnitType = pgEnum('ucb_ingredient_unit_type', ['volume', 'weight', 'custom'])
 
-export const recipes = pgTable('recipes', {
+export const ucbRecipes = pgTable('ucb_recipes', {
     id: serial('id')
         .primaryKey(),
     authorId: integer('author_id')
         .references(() => users.id, { onDelete: 'set null' }),
     parentId: integer('parent_id')
         .references(() => users.id, { onDelete: 'set null' }),
-    duration: integer('duration')
-        .notNull(),
-    portions: integer('portions')
-        .notNull(),
+    title: varchar('title', { length: 64 }),
+    description: text('description'),
+    duration: integer('duration'),
+    portions: integer('portions'),
     createdAt: timestamp('created_at', { withTimezone: true })
         .notNull()
         .defaultNow()
 })
 
-export const recipesRelations = relations(recipes, ({ one, many }) => ({
+export const ucbRecipeRelations = relations(ucbRecipes, ({ one, many }) => ({
     author: one(users, {
-        fields: [recipes.authorId],
+        fields: [ucbRecipes.authorId],
         references: [users.id]
     }),
-    parent: one(recipes, {
-        fields: [recipes.parentId],
-        references: [recipes.id]
+    parent: one(ucbRecipes, {
+        fields: [ucbRecipes.parentId],
+        references: [ucbRecipes.id]
     }),
     likedBy: many(users, { relationName: 'liked_by' }),
-    tags: many(joinRecipeTags),
-    utensils: many(joinRecipeUtensils),
-    ingredients: many(joinRecipeIngredients),
-    instructions: many(recipeInstructions),
-    notes: many(recipeNotes)
+    tags: many(ucbJoinRecipeTags),
+    utensils: many(ucbJoinRecipeUtensils),
+    ingredients: many(ucbJoinRecipeIngredients),
+    instructions: many(ucbInstructions),
+    notes: many(ucbNotes)
 }))
 
-export const recipeTags = pgTable('recipe_tags', {
-    id: serial('id')
-        .primaryKey(),
-    tag: varchar('tag', { length: 256 })
-        .unique()
-        .notNull()
-})
-
-export const recipeTagRelations = relations(recipeTags, ({ many }) => ({
-    recipes: many(joinRecipeTags)
-}))
-
-export const joinRecipeTags = pgTable('join_recipe_tags', {
-    recipeId: integer('recipe_id')
-        .notNull()
-        .references(() => recipes.id, { onDelete: 'cascade' }),
-    tagId: integer('tag_id')
-        .notNull()
-        .references(() => recipeTags.id, { onDelete: 'cascade' })
-}, entry => [
-    primaryKey({ columns: [entry.recipeId, entry.tagId] })
-])
-
-export const joinRecipeTagRelations = relations(joinRecipeTags, ({ one }) => ({
-    recipe: one(recipes, {
-        fields: [joinRecipeTags.recipeId],
-        references: [recipes.id]
-    }),
-    tag: one(recipeTags, {
-        fields: [joinRecipeTags.tagId],
-        references: [recipeTags.id]
-    })
-}))
-
-export const recipeUtensils = pgTable('recipe_utensils', {
+export const ucbTags = pgTable('ucb_tags', {
     id: serial('id')
         .primaryKey(),
     name: varchar('name', { length: 256 })
@@ -85,33 +51,67 @@ export const recipeUtensils = pgTable('recipe_utensils', {
         .notNull()
 })
 
-export const recipeUtensilRelations = relations(recipeUtensils, ({ many }) => ({
-    recipes: many(joinRecipeUtensils)
+export const ucbTagRelations = relations(ucbTags, ({ many }) => ({
+    recipes: many(ucbJoinRecipeTags)
 }))
 
-export const joinRecipeUtensils = pgTable('join_recipe_utensils', {
+export const ucbJoinRecipeTags = pgTable('ucb_join_recipe_tags', {
     recipeId: integer('recipe_id')
         .notNull()
-        .references(() => recipes.id, { onDelete: 'cascade' }),
+        .references(() => ucbRecipes.id, { onDelete: 'cascade' }),
+    tagId: integer('tag_id')
+        .notNull()
+        .references(() => ucbTags.id, { onDelete: 'cascade' })
+}, entry => [
+    primaryKey({ columns: [entry.recipeId, entry.tagId] })
+])
+
+export const ucbJoinRecipeTagRelations = relations(ucbJoinRecipeTags, ({ one }) => ({
+    recipe: one(ucbRecipes, {
+        fields: [ucbJoinRecipeTags.recipeId],
+        references: [ucbRecipes.id]
+    }),
+    tag: one(ucbTags, {
+        fields: [ucbJoinRecipeTags.tagId],
+        references: [ucbTags.id]
+    })
+}))
+
+export const ucbUtensils = pgTable('ucb_utensils', {
+    id: serial('id')
+        .primaryKey(),
+    name: varchar('name', { length: 256 })
+        .unique()
+        .notNull()
+})
+
+export const ucbUtensilRelations = relations(ucbUtensils, ({ many }) => ({
+    recipes: many(ucbJoinRecipeUtensils)
+}))
+
+export const ucbJoinRecipeUtensils = pgTable('ucb_join_recipe_utensils', {
+    recipeId: integer('recipe_id')
+        .notNull()
+        .references(() => ucbRecipes.id, { onDelete: 'cascade' }),
     utensilId: integer('utensil_id')
         .notNull()
-        .references(() => recipeUtensils.id, { onDelete: 'cascade' })
+        .references(() => ucbUtensils.id, { onDelete: 'cascade' })
 }, entry => [
     primaryKey({ columns: [entry.recipeId, entry.utensilId] })
 ])
 
-export const joinRecipeUtensilRelations = relations(joinRecipeUtensils, ({ one }) => ({
-    recipe: one(recipes, {
-        fields: [joinRecipeUtensils.recipeId],
-        references: [recipes.id]
+export const ucbJoinRecipeUtensilRelations = relations(ucbJoinRecipeUtensils, ({ one }) => ({
+    recipe: one(ucbRecipes, {
+        fields: [ucbJoinRecipeUtensils.recipeId],
+        references: [ucbRecipes.id]
     }),
-    utensil: one(recipeUtensils, {
-        fields: [joinRecipeUtensils.utensilId],
-        references: [recipeUtensils.id]
+    utensil: one(ucbUtensils, {
+        fields: [ucbJoinRecipeUtensils.utensilId],
+        references: [ucbUtensils.id]
     })
 }))
 
-export const recipeIngredients = pgTable('recipe_ingredients', {
+export const ucbIngredients = pgTable('ucb_ingredients', {
     id: serial('id')
         .primaryKey(),
     name: varchar('name', { length: 256 })
@@ -120,20 +120,20 @@ export const recipeIngredients = pgTable('recipe_ingredients', {
     density: real('density')
 })
 
-export const ingredientRelations = relations(recipeIngredients, ({ many }) => ({
-    recipes: many(joinRecipeIngredients)
+export const ucbIngredientRelations = relations(ucbIngredients, ({ many }) => ({
+    recipes: many(ucbJoinRecipeIngredients)
 }))
 
-export const joinRecipeIngredients = pgTable('join_recipe_ingredients', {
+export const ucbJoinRecipeIngredients = pgTable('ucb_join_recipe_ingredients', {
     recipeId: integer('recipe_id')
         .notNull()
-        .references(() => recipes.id, { onDelete: 'cascade' }),
+        .references(() => ucbRecipes.id, { onDelete: 'cascade' }),
     ingredientId: integer('ingredient_id')
         .notNull()
-        .references(() => recipeIngredients.id, { onDelete: 'restrict' }),
+        .references(() => ucbIngredients.id, { onDelete: 'restrict' }),
     quantity: numeric('quantity', { precision: 10, scale: 3})
         .notNull(),
-    unitType: recipeIngredientUnitType('unit_type')
+    unitType: ucbIngredientUnitType('unit_type')
         .notNull(),
     customUnitName: varchar('custom_unit_name', { length: 256 })
 }, entry => [
@@ -145,21 +145,21 @@ export const joinRecipeIngredients = pgTable('join_recipe_ingredients', {
     `)
 ])
 
-export const joinRecipeIngredientRelations = relations(joinRecipeIngredients, ({ one }) => ({
-    recipe: one(recipes, {
-        fields: [joinRecipeIngredients.recipeId],
-        references: [recipes.id]
+export const ucbJoinRecipeIngredientRelations = relations(ucbJoinRecipeIngredients, ({ one }) => ({
+    recipe: one(ucbRecipes, {
+        fields: [ucbJoinRecipeIngredients.recipeId],
+        references: [ucbRecipes.id]
     }),
-    ingredient: one(recipeIngredients, {
-        fields: [joinRecipeIngredients.ingredientId],
-        references: [recipeIngredients.id]
+    ingredient: one(ucbIngredients, {
+        fields: [ucbJoinRecipeIngredients.ingredientId],
+        references: [ucbIngredients.id]
     })
 }))
 
-export const recipeInstructions = pgTable('recipe_instructions', {
+export const ucbInstructions = pgTable('ucb_instructions', {
     recipeId: integer('recipe_id')
         .notNull()
-        .references(() => recipes.id, { onDelete: 'cascade' }),
+        .references(() => ucbRecipes.id, { onDelete: 'cascade' }),
     index: integer('index')
         .notNull(),
     text: text('text')
@@ -168,19 +168,19 @@ export const recipeInstructions = pgTable('recipe_instructions', {
     primaryKey({ columns: [recipeInstruction.recipeId, recipeInstruction.index] })
 ])
 
-export const recipeInstructionRelations = relations(recipeInstructions, ({ one }) => ({
-    recipe: one(recipes, {
-        fields: [recipeInstructions.recipeId],
-        references: [recipes.id]
+export const ucbInstructionRelations = relations(ucbInstructions, ({ one }) => ({
+    recipe: one(ucbRecipes, {
+        fields: [ucbInstructions.recipeId],
+        references: [ucbRecipes.id]
     })
 }))
 
-export const recipeNotes = pgTable('recipe_notes', {
+export const ucbNotes = pgTable('ucb_notes', {
     id: serial('id')
         .primaryKey(),
     recipeId: integer('recipe_id')
         .notNull()
-        .references(() => recipes.id, { onDelete: 'cascade' }),
+        .references(() => ucbRecipes.id, { onDelete: 'cascade' }),
     text: text('text')
         .notNull(),
     createdAt: timestamp('created_at', { withTimezone: true })
@@ -188,9 +188,9 @@ export const recipeNotes = pgTable('recipe_notes', {
         .defaultNow()
 })
 
-export const recipeNoteRelations = relations(recipeNotes, ({ one }) => ({
-    recipe: one(recipes, {
-        fields: [recipeNotes.recipeId],
-        references: [recipes.id]
+export const ucbNoteRelations = relations(ucbNotes, ({ one }) => ({
+    recipe: one(ucbRecipes, {
+        fields: [ucbNotes.recipeId],
+        references: [ucbRecipes.id]
     })
 }))

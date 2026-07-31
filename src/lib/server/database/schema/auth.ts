@@ -32,7 +32,7 @@ export const sessionRelations = relations(sessions, ({ one }) => ({
 export const emailVerifications = pgTable('email_verifications', {
     id: serial('id')
         .primaryKey(),
-    code: varchar('code', { length: 8 })
+    code: varchar('code', { length: 256 })
         .notNull(),
     userId: integer('user_id')
         .notNull()
@@ -53,7 +53,7 @@ export const emailVerificationRelations = relations(emailVerifications, ({ one }
 export const passwordResets = pgTable('password_resets', {
     id: serial('id')
         .primaryKey(),
-    code: varchar('code', { length: 8 })
+    code: varchar('code', { length: 256 })
         .notNull(),
     userId: integer('user_id')
         .notNull()

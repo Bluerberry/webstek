@@ -1,5 +1,7 @@
 
 import type { RequestEvent } from '@sveltejs/kit'
+import type { ucbIngredientUnitType } from '$server/database'
+
 
 // ─── Locals ─────────────────────────────────────────────────────────────
 
@@ -20,6 +22,51 @@ export type SanitizedSession = {
 	browserVersion?: string,
 	lastValidatedAt: Date,
 	createdAt: Date
+}
+
+export type SanitizedAppliedIngredient = {
+	id: number
+	name: string
+	quantity: number
+	density: number | null
+	unitType: (typeof ucbIngredientUnitType.enumValues)[number]
+	customUnit: string | null
+}
+
+export type SanitizedRecipe = {
+	id: number
+	title: string | null
+	description: string | null
+	duration: number | null
+	portions: number | null
+	tags: SanitizedTag[]
+	utensils: SanitizedUtensil[]
+	ingredients: SanitizedAppliedIngredient[]
+	instructions: SanitizedInstruction[]
+	parentId: number | null
+	authorId: number | null
+	createdAt: Date
+}
+
+export type SanitizedTag = {
+	id: number
+	name: string
+}
+
+export type SanitizedUtensil = {
+	id: number
+	name: string
+}
+
+export type SanitizedIngredient = {
+	id: number
+	name: string
+	density: number | null
+}
+
+export type SanitizedInstruction = {
+	index: number
+	text: string
 }
 
 // ─── Permissions ─────────────────────────────────────────────────────────

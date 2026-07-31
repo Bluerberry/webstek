@@ -36,6 +36,34 @@
       "when": 1779874541403,
       "tag": "0004_fixed_omega_sentinel",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1783622940647,
+      "tag": "0005_thick_speed",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1783969577634,
+      "tag": "0006_amused_adam_warlock",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1785499289776,
+      "tag": "0007_messy_sharon_ventura",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1785499373440,
+      "tag": "0008_clever_whiplash",
+      "breakpoints": true
     }
   ]
 }

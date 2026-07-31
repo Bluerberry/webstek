@@ -1,7 +1,7 @@
 
 import { redirectWithFlow } from '$scripts/flow'
 import { zod4 } from 'sveltekit-superforms/adapters'
-import { User, PasswordReset } from '$server/services'
+import { UserService, PasswordResetService } from '$server/services'
 import { message, superValidate } from 'sveltekit-superforms'
 import { verifyCodeSchema } from '$validation/authSchemas'
 import { PASSWORD_RESET_TIMEOUT_MS, validatePassword } from '$server/scripts/auth'
@@ -24,11 +24,11 @@ export const actions: Actions = {
 		if (!email) return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 
 		// Get user
-		const user = await User.getByEmail(email)
+		const user = await UserService.getByEmail(email)
 		if (!user) return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 
 		// Get reset
-		const reset = await PasswordReset.getByUserId(user.id)
+		const reset = await PasswordResetService.getByUserId(user.id)
 		if (!reset) return message(form, { type: 'critical', text: 'Something went wrong' }, { status: 500 })
 
 		// Check expiry

@@ -2,7 +2,7 @@
 import z from 'zod'
 import { db } from '$server/database'
 import { error } from '@sveltejs/kit'
-import { Session, User } from '$server/services'
+import { SessionService, UserService } from '$server/services'
 import { isUser, isVerified } from '$scripts/permissions'
 import { query, command, getRequestEvent } from '$app/server'
 
@@ -21,8 +21,8 @@ export const getSessions = query(async () => {
 	}
 
 	// Get data
-	const sessions = await Session.getByUserId(locals.user.id)
-	return sessions.map(Session.sanitize)
+	const sessions = await SessionService.getByUserId(locals.user.id)
+	return sessions.map(SessionService.sanitize)
 })
 
 export const getCollateralDamage = query(async () => {
@@ -75,10 +75,10 @@ export const setCollectMetadata = command(z.boolean(), async value => {
 
 	// Set collect metadata
 	await db.transaction(async tx => {
-		await User.update({ id: locals.user!.id, collectMetadata: value}, tx)
+		await UserService.update({ id: locals.user!.id, collectMetadata: value}, tx)
 		if (value) return
 
-		await Session.updateByUserId({
+		await SessionService.updateByUserId({
 			userId: locals.user!.id,
 			country: null,
 			browserName: null,
@@ -96,7 +96,7 @@ export const endSession = command(z.string(), async sessionId => {
 	}
 	
 	// Check if session exists
-	const session = await Session.getById(sessionId);
+	const session = await SessionService.getById(sessionId);
 	if (session === undefined) return;
 
 	// Check if session belongs to user
@@ -105,7 +105,7 @@ export const endSession = command(z.string(), async sessionId => {
 	}
 
 	// Delete session
-	await Session.delete(sessionId)
+	await SessionService.delete(sessionId)
 })
 
 export const deleteAccount = command(async () => {
@@ -118,7 +118,7 @@ export const deleteAccount = command(async () => {
 
 	// Delete user
 	await db.transaction(async tx => {	
-		await User.delete(locals.user.id, tx)
+		await UserService.delete(locals.user.id, tx)
 		cookies.delete('webstek_session', { path: '/' })
 	})
 })
